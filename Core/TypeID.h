@@ -2,7 +2,7 @@
 
 namespace Engine
 {
-	class TyoeID
+	class TypeID
 	{
 	public:
 		template<typename T>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -76,17 +76,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Core;$(ProjectDir)Graphics;$(ProjectDir)Model;$(ProjectDir)Animation;$(ProjectDir)IK;$(ProjectDir)Camera;$(ProjectDir)ECS;$(ProjectDir)Input;D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\DirectX11_Sample\DirextX11Engine\Library\assimp\build\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
-      <AdditionalDependencies>assimp-vc143-mtd.lib;User32.lib;
-Gdi32.lib;
-Kernel32.lib;d3d11.lib;
-dxgi.lib;Ole32.lib</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;User32.lib;Gdi32.lib;Kernel32.lib;d3d11.lib;dxgi.lib;Ole32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,7 +94,7 @@ dxgi.lib;Ole32.lib</AdditionalDependencies>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Core;$(ProjectDir)Graphics;$(ProjectDir)Model;$(ProjectDir)Animation;$(ProjectDir)IK;$(ProjectDir)Camera;$(ProjectDir)ECS;$(ProjectDir)Input;D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -112,16 +109,13 @@ dxgi.lib;Ole32.lib</AdditionalDependencies>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Core;$(ProjectDir)Graphics;$(ProjectDir)Model;$(ProjectDir)Animation;$(ProjectDir)IK;$(ProjectDir)Camera;$(ProjectDir)ECS;$(ProjectDir)Input;D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp-vc143-mtd.lib;User32.lib;
-Gdi32.lib;
-Kernel32.lib;d3d11.lib;
-dxgi.lib;Ole32.lib</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;User32.lib;Gdi32.lib;Kernel32.lib;d3d11.lib;dxgi.lib;Ole32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\DirectX11_Sample\DirextX11Engine\Library\assimp\build\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
@@ -134,7 +128,7 @@ dxgi.lib;Ole32.lib</AdditionalDependencies>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Core;$(ProjectDir)Graphics;$(ProjectDir)Model;$(ProjectDir)Animation;$(ProjectDir)IK;$(ProjectDir)Camera;$(ProjectDir)ECS;$(ProjectDir)Input;D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,64 +139,66 @@ dxgi.lib;Ole32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AnimationClip.h" />
-    <ClInclude Include="Animator.h" />
-    <ClInclude Include="App.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="CCDSolver.h" />
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="FABRIKSolver.h" />
-    <ClInclude Include="Frustum.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="IIKSolver.h" />
-    <ClInclude Include="IModel.h" />
-    <ClInclude Include="InputSystem.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="SceneCameraOperator.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="SkinnedMesh.h" />
-    <ClInclude Include="SkinnedModel.h" />
-    <ClInclude Include="SparseSet.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="Transform.h" />
-    <ClInclude Include="Vector2.h" />
-    <ClInclude Include="Vector3.h" />
+    <ClInclude Include="Animation\AnimationClip.h" />
+    <ClInclude Include="Animation\Animator.h" />
+    <ClInclude Include="App\App.h" />
+    <ClInclude Include="Camera\Camera.h" />
+    <ClInclude Include="IK\CCDSolver.h" />
+    <ClInclude Include="Core\Common.h" />
+    <ClInclude Include="IK\FABRIKSolver.h" />
+    <ClInclude Include="Camera\Frustum.h" />
+    <ClInclude Include="ECS\GameObject.h" />
+    <ClInclude Include="Graphics\Graphics.h" />
+    <ClInclude Include="IK\IIKSolver.h" />
+    <ClInclude Include="Model\IModel.h" />
+    <ClInclude Include="Input\InputSystem.h" />
+    <ClInclude Include="Graphics\Material.h" />
+    <ClInclude Include="Graphics\Mesh.h" />
+    <ClInclude Include="Model\Model.h" />
+    <ClInclude Include="ECS\Registry.h" />
+    <ClInclude Include="Camera\SceneCameraOperator.h" />
+    <ClInclude Include="Graphics\Shader.h" />
+    <ClInclude Include="Model\SkinnedMesh.h" />
+    <ClInclude Include="Model\SkinnedModel.h" />
+    <ClInclude Include="ECS\SparceSet.h" />
+    <ClInclude Include="Graphics\Texture.h" />
+    <ClInclude Include="ECS\Transform.h" />
+    <ClInclude Include="Core\TypeID.h" />
+    <ClInclude Include="Core\Vector2.h" />
+    <ClInclude Include="Core\Vector3.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationClip.cpp" />
-    <ClCompile Include="Animator.cpp" />
-    <ClCompile Include="App.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CCDSolver.cpp" />
-    <ClCompile Include="FABRIKSolver.cpp" />
-    <ClCompile Include="Frustum.cpp" />
-    <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="InputSystem.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="SceneCameraOperator.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="SkinnedMesh.cpp" />
-    <ClCompile Include="SkinnedModel.cpp" />
-    <ClCompile Include="SparseSet.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="Animation\AnimationClip.cpp" />
+    <ClCompile Include="Animation\Animator.cpp" />
+    <ClCompile Include="App\App.cpp" />
+    <ClCompile Include="Camera\Camera.cpp" />
+    <ClCompile Include="IK\CCDSolver.cpp" />
+    <ClCompile Include="IK\FABRIKSolver.cpp" />
+    <ClCompile Include="Camera\Frustum.cpp" />
+    <ClCompile Include="ECS\GameObject.cpp" />
+    <ClCompile Include="Graphics\Graphics.cpp" />
+    <ClCompile Include="Input\InputSystem.cpp" />
+    <ClCompile Include="App\main.cpp" />
+    <ClCompile Include="Graphics\Material.cpp" />
+    <ClCompile Include="Graphics\Mesh.cpp" />
+    <ClCompile Include="Model\Model.cpp" />
+    <ClCompile Include="ECS\Registry.cpp" />
+    <ClCompile Include="Camera\SceneCameraOperator.cpp" />
+    <ClCompile Include="Graphics\Shader.cpp" />
+    <ClCompile Include="Model\SkinnedMesh.cpp" />
+    <ClCompile Include="Model\SkinnedModel.cpp" />
+    <ClCompile Include="Graphics\Texture.cpp" />
+    <ClCompile Include="ECS\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="LambertianVertexShader.hlsl">
+    <FxCompile Include="Shaders\LambertianVertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="LambertianPixelShader.hlsl">
+    <FxCompile Include="Shaders\LambertianPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -210,15 +206,15 @@ dxgi.lib;Ole32.lib</AdditionalDependencies>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="PBRPixelShader.hlsl">
+    <FxCompile Include="Shaders\PBRPixelShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="PBRVertexShader.hlsl">
+    <FxCompile Include="Shaders\PBRVertexShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Lambertian.hlsli" />
+    <None Include="Shaders\Lambertian.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

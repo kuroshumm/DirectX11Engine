@@ -1,188 +1,203 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ソース ファイル">
+    <Filter Include="App">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="ヘッダー ファイル">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="リソース ファイル">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="ソース ファイル\shader">
-      <UniqueIdentifier>{e95da904-e0dd-4e0f-853b-6940667001e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\shader">
-      <UniqueIdentifier>{41f8ddde-4183-4325-a356-4fdb5b654f8a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Vector">
+    <Filter Include="Core">
       <UniqueIdentifier>{9161d235-26ab-4f90-8771-d9920036cc1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{e95da904-e0dd-4e0f-853b-6940667001e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{41f8ddde-4183-4325-a356-4fdb5b654f8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IK">
+      <UniqueIdentifier>{11111111-2222-3333-4444-555555555555}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{22222222-3333-4444-5555-666666666666}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS">
+      <UniqueIdentifier>{33333333-4444-5555-6666-777777777777}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{44444444-5555-6666-7777-888888888888}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Animation\AnimationClip.h">
+      <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Animation\Animator.h">
+      <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="App\App.h">
+      <Filter>App</Filter>
     </ClInclude>
-    <ClInclude Include="App.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Camera\Camera.h">
+      <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="IK\CCDSolver.h">
+      <Filter>IK</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Core\Common.h">
+      <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="IK\FABRIKSolver.h">
+      <Filter>IK</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Camera\Frustum.h">
+      <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="ECS\GameObject.h">
+      <Filter>ECS</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Graphics\Graphics.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="IK\IIKSolver.h">
+      <Filter>IK</Filter>
     </ClInclude>
-    <ClInclude Include="Frustum.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Model\IModel.h">
+      <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="InputSystem.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Input\InputSystem.h">
+      <Filter>Input</Filter>
     </ClInclude>
-    <ClInclude Include="SceneCameraOperator.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Graphics\Material.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Vector2.h">
-      <Filter>ヘッダー ファイル\Vector</Filter>
+    <ClInclude Include="Graphics\Mesh.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Vector3.h">
-      <Filter>ヘッダー ファイル\Vector</Filter>
+    <ClInclude Include="Model\Model.h">
+      <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="SkinnedMesh.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Camera\SceneCameraOperator.h">
+      <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="SkinnedModel.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Graphics\Shader.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="IModel.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Model\SkinnedMesh.h">
+      <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationClip.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Model\SkinnedModel.h">
+      <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="Animator.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="ECS\SparceSet.h">
+      <Filter>ECS</Filter>
     </ClInclude>
-    <ClInclude Include="IIKSolver.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Graphics\Texture.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="CCDSolver.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="ECS\Transform.h">
+      <Filter>ECS</Filter>
     </ClInclude>
-    <ClInclude Include="FABRIKSolver.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Core\TypeID.h">
+      <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="SparseSet.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Core\Vector2.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Vector3.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\Registry.h">
+      <Filter>ECS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Animation\AnimationClip.cpp">
+      <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Animation\Animator.cpp">
+      <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="App.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="App\App.cpp">
+      <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Camera\Camera.cpp">
+      <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="IK\CCDSolver.cpp">
+      <Filter>IK</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="IK\FABRIKSolver.cpp">
+      <Filter>IK</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Camera\Frustum.cpp">
+      <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="ECS\GameObject.cpp">
+      <Filter>ECS</Filter>
     </ClCompile>
-    <ClCompile Include="Transform.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Graphics\Graphics.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Input\InputSystem.cpp">
+      <Filter>Input</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="App\main.cpp">
+      <Filter>App</Filter>
     </ClCompile>
-    <ClCompile Include="Frustum.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Graphics\Material.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="InputSystem.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Graphics\Mesh.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="SceneCameraOperator.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Model\Model.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="SkinnedMesh.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="ECS\Registry.cpp">
+      <Filter>ECS</Filter>
     </ClCompile>
-    <ClCompile Include="SkinnedModel.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Camera\SceneCameraOperator.cpp">
+      <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationClip.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Graphics\Shader.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Animator.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Model\SkinnedMesh.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="CCDSolver.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Model\SkinnedModel.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="FABRIKSolver.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Graphics\Texture.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="SparseSet.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="ECS\Transform.cpp">
+      <Filter>ECS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="LambertianVertexShader.hlsl">
-      <Filter>ソース ファイル\shader</Filter>
+    <FxCompile Include="Shaders\LambertianVertexShader.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="LambertianPixelShader.hlsl">
-      <Filter>ソース ファイル\shader</Filter>
+    <FxCompile Include="Shaders\LambertianPixelShader.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PBRPixelShader.hlsl">
-      <Filter>ソース ファイル\shader</Filter>
+    <FxCompile Include="Shaders\PBRPixelShader.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PBRVertexShader.hlsl">
-      <Filter>ソース ファイル\shader</Filter>
+    <FxCompile Include="Shaders\PBRVertexShader.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Lambertian.hlsli">
-      <Filter>ヘッダー ファイル\shader</Filter>
+    <None Include="Shaders\Lambertian.hlsli">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>
