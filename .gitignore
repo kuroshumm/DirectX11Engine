@@ -1,0 +1,37 @@
+# Visual Studio / MSBuild temporary files & folders
+.vs/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+*.user
+*.aps
+*.idb
+*.ncb
+*.ndb
+*.obj
+*.pdb
+*.ilk
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# Executables & Build Artifacts
+*.exe
+*.out
+*.app
+
+# NuGet Packages
+packages/*
+!packages/packages.config
+
+# Temporary logs / scripts output
+output.txt
