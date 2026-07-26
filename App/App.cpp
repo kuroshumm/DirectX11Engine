@@ -64,7 +64,7 @@ namespace Engine
     {
 		HRESULT hr = S_OK;
 
-        hr = LoadShader(L"PBRVertexShader.hlsl", L"PBRPixelShader.hlsl");
+        hr = LoadShader(L"Shaders/PBRVertexShader.hlsl", L"Shaders/PBRPixelShader.hlsl");
         if (FAILED(hr))
         {
             return hr;
