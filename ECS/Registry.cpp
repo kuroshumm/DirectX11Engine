@@ -9,6 +9,19 @@ namespace Engine
 
 	void Registry::Destroy(Entity entity)
 	{
+		if (entity == NullEntity)
+		{
+			return;
+		}
 
+		for (auto& pool : m_componentPool)
+		{
+			if (!pool)
+			{
+				continue;
+			}
+
+			pool->Remove(entity);
+		}
 	}
 }

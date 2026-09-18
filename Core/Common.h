@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <DirectXMath.h>
 #include <string>
+#include <vector>
 
 namespace Engine
 {
@@ -58,14 +59,19 @@ namespace Engine
         std::vector<int>    childIndices;
         // デバッグや辞書検索に用いるボーン名（Assimp側の mName と完全に一致します）
         std::string         name;
+        //
+        int                 animChannelIndex = -1;
         // 初期ポーズ（バインドポーズ）における、このボーンの「逆行列」
         DirectX::XMFLOAT4X4 InverseBindMatrix;
         // 【ローカル行列】親のボーンの関節から見た、自分自身の相対的な位置・回転・スケール
         DirectX::XMFLOAT4X4 LocalTransformMatrix;
         // 【グローバル行列】モデルの原点（足元）から見た、自分自身の絶対的な位置・回転・スケール
         DirectX::XMFLOAT4X4 GlobalTransformMatrix;
+
         // ロード時の初期姿勢を保存
-        DirectX::XMFLOAT4X4 DefaultLocalMatrix;
+        DirectX::XMFLOAT3   defaultPos;
+        DirectX::XMFLOAT4   defaultRot;
+        DirectX::XMFLOAT3   defaultScale;
     };
 
     // 行列用パレット用定数バッファ
@@ -92,5 +98,13 @@ namespace Engine
         std::vector<KeyVector3> ScalingKeys;
         std::vector<KeyVector3> PositionKeys;
         std::vector<KeyQuaternion> RotaionKeys;
+    };
+
+    enum class PrimitiveType
+    {
+        Plane,
+        Cube,
+        Sphere,
+        Cylinder
     };
 }

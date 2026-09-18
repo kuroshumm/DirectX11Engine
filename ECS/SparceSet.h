@@ -132,6 +132,13 @@ namespace Engine
 			return m_instances[index];
 		}
 
+		Entity GetEntityAt(size_t index) const
+		{
+			assert(m_dense.size() > index);
+
+			return m_dense[index];
+		}
+
 	private:
 		std::vector<uint32_t> m_sparce;	// Entity IDをインデックスとして、m_dense内の位置を指す配列
 		std::vector<Entity> m_dense;	// 格納されているEntityのIDを隙間なく並べる配列
