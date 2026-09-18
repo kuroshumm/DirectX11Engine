@@ -36,7 +36,16 @@
     <ClInclude Include="Animation\AnimationClip.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Animation\Animator.h">
+    <ClInclude Include="Animation\AnimationSystem.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\AnimatorSystem.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\BonePaletteUploadSystem.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\BoneTransformSystem.h">
       <Filter>Animation</Filter>
     </ClInclude>
     <ClInclude Include="App\App.h">
@@ -45,62 +54,29 @@
     <ClInclude Include="Camera\Camera.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="IK\CCDSolver.h">
-      <Filter>IK</Filter>
+    <ClInclude Include="Camera\CameraControllerSystem.h">
+      <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Common.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="IK\FABRIKSolver.h">
-      <Filter>IK</Filter>
+    <ClInclude Include="Camera\CameraSystem.h">
+      <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="Camera\Frustum.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="ECS\GameObject.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Graphics.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="IK\IIKSolver.h">
-      <Filter>IK</Filter>
-    </ClInclude>
-    <ClInclude Include="Model\IModel.h">
-      <Filter>Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Input\InputSystem.h">
-      <Filter>Input</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Material.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Mesh.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Model\Model.h">
-      <Filter>Model</Filter>
-    </ClInclude>
     <ClInclude Include="Camera\SceneCameraOperator.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Shader.h">
-      <Filter>Graphics</Filter>
+    <ClInclude Include="Core\Common.h">
+      <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Model\SkinnedMesh.h">
-      <Filter>Model</Filter>
+    <ClInclude Include="Core\FPSCounter.h">
+      <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Model\SkinnedModel.h">
-      <Filter>Model</Filter>
+    <ClInclude Include="Core\GameTime.h">
+      <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="ECS\SparceSet.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\Texture.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ECS\Transform.h">
-      <Filter>ECS</Filter>
+    <ClInclude Include="Core\TextRenderer.h">
+      <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\TypeID.h">
       <Filter>Core</Filter>
@@ -111,22 +87,163 @@
     <ClInclude Include="Core\Vector3.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="ECS\Components.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\HierarchyService.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\HierarchyTransformSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\MovementSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
     <ClInclude Include="ECS\Registry.h">
       <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\SparceSet.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\Transform.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\TransformSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\CullingSystem.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Graphics.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Mesh.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderSystem.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Shader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Texture.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="IK\CCDSolver.h">
+      <Filter>IK</Filter>
+    </ClInclude>
+    <ClInclude Include="IK\FABRIKSolver.h">
+      <Filter>IK</Filter>
+    </ClInclude>
+    <ClInclude Include="IK\IIKSolver.h">
+      <Filter>IK</Filter>
+    </ClInclude>
+    <ClInclude Include="IK\IKSystem.h">
+      <Filter>IK</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InputSystem.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\GeometryGenerator.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\IModel.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\Model.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\ModelAsset.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\ModelLoader.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\PrimitiveFactory.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\PrimitiveMeshCache.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\SkinnedMesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\SubMesh.h">
+      <Filter>Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation\AnimationClip.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Animation\Animator.cpp">
+    <ClCompile Include="Animation\AnimationSystem.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\AnimatorSystem.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\BonePaletteUploadSystem.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation\BoneTransformSystem.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
     <ClCompile Include="App\App.cpp">
       <Filter>App</Filter>
     </ClCompile>
+    <ClCompile Include="App\main.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
     <ClCompile Include="Camera\Camera.cpp">
       <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera\CameraControllerSystem.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera\CameraSystem.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera\Frustum.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera\SceneCameraOperator.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS\HierarchyService.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS\HierarchyTransformSystem.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS\MovementSystem.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS\Registry.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS\Transform.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="ECS\TransformSystem.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\CullingSystem.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Graphics.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Mesh.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RenderSystem.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Shader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Texture.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="IK\CCDSolver.cpp">
       <Filter>IK</Filter>
@@ -134,50 +251,29 @@
     <ClCompile Include="IK\FABRIKSolver.cpp">
       <Filter>IK</Filter>
     </ClCompile>
-    <ClCompile Include="Camera\Frustum.cpp">
-      <Filter>Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="ECS\GameObject.cpp">
-      <Filter>ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Graphics.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="IK\IKSystem.cpp">
+      <Filter>IK</Filter>
     </ClCompile>
     <ClCompile Include="Input\InputSystem.cpp">
       <Filter>Input</Filter>
     </ClCompile>
-    <ClCompile Include="App\main.cpp">
-      <Filter>App</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Material.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Mesh.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Model\GeometryGenerator.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
     <ClCompile Include="Model\Model.cpp">
       <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="ECS\Registry.cpp">
-      <Filter>ECS</Filter>
+    <ClCompile Include="Model\ModelLoader.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="Camera\SceneCameraOperator.cpp">
-      <Filter>Camera</Filter>
+    <ClCompile Include="Model\PrimitiveFactory.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Shader.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="Model\PrimitiveMeshCache.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
     <ClCompile Include="Model\SkinnedMesh.cpp">
       <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Model\SkinnedModel.cpp">
-      <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\Texture.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ECS\Transform.cpp">
-      <Filter>ECS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -191,6 +287,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\PBRVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\StaticPBRVertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

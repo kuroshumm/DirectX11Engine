@@ -1,14 +1,32 @@
-﻿#pragma once
+#pragma once
 #include <windows.h>
 #include <memory>
 #include <wrl/client.h>
+#include <entt/entt.hpp>
+
 #include "Graphics.h"
 #include "Mesh.h"
 #include "Common.h"
 #include "Model.h"
-#include "GameObject.h"
 #include "Camera.h"
 #include "SceneCameraOperator.h"
+#include "Registry.h"
+#include "RenderSystem.h"
+#include "MovementSystem.h"
+#include "TransformSystem.h"
+#include "AnimationSystem.h"
+#include "AnimatorSystem.h"
+#include "FPSCounter.h"
+#include "TextRenderer.h"
+#include "BoneTransformSystem.h"
+#include "BonePaletteUploadSystem.h"
+#include "IKSystem.h"
+#include "HierarchyTransformSystem.h"
+#include "CameraControllerSystem.h"
+#include "CameraSystem.h"
+#include "ModelLoader.h"
+#include "CullingSystem.h"
+#include "ThirdPersonCameraSystem.h"
 
 namespace Engine
 {
@@ -28,33 +46,45 @@ namespace Engine
         // 分割された初期化用プライベートメソッド
         HRESULT InitWindow(HINSTANCE hInstance, int width, int height);
         HRESULT InitGeometry();
-        HRESULT LoadShader(const wchar_t* vsPath, const wchar_t* psPath);
+        HRESULT LoadShader(std::shared_ptr<Shader> pShader, const wchar_t* vsPath, const wchar_t* psPath);
 		HRESULT LoadTexture(const wchar_t* filePath);
+        HRESULT LoadAnimationClip(std::shared_ptr<AnimationClip>& pAnimClip, const std::string& filePath);
 
         static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         void Update(float dt);
         void Render();
+        HRESULT InitPlayer();
+        void InitSceneCamera();
+        void InitPlayerCamera();
 
         HWND m_hWnd;
         std::unique_ptr<Graphics>     m_pGraphics;
-        std::shared_ptr<Model>        m_pModel;
-        std::shared_ptr<SkinnedModel> m_pSkinnedModel;
-        std::shared_ptr<Animator>     m_pAnimator;
-        std::shared_ptr<AnimationClip> m_pAnimClip;
-        std::shared_ptr<Material>     m_pMaterial;
 		std::shared_ptr<Texture>      m_pTexture;
         std::shared_ptr<Shader>       m_pLambertianShader;
+        std::shared_ptr<Shader>       m_pStaticPBRSHader;
 
-		std::vector<std::shared_ptr<GameObject>> m_gameObjects; // シーングラフ全体の管理用コンテナ
+        std::unique_ptr<ModelLoader> m_modelLoader;
 
-        // --- 第11回追加: シーングラフとカメラ行列 ---
-        //std::shared_ptr<GameObject> m_pRootObject;  // ルートノード (太陽)
-        //std::shared_ptr<GameObject> m_pEarthObject; // 第一階層 (地球)
-        //std::shared_ptr<GameObject> m_pMoonObject;  // 第二階層 (月)
+        std::shared_ptr<AnimationClip> m_pAnimClipIdle;
+        std::shared_ptr<AnimationClip> m_pAnimClipWalk;
+        std::shared_ptr<AnimationClip> m_pAnimClipRun;
 
-		// --- 第13回追加: カメラクラスの導入 ---
-		std::shared_ptr<Camera> m_pCamera;
+        std::unique_ptr<entt::registry> m_registry;
+        std::unique_ptr<RenderSystem> m_renderSystem;
+        std::unique_ptr<TransformSystem> m_transformSystem;
+        std::unique_ptr<MovementSystem> m_movementSystem;
+        std::unique_ptr<AnimationSystem> m_animationSystem;
+        std::unique_ptr<AnimatorSystem> m_animatorSystem;
+        std::unique_ptr<BoneTransformSystem> m_boneTransformSystem;
+        std::unique_ptr<BonePaletteUploadSystem> m_bonePaletteUploadSystem;
+        std::unique_ptr<IKSystem> m_ikSystem;
+        std::unique_ptr<HierarchyTransformSystem> m_hierarchyTransformSystem;
+        std::unique_ptr<CameraControllerSystem> m_cameraControllerSystem;
+        std::unique_ptr<CameraSystem> m_cameraSystem;
+        std::unique_ptr<CullingSystem> m_cullingSystem;
+        std::unique_ptr<ThirdPersonCameraSystem> m_thirdPesronCameraSysten;
 
-        std::unique_ptr<SceneCameraOperator> m_pSceneCameraOperator;
+        std::unique_ptr<TextRenderer> m_pTextRenderer;
+        FPSCounter m_fpsCounter;
     };
 }

@@ -109,8 +109,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Core;$(ProjectDir)Graphics;$(ProjectDir)Model;$(ProjectDir)Animation;$(ProjectDir)IK;$(ProjectDir)Camera;$(ProjectDir)ECS;$(ProjectDir)Input;D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Core;$(ProjectDir)Graphics;$(ProjectDir)Model;$(ProjectDir)Animation;$(ProjectDir)IK;$(ProjectDir)Camera;$(ProjectDir)ECS;$(ProjectDir)Input;$(ProjectDir)Library;D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -128,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Core;$(ProjectDir)Graphics;$(ProjectDir)Model;$(ProjectDir)Animation;$(ProjectDir)IK;$(ProjectDir)Camera;$(ProjectDir)ECS;$(ProjectDir)Input;D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Core;$(ProjectDir)Graphics;$(ProjectDir)Model;$(ProjectDir)Animation;$(ProjectDir)IK;$(ProjectDir)Camera;$(ProjectDir)ECS;$(ProjectDir)Input;$(ProjectDir)Library;D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,55 +142,95 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animation\AnimationClip.h" />
-    <ClInclude Include="Animation\Animator.h" />
+    <ClInclude Include="Animation\AnimationSystem.h" />
+    <ClInclude Include="Animation\AnimatorSystem.h" />
+    <ClInclude Include="Animation\BonePaletteUploadSystem.h" />
+    <ClInclude Include="Animation\BoneTransformSystem.h" />
     <ClInclude Include="App\App.h" />
     <ClInclude Include="Camera\Camera.h" />
-    <ClInclude Include="IK\CCDSolver.h" />
-    <ClInclude Include="Core\Common.h" />
-    <ClInclude Include="IK\FABRIKSolver.h" />
+    <ClInclude Include="Camera\CameraControllerSystem.h" />
+    <ClInclude Include="Camera\CameraSystem.h" />
     <ClInclude Include="Camera\Frustum.h" />
-    <ClInclude Include="ECS\GameObject.h" />
-    <ClInclude Include="Graphics\Graphics.h" />
-    <ClInclude Include="IK\IIKSolver.h" />
-    <ClInclude Include="Model\IModel.h" />
-    <ClInclude Include="Input\InputSystem.h" />
-    <ClInclude Include="Graphics\Material.h" />
-    <ClInclude Include="Graphics\Mesh.h" />
-    <ClInclude Include="Model\Model.h" />
-    <ClInclude Include="ECS\Registry.h" />
     <ClInclude Include="Camera\SceneCameraOperator.h" />
-    <ClInclude Include="Graphics\Shader.h" />
-    <ClInclude Include="Model\SkinnedMesh.h" />
-    <ClInclude Include="Model\SkinnedModel.h" />
-    <ClInclude Include="ECS\SparceSet.h" />
-    <ClInclude Include="Graphics\Texture.h" />
-    <ClInclude Include="ECS\Transform.h" />
+    <ClInclude Include="Core\Common.h" />
+    <ClInclude Include="Core\FPSCounter.h" />
+    <ClInclude Include="Core\GameTime.h" />
+    <ClInclude Include="Core\TextRenderer.h" />
     <ClInclude Include="Core\TypeID.h" />
     <ClInclude Include="Core\Vector2.h" />
     <ClInclude Include="Core\Vector3.h" />
+    <ClInclude Include="ECS\Components.h" />
+    <ClInclude Include="ECS\HierarchyService.h" />
+    <ClInclude Include="ECS\HierarchyTransformSystem.h" />
+    <ClInclude Include="ECS\MovementSystem.h" />
+    <ClInclude Include="ECS\Registry.h" />
+    <ClInclude Include="ECS\SparceSet.h" />
+    <ClInclude Include="ECS\Transform.h" />
+    <ClInclude Include="ECS\TransformSystem.h" />
+    <ClInclude Include="Graphics\CullingSystem.h" />
+    <ClInclude Include="Graphics\Graphics.h" />
+    <ClInclude Include="Graphics\Mesh.h" />
+    <ClInclude Include="Graphics\RenderSystem.h" />
+    <ClInclude Include="Graphics\Shader.h" />
+    <ClInclude Include="Graphics\Texture.h" />
+    <ClInclude Include="IK\CCDSolver.h" />
+    <ClInclude Include="IK\FABRIKSolver.h" />
+    <ClInclude Include="IK\IIKSolver.h" />
+    <ClInclude Include="IK\IKSystem.h" />
+    <ClInclude Include="Input\InputSystem.h" />
+    <ClInclude Include="Model\GeometryGenerator.h" />
+    <ClInclude Include="Model\IModel.h" />
+    <ClInclude Include="Model\Model.h" />
+    <ClInclude Include="Model\ModelAsset.h" />
+    <ClInclude Include="Model\ModelLoader.h" />
+    <ClInclude Include="Model\PrimitiveFactory.h" />
+    <ClInclude Include="Model\PrimitiveMeshCache.h" />
+    <ClInclude Include="Model\SkinnedMesh.h" />
+    <ClInclude Include="Model\SubMesh.h" />
+    <ClInclude Include="ThirdPersonCameraSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation\AnimationClip.cpp" />
-    <ClCompile Include="Animation\Animator.cpp" />
+    <ClCompile Include="Animation\AnimationSystem.cpp" />
+    <ClCompile Include="Animation\AnimatorSystem.cpp" />
+    <ClCompile Include="Animation\BonePaletteUploadSystem.cpp" />
+    <ClCompile Include="Animation\BoneTransformSystem.cpp" />
     <ClCompile Include="App\App.cpp" />
+    <ClCompile Include="App\main.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
+    <ClCompile Include="Camera\CameraControllerSystem.cpp" />
+    <ClCompile Include="Camera\CameraSystem.cpp" />
+    <ClCompile Include="Camera\Frustum.cpp" />
+    <ClCompile Include="Camera\SceneCameraOperator.cpp" />
+    <ClCompile Include="ECS\HierarchyService.cpp" />
+    <ClCompile Include="ECS\HierarchyTransformSystem.cpp" />
+    <ClCompile Include="ECS\MovementSystem.cpp" />
+    <ClCompile Include="ECS\Registry.cpp" />
+    <ClCompile Include="ECS\Transform.cpp" />
+    <ClCompile Include="ECS\TransformSystem.cpp" />
+    <ClCompile Include="Graphics\CullingSystem.cpp" />
+    <ClCompile Include="Graphics\Graphics.cpp" />
+    <ClCompile Include="Graphics\Mesh.cpp" />
+    <ClCompile Include="Graphics\RenderSystem.cpp" />
+    <ClCompile Include="Graphics\Shader.cpp" />
+    <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="IK\CCDSolver.cpp" />
     <ClCompile Include="IK\FABRIKSolver.cpp" />
-    <ClCompile Include="Camera\Frustum.cpp" />
-    <ClCompile Include="ECS\GameObject.cpp" />
-    <ClCompile Include="Graphics\Graphics.cpp" />
+    <ClCompile Include="IK\IKSystem.cpp" />
     <ClCompile Include="Input\InputSystem.cpp" />
-    <ClCompile Include="App\main.cpp" />
-    <ClCompile Include="Graphics\Material.cpp" />
-    <ClCompile Include="Graphics\Mesh.cpp" />
+    <ClCompile Include="Model\GeometryGenerator.cpp" />
     <ClCompile Include="Model\Model.cpp" />
-    <ClCompile Include="ECS\Registry.cpp" />
-    <ClCompile Include="Camera\SceneCameraOperator.cpp" />
-    <ClCompile Include="Graphics\Shader.cpp" />
+    <ClCompile Include="Model\ModelLoader.cpp" />
+    <ClCompile Include="Model\PrimitiveFactory.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Model\PrimitiveMeshCache.cpp">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Model\SkinnedMesh.cpp" />
-    <ClCompile Include="Model\SkinnedModel.cpp" />
-    <ClCompile Include="Graphics\Texture.cpp" />
-    <ClCompile Include="ECS\Transform.cpp" />
+    <ClCompile Include="ThirdPersonCameraSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\LambertianVertexShader.hlsl">
@@ -211,6 +253,16 @@
     </FxCompile>
     <FxCompile Include="Shaders\PBRVertexShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\StaticPBRVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

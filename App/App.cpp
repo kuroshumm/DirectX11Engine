@@ -1,9 +1,14 @@
-#include "App.h"
 #include <d3dcompiler.h>
 #include <vector>
+#include <algorithm>
+#include <chrono>
+
+#include "App.h"
 #include "InputSystem.h"
-#include "SkinnedModel.h"
 #include "AnimationClip.h"
+#include "Components.h"
+#include "GameTime.h"
+#include "PrimitiveFactory.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 
@@ -20,16 +25,45 @@ namespace Engine
         m_pGraphics = std::make_unique<Graphics>();
         if (FAILED(m_pGraphics->Initialize(m_hWnd, width, height))) return E_FAIL;
 
+        m_registry = std::make_unique<entt::registry>();
+
         // --- フェーズ2: GPUリソースの構築 ---
         if (FAILED(m_pGraphics->InitConstantBuffer())) return E_FAIL;
         if (FAILED(m_pGraphics->InitPipelineStates())) return E_FAIL;
         if (FAILED(InitGeometry()))       return E_FAIL;
 
-		m_pCamera = std::make_shared<Camera>();
-        m_pCamera->GetTransform().SetPosition(0.0f, 5.0f, -15.0f);
-		m_pCamera->GetTransform().SetRotation(0.3f, 0.0f, 0.0f);
+        InitSceneCamera();
 
-        m_pSceneCameraOperator = std::make_unique<SceneCameraOperator>(m_pCamera);
+        PrimitiveFactory::Initialize(m_pGraphics.get(), m_pStaticPBRSHader);
+        PrimitiveFactory::CreatePrimitive(
+            *m_registry,
+            PrimitiveType::Plane,
+            DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
+            DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),
+            DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f) // 陰影が視認しやすいダークグレー
+        );
+
+
+        m_pTextRenderer = std::make_unique<TextRenderer>();
+        m_pTextRenderer->Initialize(m_pGraphics->GetSwapChain());
+
+        m_renderSystem = std::make_unique<RenderSystem>();
+        m_transformSystem = std::make_unique<TransformSystem>();
+        m_movementSystem = std::make_unique<MovementSystem>();
+        m_animationSystem = std::make_unique<AnimationSystem>();
+        m_animatorSystem = std::make_unique<AnimatorSystem>();
+        m_boneTransformSystem = std::make_unique<BoneTransformSystem>();
+        m_bonePaletteUploadSystem = std::make_unique<BonePaletteUploadSystem>();
+        m_ikSystem = std::make_unique<IKSystem>();
+        m_hierarchyTransformSystem = std::make_unique<HierarchyTransformSystem>();
+        m_cameraControllerSystem = std::make_unique<CameraControllerSystem>();
+        m_cameraSystem = std::make_unique < CameraSystem >();
+        m_thirdPesronCameraSysten = std::make_unique<ThirdPersonCameraSystem>();
+
+        m_renderSystem->Initialize(m_pGraphics->GetDevice());
+
+        if (FAILED(InitPlayer()))         return E_FAIL;
+        InitPlayerCamera();
 
         ShowWindow(m_hWnd, SW_SHOW);
         return S_OK;
@@ -63,8 +97,15 @@ namespace Engine
     HRESULT App::InitGeometry()
     {
 		HRESULT hr = S_OK;
+        m_pLambertianShader = std::make_shared<Shader>();
+        hr = LoadShader(m_pLambertianShader, L"Shaders/PBRVertexShader.hlsl", L"Shaders/PBRPixelShader.hlsl");
+        if (FAILED(hr))
+        {
+            return hr;
+        }
 
-        hr = LoadShader(L"Shaders/PBRVertexShader.hlsl", L"Shaders/PBRPixelShader.hlsl");
+        m_pStaticPBRSHader = std::make_shared<Shader>();
+        hr = LoadShader(m_pStaticPBRSHader, L"Shaders/StaticPBRVertexShader.hlsl", L"Shaders/PBRPixelShader.hlsl");
         if (FAILED(hr))
         {
             return hr;
@@ -76,91 +117,39 @@ namespace Engine
             return hr;
 		}
 
-		m_pMaterial = std::make_shared<Material>();
-        m_pMaterial->CreateBuffer(m_pGraphics->GetDevice());
-        m_pMaterial->SetShader(m_pLambertianShader);
-		m_pMaterial->SetTexture(m_pTexture);
-
-        m_pModel = std::make_shared<Model>(m_pGraphics.get());
-		m_pModel->SetMaterial(m_pMaterial);
-
-        //hr = m_pModel->LoadMesh("Model/teapot.obj");
-        /*hr = m_pModel->LoadMesh("Model/SwordMan.fbx");
-        if (FAILED(hr))
-        {
-            return hr;
-        }*/
-
-        m_pSkinnedModel = std::make_shared<SkinnedModel>(m_pGraphics.get());
-        m_pSkinnedModel->SetMaterial(m_pMaterial);
-        hr = m_pSkinnedModel->LoadMesh("Model/SwordMan.fbx");
+        hr = LoadAnimationClip(m_pAnimClipIdle, "Animation/SAS_Idle.fbx");
         if (FAILED(hr))
         {
             return hr;
         }
-
-        m_pAnimator = std::make_shared<Animator>(m_pSkinnedModel);
-
-
-        m_pAnimClip = std::make_shared<AnimationClip>("Animation/Sword And Shield Idle.fbx");
-        m_pAnimator->AddState("Idle", m_pAnimClip, true);
-
-        // --- 第11回追加: 天体系シーングラフの構築 ---
-  //      m_pRootObject = std::make_shared<GameObject>();
-  //      m_pRootObject->SetModel(m_pModel); // 同一のモデルインスタンスを共有
-
-  //      m_pEarthObject = std::make_shared<GameObject>();
-  //      m_pEarthObject->SetModel(m_pModel);
-
-  //      m_pMoonObject = std::make_shared<GameObject>();
-  //      m_pMoonObject->SetModel(m_pModel);
-
-  //      // 親子関係の定義
-  //      m_pRootObject->AddChild(m_pEarthObject);
-  //      m_pEarthObject->AddChild(m_pMoonObject);
-
-		//m_gameObjects.push_back(m_pRootObject);
-
-        for (int i = 0; i < 1; ++i)
+        hr = LoadAnimationClip(m_pAnimClipWalk, "Animation/SAS_Walk.fbx");
+        if (FAILED(hr))
         {
-            auto newObject = std::make_shared<GameObject>();
-            newObject->SetModel(m_pSkinnedModel); // 既存のモデルデータを使い回す(メモリ節約)
-            newObject->SetAnimator(m_pAnimator);
-            newObject->InitIK();
-
-            // -20.0f ～ 20.0f の間でランダムな座標を生成
-            // カメラが Z = -15 の位置にあるため、目の前を避けて Z = 0 ～ 40 の奥の範囲に生成する
-            float randX = (rand() % 4000) / 100.0f - 20.0f;   // -20.0f ～ 20.0f
-            float randY = (rand() % 4000) / 100.0f - 20.0f;   // -20.0f ～ 20.0f
-            float randZ = (rand() % 4000) / 100.0f;           // 0.0f ～ 40.0f に変更
-
-            newObject->GetTransform().SetPosition(randX, randY, randZ);
-
-            // モデルのサイズが大きすぎて画面を塞いでしまうのを防ぐため、縮小する
-            newObject->GetTransform().SetScale(0.05f, 0.05f, 0.05f);
-
-            // 描画対象リスト (リスト) に直接登録
-            m_gameObjects.push_back(newObject);
+            return hr;
+        }
+        hr = LoadAnimationClip(m_pAnimClipRun, "Animation/SAS_Run.fbx");
+        if (FAILED(hr))
+        {
+            return hr;
         }
 
 		return hr;
     }
 
-    HRESULT App::LoadShader(const wchar_t* vsPath, const wchar_t* psPath)
+    HRESULT App::LoadShader(std::shared_ptr<Shader> pShader, const wchar_t* vsPath, const wchar_t* psPath)
     {
         HRESULT hr = S_OK;
-        m_pLambertianShader = std::make_shared<Shader>();
-        m_pLambertianShader->Initialize(m_pGraphics->GetDevice());
+        pShader->Initialize(m_pGraphics->GetDevice());
 
         // 頂点シェーダーのコンパイル
-        hr = m_pLambertianShader->CompileVertexShader(vsPath, "VSMain");
+        hr = pShader->CompileVertexShader(vsPath, "VSMain");
         if (FAILED(hr))
         {
             return hr;
         }
 
         // ピクセルシェーダーのコンパイル
-        hr = m_pLambertianShader->CompilePixelShader(psPath, "PSMain");
+        hr = pShader->CompilePixelShader(psPath, "PSMain");
         if (FAILED(hr))
         {
             return hr;
@@ -168,7 +157,7 @@ namespace Engine
 
         // --- インプットレイアウトの定義 (修正箇所) ---
         // 第9回 HLSL の VS_INPUT シグネチャと厳密に一致させる必要がある
-        hr = m_pLambertianShader->CreateInputLayout();
+        hr = pShader->CreateSkinnrdInputLayout();
 
         return hr;
     }
@@ -183,9 +172,20 @@ namespace Engine
 		return hr;
 	}
 
+    HRESULT App::LoadAnimationClip(std::shared_ptr<AnimationClip>& pAnimClip, const std::string& filePath)
+    {
+        HRESULT hr = S_OK;
+
+        pAnimClip = std::make_shared<AnimationClip>(filePath);
+
+        return hr;
+    }
+
     int App::Run()
     {
         MSG msg = {};
+        auto lastTime = std::chrono::high_resolution_clock::now();
+
         while (msg.message != WM_QUIT)
         {
             if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -195,7 +195,15 @@ namespace Engine
             }
             else
             {
-                Update(0.016f);
+                // 実時間の計測
+                auto currentTime = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<float> elapsed = currentTime - lastTime;
+                lastTime = currentTime;
+                // Timeクラスの更新（ここで Time::deltaTime が確定する）
+                GameTime::Update(elapsed.count());
+                
+                // 各処理の実行（引数に Time::deltaTime を渡してもよいし、中で直接参照してもよい）
+                Update(GameTime::deltaTime);
                 Render();
             }
         }
@@ -204,12 +212,28 @@ namespace Engine
 
     void App::Update(float dt)
     {
-        m_pSceneCameraOperator->Update(dt);
+        m_fpsCounter.Update();
 
-        for (auto gameObject : m_gameObjects)
-        {
-            gameObject->Update(dt);
-        }
+        // カメラの更新（視錐台の計算）
+        m_cameraControllerSystem->Update(*m_registry, dt);
+        m_thirdPesronCameraSysten->Update(*m_registry, dt);
+        m_cameraSystem->Update(*m_registry);
+
+        // カリング判定
+        m_cullingSystem->Update(*m_registry.get());
+
+        m_movementSystem->Update(*m_registry.get(), dt);
+
+        m_animatorSystem->Update(*m_registry.get(), dt);
+        m_animationSystem->Update(*m_registry.get(), dt);
+        
+        m_boneTransformSystem->Update(*m_registry.get());
+
+        m_ikSystem->Update(*m_registry.get(), dt);
+        m_hierarchyTransformSystem->Update(*m_registry.get()); // 階層トランスフォーム更新
+        m_transformSystem->Update(*m_registry.get());
+        
+        m_bonePaletteUploadSystem->Update(*m_registry.get(), *m_pGraphics->GetContext());
 
         // 更新の一番最後に
 		// マウスの変化量をリセットしておく 
@@ -225,37 +249,158 @@ namespace Engine
 
 		m_pGraphics->SetRender();
 		m_pGraphics->SetTextureAndSampler();
-        
-		// アクティブなカメラのビュー行列とプロジェクション行列を取得
-		DirectX::XMMATRIX view = m_pCamera->GetViewMatrix();
-		DirectX::XMMATRIX proj = m_pCamera->GetProjectionMatrix();
 
-        // カメラの視錐台を更新
-		Frustum& frustum = m_pCamera->GetFrustum();
-		frustum.Update(view, proj);
+        m_renderSystem->Render(*m_registry.get(), *m_pGraphics);
 
-        for (auto gameObject : m_gameObjects)
+        if (m_pTextRenderer)
         {
-            if (!gameObject)
-            {
-                continue;
-            }
-
-			DirectX::XMFLOAT3 center = gameObject->GetWorldPosition();
-			float radius = gameObject->GetBoundingSphereRadiusScaled();
-
-            if (!frustum.CheckSphere(center, radius))
-            {
-				continue; // 視錐台外のオブジェクトは描画処理をスキップ
-            }
-
-            gameObject->Draw(m_pGraphics.get(), m_pCamera->GetViewMatrix(), m_pCamera->GetProjectionMatrix());
-
-			drawnObjectsCount++; // 描画されたオブジェクトの数をカウント
+            m_pTextRenderer->RenderTextRightTop(m_fpsCounter.GetFPSString(1000));
         }
-
+        
         m_pGraphics->EndScene();
     }
+
+    HRESULT App::InitPlayer()
+    {
+        m_modelLoader = std::make_unique<ModelLoader>(m_pGraphics.get());
+        ModelLoader::LoadResult loadResult = m_modelLoader->Load("Model/SwordMan.fbx");
+        if (!loadResult.isSuccess)
+        {
+            return E_FAIL;
+        }
+
+        entt::entity entity = m_registry->create();
+
+        TransformComponent transformComp;
+        transformComp.position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+        transformComp.rotation = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+        transformComp.scale = DirectX::XMFLOAT3(0.05f, 0.05f, 0.05f);
+        m_registry->emplace<TransformComponent>(entity, std::move(transformComp));
+
+        ModelComponent modelComp;
+        modelComp.pModelAsset = loadResult.modelAsset;
+        m_registry->emplace<ModelComponent>(entity, std::move(modelComp));
+
+        SkeletonComponent skeltonComp;
+        skeltonComp.bones = loadResult.skeltonAsset->initialBones;
+        skeltonComp.rootBoneIndex = loadResult.skeltonAsset->rootBoneIndex;
+        m_registry->emplace<SkeletonComponent>(entity, std::move(skeltonComp));
+
+        SkinningPaletteComponent skinningPaletteComp;
+        ModelLoader::CreatePaletteBuffer(m_pGraphics->GetDevice(), skinningPaletteComp.pPaletteBuffer);
+        m_registry->emplace<SkinningPaletteComponent>(entity, std::move(skinningPaletteComp));
+
+        AnimationComponent animationComp;
+        m_registry->emplace<AnimationComponent>(entity, std::move(animationComp));
+
+        AnimatorComponent animatorComp;
+        animatorComp.AddState("Idle", m_pAnimClipIdle, true);
+        animatorComp.AddState("Walk", m_pAnimClipWalk, true);
+        animatorComp.AddState("Run", m_pAnimClipRun, true);
+        m_registry->emplace<AnimatorComponent>(entity, std::move(animatorComp));
+
+        m_animatorSystem->Play(*m_registry.get(), entity, "Idle");
+
+        IKComponent ikComp;
+        int upLegIndex = loadResult.skeltonAsset->GetBoneIndex("mixamorig:LeftUpLeg");
+        int legIndex = loadResult.skeltonAsset->GetBoneIndex("mixamorig:LeftLeg");
+        int footIndex = loadResult.skeltonAsset->GetBoneIndex("mixamorig:LeftFoot");
+        if (upLegIndex != -1 && legIndex != -1 && footIndex != -1)
+        {
+            ikComp.effectorBoneIndex = footIndex;
+            ikComp.chainIndices = { upLegIndex, legIndex, footIndex };
+            // ヒザ関節の 1D 角度制限 (X 軸周りに 0°〜 120°)
+            ikComp.SetConstraint(legIndex, DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), 0.0f, 120.0f);
+            m_registry->emplace<IKComponent>(entity, std::move(ikComp));
+        }
+
+        MaterialComponent material;
+        material.pShader = m_pLambertianShader;
+        material.pTexture = m_pTexture;
+        m_registry->emplace<MaterialComponent>(entity, std::move(material));
+
+        // LOD
+        m_registry->emplace<LODComponent>(entity);
+
+        m_registry->emplace<PlayerTag>(entity);
+
+        return S_OK;
+    }
+
+    void App::InitSceneCamera()
+    {
+        entt::entity cameraEntity = m_registry->create();
+
+        // 1. TransformComponent (初期位置・初期向き)
+        TransformComponent camTransform;
+        camTransform.position = DirectX::XMFLOAT3(0.0f, 5.0f, -15.0f);
+        // 初期ピッチ角 0.3 rad のクォータニオン
+        DirectX::XMVECTOR qRot = DirectX::XMQuaternionRotationRollPitchYaw(0.3f, 0.0f, 0.0f);
+        DirectX::XMStoreFloat4(&camTransform.rotation, qRot);
+        camTransform.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+        m_registry->emplace<TransformComponent>(cameraEntity, std::move(camTransform));
+        
+        // 2. CameraComponent (投影パラメータ)
+        CameraComponent camComponent;
+        camComponent.fov = DirectX::XM_PIDIV4; // 45度
+        camComponent.aspectRatio = 800.0f / 600.0f; // またはクライアント領域サイズ比
+        camComponent.nearZ = 0.1f;
+        camComponent.farZ = 1000.0f;
+        camComponent.isProjectionDirty = true;
+        m_registry->emplace<CameraComponent>(cameraEntity, std::move(camComponent));
+        
+        // 3. FreeLookCameraControllerComponent (操作パラメータと初期オイラー角)
+        FreeLookCameraControllerComponent camController;
+        camController.moveSpeed = 50.0f;
+        camController.sensitivity = 0.3f;
+        camController.pitch = 0.3f; // camTransform の初期ピッチと一致させる
+        camController.yaw = 0.0f;
+        m_registry->emplace<FreeLookCameraControllerComponent>(cameraEntity, std::move(camController));
+
+        // 4. ActiveCameraTag (メイン描画カメラとしてマーク)
+        //m_registry->emplace<ActiveCameraTag>(cameraEntity);
+    }
+
+    void App::InitPlayerCamera()
+    {
+        entt::entity cameraEntity = m_registry->create();
+
+        // 1. TransformComponent (初期位置・初期向き)
+        TransformComponent camTransform;
+        camTransform.position = DirectX::XMFLOAT3(0.0f, 5.0f, -15.0f);
+        // 初期ピッチ角 0.3 rad のクォータニオン
+        DirectX::XMVECTOR qRot = DirectX::XMQuaternionRotationRollPitchYaw(0.3f, 0.0f, 0.0f);
+        DirectX::XMStoreFloat4(&camTransform.rotation, qRot);
+        camTransform.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+        m_registry->emplace<TransformComponent>(cameraEntity, std::move(camTransform));
+
+        // 2. CameraComponent (投影パラメータ)
+        CameraComponent camComponent;
+        camComponent.fov = DirectX::XM_PIDIV4; // 45度
+        camComponent.aspectRatio = 800.0f / 600.0f; // またはクライアント領域サイズ比
+        camComponent.nearZ = 0.1f;
+        camComponent.farZ = 1000.0f;
+        camComponent.isProjectionDirty = true;
+        m_registry->emplace<CameraComponent>(cameraEntity, std::move(camComponent));
+
+        // 三人称視点用のカメラ
+        ThirdPersonCameraComponent tpsComp;
+        auto view = m_registry->view<PlayerTag>();
+        if (view.each().begin() != view.each().end())
+        {
+            auto entity = view.front();
+            tpsComp.targetEntity = entity;
+
+        }
+        m_registry->emplace<ThirdPersonCameraComponent>(cameraEntity, std::move(tpsComp));
+
+        ThirdPersonCameraConfig tpsConfig;
+        m_registry->emplace<ThirdPersonCameraConfig>(cameraEntity, std::move(tpsConfig));
+
+        // 4. ActiveCameraTag (メイン描画カメラとしてマーク)
+        m_registry->emplace<ActiveCameraTag>(cameraEntity);
+    }
+
 
     LRESULT CALLBACK App::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {

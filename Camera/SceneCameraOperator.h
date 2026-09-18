@@ -18,6 +18,6 @@ namespace Engine
 		std::weak_ptr<Camera> m_pCamera;
 
 		const float SENSITIVITY = 0.3f;
-		const float moveSpped = 5.0f;
+		const float moveSpped = 50.0f;
 	};
 }
