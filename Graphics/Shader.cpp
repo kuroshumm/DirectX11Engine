@@ -16,7 +16,7 @@ namespace Engine
 		return S_OK;
     }
 
-    void Shader::Render(ID3D11DeviceContext* pContext)
+    void Shader::Bind(ID3D11DeviceContext* pContext)
     {
         pContext->IASetInputLayout(m_pLayout.Get());
         pContext->VSSetShader(m_pVS.Get(), nullptr, 0);
@@ -42,7 +42,7 @@ namespace Engine
             if (errorBlob) OutputDebugStringA((char*)errorBlob->GetBufferPointer());
             return hr;
         }
-        m_pDevice->CreatePixelShader(m_psBlob->GetBufferPointer(), m_psBlob->GetBufferSize(), nullptr, &m_pPS);
+        return m_pDevice->CreatePixelShader(m_psBlob->GetBufferPointer(), m_psBlob->GetBufferSize(), nullptr, &m_pPS);
     }
 
     HRESULT Shader::CompileVertexShader(const wchar_t* filePath, const char* entryPoint)
@@ -64,10 +64,10 @@ namespace Engine
             if (errorBlob) OutputDebugStringA((char*)errorBlob->GetBufferPointer());
             return hr;
         }
-        m_pDevice->CreateVertexShader(m_vsBlob->GetBufferPointer(), m_vsBlob->GetBufferSize(), nullptr, &m_pVS);
+        return m_pDevice->CreateVertexShader(m_vsBlob->GetBufferPointer(), m_vsBlob->GetBufferSize(), nullptr, &m_pVS);
     }
 
-    HRESULT Shader::CreateInputLayout()
+    HRESULT Shader::CreateSkinnrdInputLayout()
     {
         // --- インプットレイアウトの定義 (修正箇所) ---
         // 第9回 HLSL の VS_INPUT シグネチャと厳密に一致させる必要がある
@@ -79,6 +79,30 @@ namespace Engine
             { "TEXCOORD",     0, DXGI_FORMAT_R32G32_FLOAT,       0, 52, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 8 bytes
             { "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_UINT,  0, 60, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 16 bytes
             { "BLENDWEIGHT",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 76, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 16 bytes
+        };
+
+        // 頂点シェーダーのバイナリコードを取得して入力レイアウトを生成
+        HRESULT hr = m_pDevice->CreateInputLayout(
+            layout,
+            ARRAYSIZE(layout),
+            m_vsBlob->GetBufferPointer(),
+            m_vsBlob->GetBufferSize(),
+            &m_pLayout
+        );
+
+        return hr;
+    }
+
+
+    HRESULT Shader::CreateStaticInputLayout()
+    {
+        // --- インプットレイアウトの定義 ---
+        D3D11_INPUT_ELEMENT_DESC layout[] = {
+            { "POSITION",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes
+            { "NORMAL",       0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes
+            { "TANGENT",      0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes (第9回追加)
+            { "COLOR",        0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 16 bytes
+            { "TEXCOORD",     0, DXGI_FORMAT_R32G32_FLOAT,       0, 52, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 8 bytes
         };
 
         // 頂点シェーダーのバイナリコードを取得して入力レイアウトを生成

@@ -27,6 +27,7 @@ namespace Engine
 
         ID3D11Device* GetDevice() { return m_pDevice.Get(); }
         ID3D11DeviceContext* GetContext() { return m_pContext.Get(); }
+        IDXGISwapChain* GetSwapChain() { return m_pSwapChain.Get(); }
 
 		HRESULT InitShaders();
         HRESULT InitConstantBuffer();

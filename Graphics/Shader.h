@@ -14,11 +14,12 @@ namespace Engine
 
 		HRESULT Initialize(ID3D11Device* pDeveice);
 
-		void Render(ID3D11DeviceContext* pContext);
+		void Bind(ID3D11DeviceContext* pContext);
 
 		HRESULT CompilePixelShader(const wchar_t* filePath, const char* entryPoint);
 		HRESULT CompileVertexShader(const wchar_t* filePath, const char* entryPoint);
-		HRESULT CreateInputLayout();
+		HRESULT CreateSkinnrdInputLayout();
+		HRESULT CreateStaticInputLayout();
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D11Device>           m_pDevice;

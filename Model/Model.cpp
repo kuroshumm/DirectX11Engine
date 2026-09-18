@@ -98,27 +98,6 @@ namespace Engine
         return S_OK;
     }
 
-    void Model::SetMaterial(const std::shared_ptr<Material>& pMaterial)
-    {
-        m_pMaterial = pMaterial;
-	}
-
-    void Model::Draw()
-    {
-        if (!m_pMaterial)
-        {
-            return;
-        }
-
-		m_pMaterial->Bind(m_pGfx);
-
-        // 内包する全メッシュストリームを描画
-        for (auto& mesh : m_meshes)
-        {
-            mesh->Draw();
-        }
-    }
-
     void Model::Update(float deltaTime)
     {
 

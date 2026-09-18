@@ -24,11 +24,28 @@ namespace Engine
         sd.SampleDesc.Quality = 0;
         sd.Windowed = TRUE;
 
+        UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#if defined(DEBUG) || defined(_DEBUG)
+        createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
         // --- デバイスおよびスワップチェーンの同時生成 ---
         // ハードウェアアクセラレーションを利用するデバイスを生成
         D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
-        hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0,
-            featureLevels, 1, D3D11_SDK_VERSION, &sd, &m_pSwapChain, &m_pDevice, nullptr, &m_pContext);
+        hr = D3D11CreateDeviceAndSwapChain(
+            nullptr,
+            D3D_DRIVER_TYPE_HARDWARE,
+            nullptr,
+            createDeviceFlags,
+            featureLevels,
+            1,
+            D3D11_SDK_VERSION,
+            &sd,
+            &m_pSwapChain,
+            &m_pDevice,
+            nullptr,
+            &m_pContext
+        );
         if (FAILED(hr)) return hr;
 
         // --- レンダーターゲットビュー (RTV) の構築 ---

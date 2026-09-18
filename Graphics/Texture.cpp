@@ -111,4 +111,55 @@ namespace Engine
 
         return hr;
     }
+
+    void Texture::Bind(ID3D11DeviceContext* pContext, UINT slot)
+    {
+        if (!m_pSRV)
+        {
+            return;
+        }
+        // 取得した画像リソース（SRV）をパイプラインにセット
+        pContext->PSSetShaderResources(slot, 1, m_pSRV.GetAddressOf());
+    }
+
+    HRESULT Texture::CreateSolidColor(
+        ID3D11Device* pDevice,
+        uint8_t r, uint8_t g, uint8_t b, uint8_t a
+    )
+    {
+        if (!pDevice)
+        {
+            return E_INVALIDARG;
+        }
+
+        // 1x1の2Dテクスチャ
+        D3D11_TEXTURE2D_DESC desc = {};
+        desc.Width = 1;
+        desc.Height = 1;
+        desc.MipLevels = 1;
+        desc.ArraySize = 1;
+        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        desc.SampleDesc.Count = 1;
+        desc.Usage = D3D11_USAGE_IMMUTABLE;
+        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+        // 4バイトのピクセルデータ (RGBA) を直接メモリ上に用意
+        uint32_t pixel = (static_cast<uint32_t>(a) << 24) 
+            | (static_cast<uint32_t>(b) << 16)
+            | (static_cast<uint32_t>(g) << 8)
+            | (static_cast<uint32_t>(r));
+
+        D3D11_SUBRESOURCE_DATA initData = {};
+        initData.pSysMem = &pixel;
+        initData.SysMemPitch = sizeof(uint32_t);
+
+        // GPUバッファとシェーダーリソースビュー (SRV) の生成
+        HRESULT hr = pDevice->CreateTexture2D(&desc, &initData, &m_pTexture);
+        if (FAILED(hr))
+        {
+            return hr;
+        }
+        hr = pDevice->CreateShaderResourceView(m_pTexture.Get(), nullptr, &m_pSRV);
+        return hr;
+    }
 }
