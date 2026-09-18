@@ -1,49 +1,34 @@
 #include "CCDSolver.h"
+#include "Components.h"
 
 namespace Engine
 {
-	CCDSolver::CCDSolver(int maxIterations, float tolerance, std::weak_ptr<SkinnedModel> pModel)
+	CCDSolver::CCDSolver(int maxIterations, float tolerance)
 	{
 		m_maxIterations = maxIterations;
 		m_tolerance = tolerance;
-		m_pModel = pModel;
 	}
 	CCDSolver::~CCDSolver()
 	{
 
 	}
 
-	void CCDSolver::SetConstraint(int boneIndex, DirectX::XMVECTOR localAxis, float minAngleDeg, float maxAngleDeg)
-	{
-		JointConstraint constraint;
-		constraint.isLimited = true;
-		constraint.localAxis = DirectX::XMVector3Normalize(localAxis); // 軸を確実に正規化
-		constraint.minAngleRad = DirectX::XMConvertToRadians(minAngleDeg);
-		constraint.maxAngleRad = DirectX::XMConvertToRadians(maxAngleDeg);
-		m_constraints[boneIndex] = constraint;
-	}
-
 	void CCDSolver::Solve(
-		const int targetIndex,
-		const std::vector<int>& boneChainIndices,
-		const DirectX::XMFLOAT3& targetPosition)
+		std::vector<Bone>& bones,
+		const IKComponent& ikData,
+		const DirectX::XMFLOAT3& targetPosition
+	)
 	{
-		auto model = m_pModel.lock();
-		if (model == nullptr)
-		{
-			return;
-		}
-		std::vector<Bone>& bones = model->GetBone();
-		Bone& targetBone = bones[targetIndex];
+		Bone& targetBone = bones[ikData.effectorBoneIndex];
 		DirectX::XMVECTOR targetPosVec = DirectX::XMLoadFloat3(&targetPosition);
 
 		// 
 		for (size_t iter = 0; iter < m_maxIterations; ++iter)
 		{
 			// 
-			for (int index = boneChainIndices.size() - 2; index >= 0; --index)
+			for (int index = ikData.chainIndices.size() - 2; index >= 0; --index)
 			{
-				size_t boneIndex = boneChainIndices[index];
+				size_t boneIndex = ikData.chainIndices[index];
 				Bone& bone = bones[boneIndex];
 				DirectX::XMMATRIX globalMatrix = DirectX::XMLoadFloat4x4(&bone.GlobalTransformMatrix);
 				DirectX::XMVECTOR bonePosVec = globalMatrix.r[3];
@@ -82,9 +67,10 @@ namespace Engine
 				DirectX::XMVECTOR newRot = DirectX::XMQuaternionMultiply(rot, deltaRot);
 				
 				// 回転を制限内に収める
-				if (m_constraints.count(boneIndex) > 0)
+				auto it = ikData.constraints.find(static_cast<int>(boneIndex));
+				if (it != ikData.constraints.end())
 				{
-					const JointConstraint& constraint = m_constraints[boneIndex];
+					const JointConstraint& constraint = it->second;
 					// クォータニオンから、制限したい特定のローカル軸（ピッチ角など）の角度を抽出する
 					// (※ DirectXMath のオイラー角変換や、Swing-Twist分解などの幾何学計算を用います)
 					float currentAngle = ExtractAngleAroundAxis(newRot, constraint.localAxis);
@@ -111,7 +97,7 @@ namespace Engine
 					parentGlobalMat = DirectX::XMLoadFloat4x4(&bones[bone.parentIndex].GlobalTransformMatrix);
 				}
 
-				UpdateChainFK(boneIndex, parentGlobalMat);
+				UpdateChainFK(bones, boneIndex, parentGlobalMat);
 			}
 
 			// エフェクタ（末端）の位置がターゲットの位置に近づいたら終了
@@ -127,14 +113,8 @@ namespace Engine
 		}
 	}
 
-	void CCDSolver::UpdateChainFK(int boneIndex, DirectX::XMMATRIX parentGlobalTransform)
+	void CCDSolver::UpdateChainFK(std::vector<Bone>& bones, int boneIndex, DirectX::XMMATRIX parentGlobalTransform)
 	{
-		auto model = m_pModel.lock();
-		if (model == nullptr)
-		{
-			return;
-		}
-		std::vector<Bone>& bones = model->GetBone();
 		Bone& targetBone = bones[boneIndex];
 
 		DirectX::XMMATRIX local = DirectX::XMLoadFloat4x4(&targetBone.LocalTransformMatrix);
@@ -143,7 +123,7 @@ namespace Engine
 
 		for (int childIndex : targetBone.childIndices)
 		{
-			UpdateChainFK(childIndex, global);
+			UpdateChainFK(bones, childIndex, global);
 		}
 	}
 

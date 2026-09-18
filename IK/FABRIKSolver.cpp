@@ -1,54 +1,40 @@
 #include "FABRIKSolver.h"
+#include "Components.h"
 
 namespace Engine
 {
-	FABRIKSolver::FABRIKSolver(int maxIterations, float tolerance, std::weak_ptr<SkinnedModel> pModel)
+	FABRIKSolver::FABRIKSolver(int maxIterations, float tolerance)
 	{
 		m_maxIterations = maxIterations;
 		m_tolerance = tolerance;
-		m_pModel = pModel;
 	}
 	FABRIKSolver::~FABRIKSolver()
 	{
 
 	}
 
-	void FABRIKSolver::SetConstraint(int boneIndex, DirectX::XMVECTOR localAxis, float minAngleDeg, float maxAngleDeg)
-	{
-		JointConstraint constraint;
-		constraint.isLimited = true;
-		constraint.localAxis = DirectX::XMVector3Normalize(localAxis); // 軸を確実に正規化
-		constraint.minAngleRad = DirectX::XMConvertToRadians(minAngleDeg);
-		constraint.maxAngleRad = DirectX::XMConvertToRadians(maxAngleDeg);
-		m_constraints[boneIndex] = constraint;
-	}
-
 	void FABRIKSolver::Solve(
-		const int targetIndex,
-		const std::vector<int>& boneChainIndices,
+		std::vector<Bone>& bones,
+		const IKComponent& ikData,
 		const DirectX::XMFLOAT3& targetPosition
 	)
 	{
-		std::shared_ptr<SkinnedModel> model = m_pModel.lock();
-		if (model == nullptr) return;
-
-		std::vector<Bone>& bones = model->GetBone();
-		int numJoints = (int)boneChainIndices.size();
+		int numJoints = (int)ikData.chainIndices.size();
 
 		// 1. 各関節の現在のグローバル座標をロード
 		std::vector<DirectX::XMVECTOR> tempPosition(numJoints);
 		for (size_t index = 0; index < numJoints; ++index)
 		{
-			int boneIndex = boneChainIndices[index];
+			int boneIndex = ikData.chainIndices[index];
 			tempPosition[index] = DirectX::XMLoadFloat4x4(&bones[boneIndex].GlobalTransformMatrix).r[3];
 		}
 
 		// 2. バインドポーズでの各ボーン長（初期距離）をキャッシュ
 		std::vector<float> boneDistances;
-		for (size_t index = 0; index < boneChainIndices.size() - 1; ++index)
+		for (size_t index = 0; index < ikData.chainIndices.size() - 1; ++index)
 		{
-			int parentBoneIdx = boneChainIndices[index];
-			int childBoneIdx = boneChainIndices[index + 1];
+			int parentBoneIdx = ikData.chainIndices[index];
+			int childBoneIdx = ikData.chainIndices[index + 1];
 			Bone& parentBone = bones[parentBoneIdx];
 			Bone& childBone = bones[childBoneIdx];
 			// ローカル行列ではなく、グローバル行列の平行移動成分同士の距離を測る
@@ -61,7 +47,7 @@ namespace Engine
 		}
 
 		// 3. 位置の解決およびバインド処理を実行
-		Bone& chainRootBone = bones[boneChainIndices[0]];
+		Bone& chainRootBone = bones[ikData.chainIndices[0]];
 		DirectX::XMVECTOR rootPos = DirectX::XMLoadFloat4x4(&chainRootBone.GlobalTransformMatrix).r[3];
 		DirectX::XMVECTOR targetPosVec = DirectX::XMLoadFloat3(&targetPosition);
 
@@ -69,7 +55,7 @@ namespace Engine
 		ResolvePositions(targetPosVec, rootPos, tempPosition, boneDistances);
 
 		// 確定座標から回転を逆算して適用
-		ApplyPositionsToBones(boneChainIndices, tempPosition, bones, numJoints);
+		ApplyPositionsToBones(ikData, tempPosition, bones, numJoints);
 	}
 
 	void FABRIKSolver::ResolvePositions(
@@ -137,7 +123,7 @@ namespace Engine
 	}
 
 	void FABRIKSolver::ApplyPositionsToBones(
-		const std::vector<int>& boneChainIndices,
+		const IKComponent& ikData,
 		const std::vector<DirectX::XMVECTOR>& tempPositions,
 		std::vector<Bone>& bones,
 		int numJoints
@@ -146,8 +132,8 @@ namespace Engine
 		// イテレーションループ終了後に追加する、位置から回転へのバインド処理
 		for (int i = 0; i < numJoints - 1; ++i)
 		{
-			int boneIdx = boneChainIndices[i];
-			int childBoneIdx = boneChainIndices[i + 1];
+			int boneIdx = ikData.chainIndices[i];
+			int childBoneIdx = ikData.chainIndices[i + 1];
 			Bone& bone = bones[boneIdx];
 			Bone& childBone = bones[childBoneIdx];
 
@@ -216,9 +202,10 @@ namespace Engine
 			}
 			
 			// --- ⑥ 角度制約（SetConstraintで設定された可動域制限）の適用 ---
-			if (m_constraints.count(boneIdx) > 0)
+			auto it = ikData.constraints.find(static_cast<int>(boneIdx));
+			if (it != ikData.constraints.end())
 			{
-				const JointConstraint& constraint = m_constraints[boneIdx];
+				const JointConstraint& constraint = it->second;
 
 				// CCDSolverで実装した ExtractAngleAroundAxis を使用
 				float currentAngle = ExtractAngleAroundAxis(newLocalRot, constraint.localAxis);
@@ -250,19 +237,17 @@ namespace Engine
 			{
 				parentGlobal = DirectX::XMLoadFloat4x4(&bones[bone.parentIndex].GlobalTransformMatrix);
 			}
-			UpdateChainFK(boneIdx, parentGlobal);
+			UpdateChainFK(bones, boneIdx, parentGlobal);
 		}
 	}
 
 
-	void FABRIKSolver::UpdateChainFK(int boneIndex, DirectX::XMMATRIX parentGlobalTransform)
+	void FABRIKSolver::UpdateChainFK(
+		std::vector<Bone>& bones,
+		int boneIndex,
+		DirectX::XMMATRIX parentGlobalTransform
+	)
 	{
-		auto model = m_pModel.lock();
-		if (model == nullptr)
-		{
-			return;
-		}
-		std::vector<Bone>& bones = model->GetBone();
 		Bone& targetBone = bones[boneIndex];
 
 		DirectX::XMMATRIX local = DirectX::XMLoadFloat4x4(&targetBone.LocalTransformMatrix);
@@ -271,7 +256,7 @@ namespace Engine
 
 		for (int childIndex : targetBone.childIndices)
 		{
-			UpdateChainFK(childIndex, global);
+			UpdateChainFK(bones, childIndex, global);
 		}
 	}
 

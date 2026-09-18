@@ -12,17 +12,17 @@ namespace Engine
 
 	}
 
-	const NodeAnimation& AnimationClip::GetNodeAnimation(std::string& nodeName) const
+	const NodeAnimation& AnimationClip::GetNodeAnimation(size_t index) const
 	{
 		static const NodeAnimation emptyAnim{};
 
-		auto it = m_NodeAnimations.find(nodeName);
-		if (it == m_NodeAnimations.end())
+		if (m_NodeAnimations.size() <= index)
 		{
 			return emptyAnim;
 		}
 
-		const NodeAnimation& nodeAnim = it->second;
+		const NodeAnimation& nodeAnim = m_NodeAnimations[index];
+
 		return nodeAnim;
 	}
 
@@ -93,18 +93,25 @@ namespace Engine
 			{
 				boneName = boneName.substr(0, pos); // 例: "LeftArm_$AssimpFbx$_Rotation" -> "LeftArm"
 			}
-			// ★重要：同じボーン名で別々に登録されているキーフレーム（TranslationとRotationなど）を合流マージする
-			auto it = m_NodeAnimations.find(boneName);
-			if (it != m_NodeAnimations.end())
+
+			// 既に登録済みのボーン名か判定
+			auto it = m_nameToChannelMap.find(boneName);
+			if (it != m_nameToChannelMap.end())
 			{
-				if (!nodeAnim.PositionKeys.empty()) it->second.PositionKeys = nodeAnim.PositionKeys;
-				if (!nodeAnim.ScalingKeys.empty())  it->second.ScalingKeys = nodeAnim.ScalingKeys;
-				if (!nodeAnim.RotaionKeys.empty())  it->second.RotaionKeys = nodeAnim.RotaionKeys;
+				// ★ 既に存在するボーンなので、該当インデックスにキーを合体マージ！
+				int existingIndex = it->second;
+				if (!nodeAnim.PositionKeys.empty()) m_NodeAnimations[existingIndex].PositionKeys = std::move(nodeAnim.PositionKeys);
+				if (!nodeAnim.ScalingKeys.empty())  m_NodeAnimations[existingIndex].ScalingKeys = std::move(nodeAnim.ScalingKeys);
+				if (!nodeAnim.RotaionKeys.empty())  m_NodeAnimations[existingIndex].RotaionKeys = std::move(nodeAnim.RotaionKeys);
 			}
 			else
 			{
-				m_NodeAnimations[boneName] = nodeAnim;
+				// ★ 新規ボーンなので、インデックスを登録して末尾に追加
+				int newIndex = static_cast<int>(m_NodeAnimations.size());
+				m_nameToChannelMap[boneName] = newIndex;
+				m_NodeAnimations.emplace_back(std::move(nodeAnim));
 			}
+			
 		}
 
 		return S_OK;
