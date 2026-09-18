@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation CrossFade Architecture Diagrams</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 40px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        h1 {
+            border-bottom: 2px solid #007acc;
+            padding-bottom: 10px;
+            color: #007acc;
+        }
+        h2 {
+            margin-top: 30px;
+            color: #444;
+        }
+        .diagram-container {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        p {
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>演習21 アニメーション・クロスフェード アーキテクチャ設計図</h1>
+    <p>本ページは、DirectX11エンジンにおける <code>AnimatorComponent</code> 集約型クロスフェードの設計を Mermaid.js によりグラフィカルにレンダリングしたものです。</p>
+
+    <h2>1. 処理フロー図（Flowchart）</h2>
+    <div class="diagram-container">
+        <pre class="mermaid">
+flowchart TD
+    subgraph AppLayer["アプリケーション層 (App / Input)"]
+        A["CrossFade('Walk', 0.25f) 発火"]
+    end
+
+    subgraph ControlLayer["制御層 (AnimatorSystem::Update)"]
+        B["AnimatorComponent"]
+        C["transitionTimer を加算 (+= dt)"]
+        D{"transitionTimer >= 0.25f ?"}
+        E["遷移中: t = timer / 0.25f を算出"]
+        F["遷移完了: isTransitioning = false<br/>前クリップ解放 (pPrevClip = null)"]
+        
+        A -->|状態名と遷移時間を設定| B
+        B --> C
+        C --> D
+        D -- "No (遷移進行中)" --> E
+        D -- "Yes (完了)" --> F
+    end
+
+    subgraph ComputeLayer["演算層 (AnimationSystem::Update)"]
+        G{"isTransitioning ?"}
+        H["単一再生サンプリング<br/>CurrentClip から安全に TRS 抽出"]
+        I["ブレンドサンプリング<br/>PrevClip と CurrentClip を抽出"]
+        J["ポーズ補間合成<br/>S, T : Lerp(t)<br/>R : Slerp(t)"]
+        K["最終アフィン変換行列を算出<br/>Bone.LocalTransformMatrix へストア"]
+        
+        E -.->|遷移率 t と前クリップを参照| G
+        F -.->|通常再生フラグを参照| G
+        G -- "No" --> H
+        G -- "Yes" --> I
+        I --> J
+        H --> K
+        J --> K
+    end
+
+    subgraph OutputLayer["後続システム (DirectX11 パイプライン)"]
+        L["BoneTransformSystem (FK計算)"]
+        M["IKSystem (逆運動学補正)"]
+        N["GPU 行列パレット転送 & 描画"]
+        
+        K --> L --> M --> N
+    end
+        </pre>
+    </div>
+
+    <h2>2. 毎フレームの実行シーケンス図（Sequence Diagram）</h2>
+    <div class="diagram-container">
+        <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor App as App (ゲームループ)
+    participant AnimatorSys as AnimatorSystem::Update
+    participant AnimatorComp as AnimatorComponent
+    participant AnimSys as AnimationSystem::Update
+    participant AnimComp as AnimationComponent
+    participant SkelComp as SkeletonComponent (ボーン配列)
+
+    Note over App, AnimatorComp: 1. 遷移トリガー (任意のタイミング)
+    App->>AnimatorSys: CrossFade(registry, entity, "Walk", 0.25f)
+    Note over AnimatorComp: pPrevClip ← 現在クリップ<br/>pCurrentClip ← Walkクリップ<br/>timer = 0.0f, isTransitioning = true
+
+    Note over App, SkelComp: 2. 毎フレームの定期更新ループ (Update)
+    App->>AnimatorSys: Update(registry, dt)
+    opt isTransitioning == true
+        AnimatorSys->>AnimatorComp: タイマー進行 (timer += dt)
+        AnimatorSys->>AnimatorComp: 遷移ウェイト算出 (weight = timer / duration)
+        opt timer >= duration (遷移完了時)
+            AnimatorSys->>AnimatorComp: isTransitioning = false, pPrevClip = nullptr
+        end
+    end
+
+    App->>AnimSys: Update(registry, dt)
+    AnimSys->>AnimComp: 現在の再生時刻を進める (currentTime += dt)
+    AnimSys->>AnimatorComp: try_get で遷移状態 (weight, pPrevClip) を取得
+    
+    alt isTransitioning == true (クロスフェード中)
+        Note over AnimSys: Prev と Current の2つから姿勢をサンプリング
+        Note over AnimSys: Slerp / Lerp でウェイト合成
+    else isTransitioning == false (単一通常再生)
+        Note over AnimSys: Current のみから姿勢をサンプリング
+    end
+
+    AnimSys->>SkelComp: 合成後の行列を Bone.LocalTransformMatrix に書き込み
+        </pre>
+    </div>
+
+    <h2>3. コンポーネント構造と関連図（Class Diagram）</h2>
+    <div class="diagram-container">
+        <pre class="mermaid">
+classDiagram
+    class AnimatorComponent {
+        +unordered_map~string, AnimationState2~ stateMap
+        +string currentStateName
+        +string prevStateName
+        +shared_ptr~AnimationClip~ pPrevClip
+        +float prevTime
+        +float transitionDuration
+        +float transitionTimer
+        +float transitionWeight
+        +bool isTransitioning
+        +AddState(string stateName, shared_ptr~AnimationClip~ pClip, bool isLoop) void
+    }
+
+    class AnimationComponent {
+        +shared_ptr~AnimationClip~ pCurrentClip
+        +float currentTime
+        +float playbackSpeed
+        +bool isLoop
+        +bool isPlaying
+    }
+
+    class SkeletonComponent {
+        +vector~Bone~ bones
+        +int rootBoneIndex
+    }
+
+    class BoneTransformTRS {
+        +XMVECTOR scale
+        +XMVECTOR rot
+        +XMVECTOR pos
+    }
+
+    class AnimatorSystem {
+        +Update(registry, dt) void
+        +Play(registry, entity, stateName) void
+        +CrossFade(registry, entity, stateName, duration) void
+    }
+
+    class AnimationSystem {
+        +Update(registry, dt) void
+        +SampleBoneTransform(clip, time, bone) BoneTransformTRS
+    }
+
+    AnimatorSystem ..> AnimatorComponent : 遷移タイマー進行と完了管理
+    AnimationSystem ..> AnimationComponent : 基本再生時刻の更新
+    AnimationSystem ..> AnimatorComponent : 遷移ウェイトと前クリップの読み取り (Optional)
+    AnimationSystem ..> SkeletonComponent : Bone.LocalTransformMatrix を更新
+    AnimationSystem ..> BoneTransformTRS : サンプリング中間データの生成
+        </pre>
+    </div>
+
+</body>
+</html>
