@@ -35,7 +35,7 @@
 *   ドキュメントの作成・追記を行う際は、必ず `exercise_documenter` スキル ([SKILL.md (exercise-documenter)](file:///d:/DirectX11_Sample/DirextX11Engine/.agent/skills/exercise-documenter/SKILL.md)) を読み込み、そこに定義されている構成要件・命名規則・記述ルールを厳格に遵守すること。
 
 ### 1.6. 記述の厳密性
-*   ドキュメントの作成においては、適当なサンプルやプレースホルダーは一切使用せず、実装されたソースコードの正確な動きに基づき、Mermaid図やLaTeX数式を用いて厳密に記述すること。
+*   ドキュメントの作成においては、適当なサンプルやプレースホルダーは一切使用せず、実装されたソースコードの正確な動きに基づき、[math_and_diagrams.md](file:///d:/DirectX11_Sample/DirextX11Engine/.agent/rules/math_and_diagrams.md) の表現規則に従って画像化されたダイアグラム（PNG/SVG）や厳密な数式を用いて記述すること。
 *   バグやトラブルシューティングの記録（Implementation Report 内）では、「現象」「原因」「解決策」の3つの技術的要因を詳細かつ論理的に記載すること。
 
 ---
@@ -58,4 +58,8 @@
 *   **再現性ある統合開発 (Reproducible Development)**:
     中規模以上の機能開発・設計・実装・検証を統合的に推進する場合は [SKILL.md (mino-reproducible-development)](file:///d:/DirectX11_Sample/DirextX11Engine/.agent/skills/mino-reproducible-development/SKILL.md) を参照する。
 
+---
 
+## 3. 数式および図表の表現制約
+数式および図表の表現制約（LaTeX・ドル記号の完全禁止、Mermaid PNG / SVG 画像化義務）は、独立ルールファイル [.agent/rules/math_and_diagrams.md](file:///d:/DirectX11_Sample/DirextX11Engine/.agent/rules/math_and_diagrams.md) に分離・厳格化されました。
+エージェントは同ファイルの【絶対禁止事項 (FORBIDDEN)】および【遵守事項 (MANDATORY)】を完全に遵守しなければなりません。
