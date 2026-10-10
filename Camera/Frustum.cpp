@@ -1,34 +1,34 @@
-#include "Frustum.h"
+ï»¿#include "Frustum.h"
 
 using namespace DirectX;
 
 void Frustum::Update(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
-    // 1. Views—ñ‚ÆProjections—ñ‚ğæZ‚µAVPs—ñ‚ğì¬‚·‚é
+    // 1. Viewè¡Œåˆ—ã¨Projectionè¡Œåˆ—ã‚’ä¹—ç®—ã—ã€VPè¡Œåˆ—ã‚’ä½œæˆã™ã‚‹
     XMMATRIX vpMatrix = XMMatrixMultiply(viewMatrix, projectionMatrix);
 
     XMFLOAT4X4 m;
     XMStoreFloat4x4(&m, vpMatrix);
 
-    // Left Plane (x_c >= -w_c ‚Â‚Ü‚è x_c + w_c >= 0)
+    // Left Plane (x_c >= -w_c ã¤ã¾ã‚Š x_c + w_c >= 0)
     m_Planes[0] = XMVectorSet(m._14 + m._11, m._24 + m._21, m._34 + m._31, m._44 + m._41);
 
-    // Right Plane (x_c <= w_c ‚Â‚Ü‚è -x_c + w_c >= 0)
+    // Right Plane (x_c <= w_c ã¤ã¾ã‚Š -x_c + w_c >= 0)
     m_Planes[1] = XMVectorSet(m._14 - m._11, m._24 - m._21, m._34 - m._31, m._44 - m._41);
 
-    // Bottom Plane (y_c >= -w_c ‚Â‚Ü‚è y_c + w_c >= 0)
+    // Bottom Plane (y_c >= -w_c ã¤ã¾ã‚Š y_c + w_c >= 0)
     m_Planes[2] = XMVectorSet(m._14 + m._12, m._24 + m._22, m._34 + m._32, m._44 + m._42);
 
-    // Top Plane (y_c <= w_c ‚Â‚Ü‚è -y_c + w_c >= 0)
+    // Top Plane (y_c <= w_c ã¤ã¾ã‚Š -y_c + w_c >= 0)
     m_Planes[3] = XMVectorSet(m._14 - m._12, m._24 - m._22, m._34 - m._32, m._44 - m._42);
 
-    // Near Plane (DirectX‚Å‚Í z_c >= 0)
+    // Near Plane (DirectXã§ã¯ z_c >= 0)
     m_Planes[4] = XMVectorSet(m._13, m._23, m._33, m._43);
 
-    // Far Plane (DirectX‚Å‚Í z_c <= w_c ‚Â‚Ü‚è -z_c + w_c >= 0)
+    // Far Plane (DirectXã§ã¯ z_c <= w_c ã¤ã¾ã‚Š -z_c + w_c >= 0)
     m_Planes[5] = XMVectorSet(m._14 - m._13, m._24 - m._23, m._34 - m._33, m._44 - m._43);
 
-    // 2. ‚·‚×‚Ä‚Ì•½–Ê‚Ì–@ü‚ğ³‹K‰»‚·‚é
+    // 2. ã™ã¹ã¦ã®å¹³é¢ã®æ³•ç·šã‚’æ­£è¦åŒ–ã™ã‚‹
     for (int i = 0; i < 6; ++i)
     {
         m_Planes[i] = XMPlaneNormalize(m_Planes[i]);
@@ -40,21 +40,21 @@ bool Frustum::CheckSphere(const XMFLOAT3& center, float radius) const
     XMVECTOR vCenter = XMLoadFloat3(&center);
     for (int i = 0; i < 6; ++i)
     {
-        // TODO [‰Û‘è2]: •½–Ê‚Æ‹…‚Ì’†SÀ•W‚Æ‚Ì‹——£(Dot Product / “àÏ)‚ğŒvZ‚·‚éB
-        // DirectXMath‚Å‚Í XMPlaneDotCoord ŠÖ”‚ğ—p‚¢‚é‚ÆAŠÈ’P‚É’†SÀ•W‚Æ•½–Ê‚Ì•„†•t‚«‹——£‚ğZo‚Å‚«‚Ü‚·B
-        /* TODO: XMPlaneDotCoord ‚Å m_Planes[i] ‚Æ vCenter ‚ğ•]‰¿ */
+        // TODO [èª²é¡Œ2]: å¹³é¢ã¨çƒã®ä¸­å¿ƒåº§æ¨™ã¨ã®è·é›¢(Dot Product / å†…ç©)ã‚’è¨ˆç®—ã™ã‚‹ã€‚
+        // DirectXMathã§ã¯ XMPlaneDotCoord é–¢æ•°ã‚’ç”¨ã„ã‚‹ã¨ã€ç°¡å˜ã«ä¸­å¿ƒåº§æ¨™ã¨å¹³é¢ã®ç¬¦å·ä»˜ãè·é›¢ã‚’ç®—å‡ºã§ãã¾ã™ã€‚
+        /* TODO: XMPlaneDotCoord ã§ m_Planes[i] ã¨ vCenter ã‚’è©•ä¾¡ */
         XMVECTOR vDistance = XMPlaneDotCoord(m_Planes[i], vCenter);
 
-        // ƒxƒNƒgƒ‹‚©‚çfloat’l‚ğæ‚èo‚·
+        // ãƒ™ã‚¯ãƒˆãƒ«ã‹ã‚‰floatå€¤ã‚’å–ã‚Šå‡ºã™
         float distance = XMVectorGetX(vDistance);
-        // TODO [‰Û‘è2]: ‹…‚ªŠ®‘S‚É•½–Ê‚Ì— ‘¤iŠO•”j‚É‚ ‚é‚©”»’è‚·‚éB
-        // ƒqƒ“ƒg: d < -R ‚Ìê‡‚ÍA‹‘ä‚ÌŠO‚È‚Ì‚ÅƒJƒƒ‰‚É‰f‚ç‚È‚¢B‘¦À‚É false ‚ğ•Ô‚·B
+        // TODO [èª²é¡Œ2]: çƒãŒå®Œå…¨ã«å¹³é¢ã®è£å´ï¼ˆå¤–éƒ¨ï¼‰ã«ã‚ã‚‹ã‹åˆ¤å®šã™ã‚‹ã€‚
+        // ãƒ’ãƒ³ãƒˆ: d < -R ã®å ´åˆã¯ã€è¦–éŒå°ã®å¤–ãªã®ã§ã‚«ãƒ¡ãƒ©ã«æ˜ ã‚‰ãªã„ã€‚å³åº§ã« false ã‚’è¿”ã™ã€‚
         if (distance < -radius)
         {
-            return false; // ‹‘ä‚ÌŠO•”iƒJƒŠƒ“ƒO‘ÎÛj
+            return false; // è¦–éŒå°ã®å¤–éƒ¨ï¼ˆã‚«ãƒªãƒ³ã‚°å¯¾è±¡ï¼‰
         }
     }
 
-    // ‚Ç‚Ì•½–Ê‚Ì— ‘¤‚É‚àŠ®‘S‚É‚Í’Ç‚¢‚â‚ç‚ê‚Ä‚¢‚È‚¢ê‡AƒJƒƒ‰‚É‰f‚éi‚Ü‚½‚Í‹«ŠE‚ğŒ×‚¢‚Å‚¢‚éj
+    // ã©ã®å¹³é¢ã®è£å´ã«ã‚‚å®Œå…¨ã«ã¯è¿½ã„ã‚„ã‚‰ã‚Œã¦ã„ãªã„å ´åˆã€ã‚«ãƒ¡ãƒ©ã«æ˜ ã‚‹ï¼ˆã¾ãŸã¯å¢ƒç•Œã‚’è·¨ã„ã§ã„ã‚‹ï¼‰
     return true;
 }

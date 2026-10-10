@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <algorithm>
 
 namespace Engine
@@ -6,17 +6,17 @@ namespace Engine
 	class GameTime
 	{
 	public:
-		inline static float deltaTime  = 0.0016f;  // ‘OƒtƒŒ[ƒ€‚ÌŒo‰ßŠÔ
-		inline static float time	   = 0.0f;	   // ƒAƒvƒŠ‹N“®‚©‚ç‚Ì—İŒvŠÔ
-		inline static float timeScale  = 1.0f;	   // ŠÔ‚Ì”{—¦
-		inline static unsigned int frameCount = 0; // —İŒvƒtƒŒ[ƒ€”
+		inline static float deltaTime  = 0.0016f;  // å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®çµŒéæ™‚é–“
+		inline static float time	   = 0.0f;	   // ã‚¢ãƒ—ãƒªèµ·å‹•ã‹ã‚‰ã®ç´¯è¨ˆæ™‚é–“
+		inline static float timeScale  = 1.0f;	   // æ™‚é–“ã®å€ç‡
+		inline static unsigned int frameCount = 0; // ç´¯è¨ˆãƒ•ãƒ¬ãƒ¼ãƒ æ•°
 
-		// –ˆƒtƒŒ[ƒ€–`“ª‚Å App::Run ‚©‚ç1‰ñ‚¾‚¯ŒÄ‚Î‚ê‚éXVŠÖ”
+		// æ¯ãƒ•ãƒ¬ãƒ¼ãƒ å†’é ­ã§ App::Run ã‹ã‚‰1å›ã ã‘å‘¼ã°ã‚Œã‚‹æ›´æ–°é–¢æ•°
 		static void Update(float rawDeltaTime)
 		{
-			// ãŒÀƒNƒ‰ƒ“ƒvi0.1•b = Å’á‚Å‚à10FPS‘Š“–‚Å“ª‘Å‚¿‚É‚µ‚Ä”­U‚ğ–h‚®j
+			// ä¸Šé™ã‚¯ãƒ©ãƒ³ãƒ—ï¼ˆ0.1ç§’ = æœ€ä½ã§ã‚‚10FPSç›¸å½“ã§é ­æ‰“ã¡ã«ã—ã¦ç™ºæ•£ã‚’é˜²ãï¼‰
 			float clampedDt = (std::min)(rawDeltaTime, 0.1f);
-			// timeScale ‚ğæZ‚µ‚½ŠÔ‚ğ deltaTime ‚Æ‚·‚é
+			// timeScale ã‚’ä¹—ç®—ã—ãŸæ™‚é–“ã‚’ deltaTime ã¨ã™ã‚‹
 			deltaTime = clampedDt * timeScale;
 			time += deltaTime;
 			frameCount++;

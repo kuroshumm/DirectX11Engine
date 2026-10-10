@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 namespace Engine
 {
@@ -11,7 +11,7 @@ namespace Engine
 		Vector3() = default;
 		Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
 
-		// ‘«‚µŽZ
+		// è¶³ã—ç®—
 		Vector3 operator+(const Vector3& other) const
 		{
 			return Vector3(this->x + other.x, this->y + other.y, this->z + other.z);
@@ -24,7 +24,7 @@ namespace Engine
 			return *this;
 		}
 
-		// ˆø‚«ŽZ
+		// å¼•ãç®—
 		Vector3 operator-(const Vector3& other) const
 		{
 			return Vector3(this->x - other.x, this->y - other.y, this->z - other.z);
@@ -37,7 +37,7 @@ namespace Engine
 			return *this;
 		}
 
-		// ƒXƒJƒ‰[‚Æ‚ÌŠ|‚¯ŽZ
+		// ã‚¹ã‚«ãƒ©ãƒ¼ã¨ã®æŽ›ã‘ç®—
 		Vector3 operator*(const float scalar) const
 		{
 			return Vector3(this->x * scalar, this->y * scalar, this->z * scalar);

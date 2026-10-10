@@ -1,4 +1,4 @@
-#include "BonePaletteUploadSystem.h"
+ï»¿#include "BonePaletteUploadSystem.h"
 #include <algorithm>
 #include <stdexcept>
 
@@ -19,8 +19,8 @@ namespace Engine
 				continue;
 			}
 
-			// ‘S‚Ä‚ÌŒvZ‚ªI‚í‚Á‚½s—ñ‚ğg‚Á‚ÄÅIƒXƒLƒjƒ“ƒOs—ñ‚ğì‚èƒpƒŒƒbƒg‚É‘‚«‚Ş
-			// ŒvZ‚µ‚½ƒXƒLƒjƒ“ƒOs—ñ‚ğGPU‚É“n‚·
+			// å…¨ã¦ã®è¨ˆç®—ãŒçµ‚ã‚ã£ãŸè¡Œåˆ—ã‚’ä½¿ã£ã¦æœ€çµ‚ã‚¹ã‚­ãƒ‹ãƒ³ã‚°è¡Œåˆ—ã‚’ä½œã‚Šãƒ‘ãƒ¬ãƒƒãƒˆã«æ›¸ãè¾¼ã‚€
+			// è¨ˆç®—ã—ãŸã‚¹ã‚­ãƒ‹ãƒ³ã‚°è¡Œåˆ—ã‚’GPUã«æ¸¡ã™
 			UploadPaletteBuffer(context, skeltonComp, skinningPaletteComp);
 		}
 	}
@@ -42,24 +42,24 @@ namespace Engine
 		{
 			PaletteBufferData* data = (PaletteBufferData*)mapped.pData;
 
-			int maxBoneNum = std::min(static_cast<int>(skeltonComp.bones.size()), MAX_BONES);
+			int maxBoneNum = (std::min)(static_cast<int>(skeltonComp.bones.size()), MAX_BONES);
 			for (int boneIndex = 0; boneIndex < maxBoneNum; ++boneIndex)
 			{
 				Bone& bone = skeltonComp.bones[boneIndex];
 
-				// 3. yƒOƒ[ƒoƒ‹s—ñ‚ÌZoiFKjz
-				// ©g‚Ìƒ[ƒJƒ‹ƒAƒjƒ[ƒVƒ‡ƒ“ ~ e‚Ìâ‘ÎÀ•W  ©g‚Ìâ‘ÎÀ•Wi‘«Œ³Šî€‚Ì ModelTransformMatrixj
+				// 3. ã€ã‚°ãƒ­ãƒ¼ãƒãƒ«è¡Œåˆ—ã®ç®—å‡ºï¼ˆFKï¼‰ã€‘
+				// è‡ªèº«ã®ãƒ­ãƒ¼ã‚«ãƒ«ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ Ã— è¦ªã®çµ¶å¯¾åº§æ¨™ ï¼ è‡ªèº«ã®çµ¶å¯¾åº§æ¨™ï¼ˆè¶³å…ƒåŸºæº–ã® ModelTransformMatrixï¼‰
 				DirectX::XMMATRIX globalBoneTransform = DirectX::XMLoadFloat4x4(&bone.GlobalTransformMatrix);
 
-				// 4. yÅIƒXƒLƒjƒ“ƒOs—ñ‚ÌZoz
-				// ’¸“_‚ğƒ{[ƒ“‚Ìƒ[ƒJƒ‹‹óŠÔiŠÖß‚Ì•t‚¯ªj‚Éˆø‚«–ß‚·‚½‚ß‚Ì‰Šú‹ts—ñ
+				// 4. ã€æœ€çµ‚ã‚¹ã‚­ãƒ‹ãƒ³ã‚°è¡Œåˆ—ã®ç®—å‡ºã€‘
+				// é ‚ç‚¹ã‚’ãƒœãƒ¼ãƒ³ã®ãƒ­ãƒ¼ã‚«ãƒ«ç©ºé–“ï¼ˆé–¢ç¯€ã®ä»˜ã‘æ ¹ï¼‰ã«å¼•ãæˆ»ã™ãŸã‚ã®åˆæœŸé€†è¡Œåˆ—
 				DirectX::XMMATRIX inverseBindMat = DirectX::XMLoadFloat4x4(&bone.InverseBindMatrix);
-				// ˆø‚«–ß‚µiInverseBindj~ V‚µ‚¢â‘ÎÀ•WiglobalBoneTransformj
-				// ‚±‚ê‚É‚æ‚èu’¸“_‚ğŠÖß‚Öˆø‚«–ß‚· -> ‰ñ“]‚³‚¹‚é -> ƒ‚ƒfƒ‹‹óŠÔ‚Ö–ß‚·v‚Æ‚¢‚¤ˆê˜A‚Ì•ÏŒ`s—ñ‚ªŠ®¬‚·‚é
+				// å¼•ãæˆ»ã—ï¼ˆInverseBindï¼‰Ã— æ–°ã—ã„çµ¶å¯¾åº§æ¨™ï¼ˆglobalBoneTransformï¼‰
+				// ã“ã‚Œã«ã‚ˆã‚Šã€Œé ‚ç‚¹ã‚’é–¢ç¯€ã¸å¼•ãæˆ»ã™ -> å›è»¢ã•ã›ã‚‹ -> ãƒ¢ãƒ‡ãƒ«ç©ºé–“ã¸æˆ»ã™ã€ã¨ã„ã†ä¸€é€£ã®å¤‰å½¢è¡Œåˆ—ãŒå®Œæˆã™ã‚‹
 				DirectX::XMMATRIX skinningMat = DirectX::XMMatrixMultiply(inverseBindMat, globalBoneTransform);
 
-				// 5. yƒpƒŒƒbƒg‚Ö‚ÌŠi”[z
-				// HLSLi’¸“_ƒVƒF[ƒ_[j‘¤‚Í—ñ—DæiColumn-Majorj‚ğŠú‘Ò‚·‚é‚½‚ßA“]’uiTransposej‚µ‚Ä’è”ƒoƒbƒtƒ@—p”z—ñ‚ÖŠi”[‚·‚é
+				// 5. ã€ãƒ‘ãƒ¬ãƒƒãƒˆã¸ã®æ ¼ç´ã€‘
+				// HLSLï¼ˆé ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ï¼‰å´ã¯åˆ—å„ªå…ˆï¼ˆColumn-Majorï¼‰ã‚’æœŸå¾…ã™ã‚‹ãŸã‚ã€è»¢ç½®ï¼ˆTransposeï¼‰ã—ã¦å®šæ•°ãƒãƒƒãƒ•ã‚¡ç”¨é…åˆ—ã¸æ ¼ç´ã™ã‚‹
 				data->Bones[boneIndex] = DirectX::XMMatrixTranspose(skinningMat);
 			}
 

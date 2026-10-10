@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <d2d1.h>
 #include <dwrite.h>
 #include <wrl/client.h>
@@ -19,32 +19,32 @@ namespace Engine
         {
             HRESULT hr = S_OK;
 
-            // Direct2D ƒtƒ@ƒNƒgƒŠ‚Ìì¬
+            // Direct2D ãƒ•ã‚¡ã‚¯ãƒˆãƒªã®ä½œæˆ
             hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, m_pD2DFactory.GetAddressOf());
             if (FAILED(hr)) return hr;
 
-            // DirectWrite ƒtƒ@ƒNƒgƒŠ‚Ìì¬
+            // DirectWrite ãƒ•ã‚¡ã‚¯ãƒˆãƒªã®ä½œæˆ
             hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory),
                 reinterpret_cast<IUnknown**>(m_pDWriteFactory.GetAddressOf()));
             if (FAILED(hr)) return hr;
 
-            // ƒeƒLƒXƒgƒtƒH[ƒ}ƒbƒgiƒtƒHƒ“ƒgEƒTƒCƒYE‰E‘µ‚¦j‚Ìì¬
+            // ãƒ†ã‚­ã‚¹ãƒˆãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆï¼ˆãƒ•ã‚©ãƒ³ãƒˆãƒ»ã‚µã‚¤ã‚ºãƒ»å³æƒãˆï¼‰ã®ä½œæˆ
             hr = m_pDWriteFactory->CreateTextFormat(
                 L"Consolas",
                 nullptr,
                 DWRITE_FONT_WEIGHT_BOLD,
                 DWRITE_FONT_STYLE_NORMAL,
                 DWRITE_FONT_STRETCH_NORMAL,
-                20.0f, // ƒtƒHƒ“ƒgƒTƒCƒY
+                20.0f, // ãƒ•ã‚©ãƒ³ãƒˆã‚µã‚¤ã‚º
                 L"ja-jp",
                 m_pTextFormat.GetAddressOf()
             );
             if (FAILED(hr)) return hr;
 
-            // ‰E‘µ‚¦‚Éİ’è
+            // å³æƒãˆã«è¨­å®š
             m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_TRAILING);
 
-            // ƒXƒƒbƒvƒ`ƒF[ƒ“‚ÌƒoƒbƒNƒoƒbƒtƒ@‚©‚ç Direct2D ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚ğì¬
+            // ã‚¹ãƒ¯ãƒƒãƒ—ãƒã‚§ãƒ¼ãƒ³ã®ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã‹ã‚‰ Direct2D ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’ä½œæˆ
             Microsoft::WRL::ComPtr<IDXGISurface> pBackBuffer;
             hr = pSwapChain->GetBuffer(0, IID_PPV_ARGS(pBackBuffer.GetAddressOf()));
             if (FAILED(hr)) return hr;
@@ -61,7 +61,7 @@ namespace Engine
             );
             if (FAILED(hr)) return hr;
 
-            // ”’•¶šƒuƒ‰ƒV‚Ìì¬
+            // ç™½æ–‡å­—ãƒ–ãƒ©ã‚·ã®ä½œæˆ
             hr = m_pRenderTarget->CreateSolidColorBrush(
                 D2D1::ColorF(D2D1::ColorF::White),
                 m_pBrush.GetAddressOf()
@@ -74,14 +74,14 @@ namespace Engine
         {
             if (!m_pRenderTarget) return;
             m_pRenderTarget->BeginDraw();
-            // š ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚©‚çÀÛ‚Ì‰æ–ÊƒTƒCƒY (•‚Æ‚‚³) ‚ğ©“®æ“¾I
+            // â˜… ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‹ã‚‰å®Ÿéš›ã®ç”»é¢ã‚µã‚¤ã‚º (å¹…ã¨é«˜ã•) ã‚’è‡ªå‹•å–å¾—ï¼
             D2D1_SIZE_F size = m_pRenderTarget->GetSize();
-            // ‰æ–Ê‰Eã‚É‚Ò‚Á‚½‚èû‚Ü‚é‚æ‚¤‚ÉÀ•W‚ğŒvZ (‰E’[‚©‚ç 260px, ã’[‚©‚ç 10px)
+            // ç”»é¢å³ä¸Šã«ã´ã£ãŸã‚Šåã¾ã‚‹ã‚ˆã†ã«åº§æ¨™ã‚’è¨ˆç®— (å³ç«¯ã‹ã‚‰ 260px, ä¸Šç«¯ã‹ã‚‰ 10px)
             D2D1_RECT_F rect = D2D1::RectF(
-                size.width - 260.0f, // ¶’[ (—á: 800 - 260 = 540px)
-                10.0f,               // ã’[
-                size.width - 10.0f,  // ‰E’[ (—á: 800 - 10 = 790px)
-                150.0f               // ‰º’[
+                size.width - 260.0f, // å·¦ç«¯ (ä¾‹: 800 - 260 = 540px)
+                10.0f,               // ä¸Šç«¯
+                size.width - 10.0f,  // å³ç«¯ (ä¾‹: 800 - 10 = 790px)
+                150.0f               // ä¸‹ç«¯
             );
             m_pRenderTarget->DrawTextW(
                 text.c_str(),

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include <d3d11.h>
 #include <dxgi.h>
@@ -8,7 +8,7 @@
 
 #include "SubMesh.h"
 
-// ‹¤—Lƒ‚ƒfƒ‹ƒAƒZƒbƒgiƒWƒIƒƒgƒŠ‚Ì‚İj
+// å…±æœ‰ãƒ¢ãƒ‡ãƒ«ã‚¢ã‚»ãƒƒãƒˆï¼ˆã‚¸ã‚ªãƒ¡ãƒˆãƒªã®ã¿ï¼‰
 struct ModelAsset
 {
 	std::vector<SubMesh> subMeshs;

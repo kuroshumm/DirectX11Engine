@@ -1,4 +1,4 @@
-#include "CCDSolver.h"
+ï»¿#include "CCDSolver.h"
 #include "Components.h"
 
 namespace Engine
@@ -33,55 +33,55 @@ namespace Engine
 				DirectX::XMMATRIX globalMatrix = DirectX::XMLoadFloat4x4(&bone.GlobalTransformMatrix);
 				DirectX::XMVECTOR bonePosVec = globalMatrix.r[3];
 
-				// ƒGƒtƒFƒNƒ^i––’[j‚ÌBone‚ÌÀ•W‚ğæ“¾
+				// ã‚¨ãƒ•ã‚§ã‚¯ã‚¿ï¼ˆæœ«ç«¯ï¼‰ã®Boneã®åº§æ¨™ã‚’å–å¾—
 				DirectX::XMMATRIX effectorGlobalMatrix = DirectX::XMLoadFloat4x4(&targetBone.GlobalTransformMatrix);
 				DirectX::XMVECTOR effectorBonePosVec = effectorGlobalMatrix.r[3];
 
-				// ’–ÚŠÖßËƒGƒtƒFƒNƒ^i––’[j‚Ö‚ÌƒxƒNƒgƒ‹
+				// æ³¨ç›®é–¢ç¯€â‡’ã‚¨ãƒ•ã‚§ã‚¯ã‚¿ï¼ˆæœ«ç«¯ï¼‰ã¸ã®ãƒ™ã‚¯ãƒˆãƒ«
 				DirectX::XMVECTOR toEffectVec = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(effectorBonePosVec, bonePosVec));
-				// ’–ÚŠÖßËƒ^[ƒQƒbƒg‚Ö‚ÌƒxƒNƒgƒ‹
+				// æ³¨ç›®é–¢ç¯€â‡’ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¸ã®ãƒ™ã‚¯ãƒˆãƒ«
 				DirectX::XMVECTOR toTargetVec = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(targetPosVec, bonePosVec));
 
-				// ƒ^[ƒQƒbƒg‚É“’B‚·‚é‚½‚ß‚Ì‰ñ“]²
+				// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã«åˆ°é”ã™ã‚‹ãŸã‚ã®å›è»¢è»¸
 				DirectX::XMVECTOR axis = DirectX::XMVector3Cross(toEffectVec, toTargetVec);
 				DirectX::XMMATRIX globalMat = DirectX::XMLoadFloat4x4(&bone.GlobalTransformMatrix);
 				DirectX::XMVECTOR globalScale, globalRot, globalTransform;
 				DirectX::XMMatrixDecompose(&globalScale, &globalRot, &globalTransform, globalMat);
 				DirectX::XMVECTOR localAxis = DirectX::XMVector3Rotate(axis, DirectX::XMQuaternionInverse(globalRot));
 				localAxis = DirectX::XMVector3Normalize(localAxis);
-				// ƒ^[ƒQƒbƒg‚É“’B‚·‚é‚½‚ß‚ÌŠp“x
+				// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã«åˆ°é”ã™ã‚‹ãŸã‚ã®è§’åº¦
 				DirectX::XMVECTOR cosValue = DirectX::XMVector3Dot(toEffectVec, toTargetVec);
 				DirectX::XMVECTOR clampedCos = DirectX::XMVectorClamp(cosValue, DirectX::XMVectorReplicate(-1.0f), DirectX::XMVectorReplicate(1.0f));
 				DirectX::XMVECTOR angleRadianVec = DirectX::XMVectorACos(clampedCos);
 				float radianAngle = DirectX::XMVectorGetX(angleRadianVec);
 
-				// ƒ^[ƒQƒbƒg‚É“’B‚·‚é‚½‚ß‚ÌƒNƒH[ƒ^ƒjƒIƒ“
+				// ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã«åˆ°é”ã™ã‚‹ãŸã‚ã®ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³
 				DirectX::XMVECTOR deltaRot = DirectX::XMQuaternionRotationNormal(localAxis, radianAngle);
 
-				// ’–ÚŠÖß‚Ìƒ[ƒJƒ‹s—ñ‚ğ•ª‰ğ
+				// æ³¨ç›®é–¢ç¯€ã®ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—ã‚’åˆ†è§£
 				DirectX::XMMATRIX localMat = DirectX::XMLoadFloat4x4(&bone.LocalTransformMatrix);
 				DirectX::XMVECTOR scale, rot, transform;
 				DirectX::XMMatrixDecompose(&scale, &rot, &transform, localMat);
 
-				// ‰ñ“]
+				// å›è»¢
 				DirectX::XMVECTOR newRot = DirectX::XMQuaternionMultiply(rot, deltaRot);
 				
-				// ‰ñ“]‚ğ§ŒÀ“à‚Éû‚ß‚é
+				// å›è»¢ã‚’åˆ¶é™å†…ã«åã‚ã‚‹
 				auto it = ikData.constraints.find(static_cast<int>(boneIndex));
 				if (it != ikData.constraints.end())
 				{
 					const JointConstraint& constraint = it->second;
-					// ƒNƒH[ƒ^ƒjƒIƒ“‚©‚çA§ŒÀ‚µ‚½‚¢“Á’è‚Ìƒ[ƒJƒ‹²iƒsƒbƒ`Šp‚È‚Çj‚ÌŠp“x‚ğ’Šo‚·‚é
-					// (¦ DirectXMath ‚ÌƒIƒCƒ‰[Šp•ÏŠ·‚âASwing-Twist•ª‰ğ‚È‚Ç‚ÌŠô‰½ŠwŒvZ‚ğ—p‚¢‚Ü‚·)
+					// ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ã‹ã‚‰ã€åˆ¶é™ã—ãŸã„ç‰¹å®šã®ãƒ­ãƒ¼ã‚«ãƒ«è»¸ï¼ˆãƒ”ãƒƒãƒè§’ãªã©ï¼‰ã®è§’åº¦ã‚’æŠ½å‡ºã™ã‚‹
+					// (â€» DirectXMath ã®ã‚ªã‚¤ãƒ©ãƒ¼è§’å¤‰æ›ã‚„ã€Swing-Twiståˆ†è§£ãªã©ã®å¹¾ä½•å­¦è¨ˆç®—ã‚’ç”¨ã„ã¾ã™)
 					float currentAngle = ExtractAngleAroundAxis(newRot, constraint.localAxis);
 
-					// Šp“x‚ğ‹–—e”ÍˆÍ“à‚ÉƒNƒ‰ƒ“ƒv
+					// è§’åº¦ã‚’è¨±å®¹ç¯„å›²å†…ã«ã‚¯ãƒ©ãƒ³ãƒ—
 					float clampedAngle = std::clamp(currentAngle, constraint.minAngleRad, constraint.maxAngleRad);
-					// §ŒÀ‚³‚ê‚½Šp“x‚Æ²‚©‚çAƒuƒŒ‚Ì‚È‚¢ƒNƒH[ƒ^ƒjƒIƒ“‚ğÄ¶¬‚µ‚Äã‘‚«‚·‚é
+					// åˆ¶é™ã•ã‚ŒãŸè§’åº¦ã¨è»¸ã‹ã‚‰ã€ãƒ–ãƒ¬ã®ãªã„ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ã‚’å†ç”Ÿæˆã—ã¦ä¸Šæ›¸ãã™ã‚‹
 					newRot = DirectX::XMQuaternionRotationAxis(constraint.localAxis, clampedAngle);
 				}
 
-				// ‰ñ“]‚µ‚½Œã‚Ìƒ[ƒJƒ‹s—ñ‚ğÄ\’z
+				// å›è»¢ã—ãŸå¾Œã®ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—ã‚’å†æ§‹ç¯‰
 				DirectX::XMMATRIX newLocalMat = DirectX::XMMatrixAffineTransformation(
 					scale,
 					DirectX::XMVectorZero(),
@@ -100,7 +100,7 @@ namespace Engine
 				UpdateChainFK(bones, boneIndex, parentGlobalMat);
 			}
 
-			// ƒGƒtƒFƒNƒ^i––’[j‚ÌˆÊ’u‚ªƒ^[ƒQƒbƒg‚ÌˆÊ’u‚É‹ß‚Ã‚¢‚½‚çI—¹
+			// ã‚¨ãƒ•ã‚§ã‚¯ã‚¿ï¼ˆæœ«ç«¯ï¼‰ã®ä½ç½®ãŒã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®ä½ç½®ã«è¿‘ã¥ã„ãŸã‚‰çµ‚äº†
 			DirectX::XMMATRIX effectorGlobalMatrix = DirectX::XMLoadFloat4x4(&targetBone.GlobalTransformMatrix);
 			DirectX::XMVECTOR effectorBonePosVec = effectorGlobalMatrix.r[3];
 			DirectX::XMVECTOR diffVec = DirectX::XMVectorSubtract(targetPosVec, effectorBonePosVec);
@@ -131,19 +131,19 @@ namespace Engine
 	float CCDSolver::ExtractAngleAroundAxis(DirectX::XMVECTOR newRot, DirectX::XMVECTOR localAxis)
 	{
 		// q = (x, y, z, w), axis = (ax, ay, az, 0)
-		// ¦ axis ‚Í‚ ‚ç‚©‚¶‚ß³‹K‰»i’·‚³ 1.0j‚³‚ê‚Ä‚¢‚é•K—v‚ª‚ ‚è‚Ü‚·B
+		// â€» axis ã¯ã‚ã‚‰ã‹ã˜ã‚æ­£è¦åŒ–ï¼ˆé•·ã• 1.0ï¼‰ã•ã‚Œã¦ã„ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚
 		// 
-		// 1. ƒNƒH[ƒ^ƒjƒIƒ“‚ÌƒxƒNƒgƒ‹•” (x, y, z) ‚Æw’è²‚Ì“àÏ‚ğŒvZ‚·‚é
-		// ‚±‚ê‚É‚æ‚èAw’è²•ûŒü‚Ö‚Ì‰ñ“]¬•ª‚Ì‘å‚«‚³isin(theta/2) ‚É”ä—áj‚ª’Šo‚³‚ê‚Ü‚·
+		// 1. ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ã®ãƒ™ã‚¯ãƒˆãƒ«éƒ¨ (x, y, z) ã¨æŒ‡å®šè»¸ã®å†…ç©ã‚’è¨ˆç®—ã™ã‚‹
+		// ã“ã‚Œã«ã‚ˆã‚Šã€æŒ‡å®šè»¸æ–¹å‘ã¸ã®å›è»¢æˆåˆ†ã®å¤§ãã•ï¼ˆsin(theta/2) ã«æ¯”ä¾‹ï¼‰ãŒæŠ½å‡ºã•ã‚Œã¾ã™
 		DirectX::XMVECTOR dotVec = DirectX::XMVector3Dot(newRot, localAxis);
 		float dot = DirectX::XMVectorGetX(dotVec);
-		// 2. ƒNƒH[ƒ^ƒjƒIƒ“‚Ì W ¬•ª (cos(theta/2) ‚É‘Î‰) ‚ğæ“¾‚·‚é
+		// 2. ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ã® W æˆåˆ† (cos(theta/2) ã«å¯¾å¿œ) ã‚’å–å¾—ã™ã‚‹
 		float w = DirectX::XMVectorGetW(newRot);
-		// 3. atan2 ‚ğ—p‚¢‚ÄA²‚Ü‚í‚è‚Ì”¼Šp (theta/2) ‚ğZo‚·‚é
+		// 3. atan2 ã‚’ç”¨ã„ã¦ã€è»¸ã¾ã‚ã‚Šã®åŠè§’ (theta/2) ã‚’ç®—å‡ºã™ã‚‹
 		float halfAngle = std::atan2(dot, w);
-		// 4. ”¼Šp‚ğ2”{‚µ‚ÄÀÛ‚Ì‰ñ“]Šp theta ‚ğ“¾‚é
+		// 4. åŠè§’ã‚’2å€ã—ã¦å®Ÿéš›ã®å›è»¢è§’ theta ã‚’å¾—ã‚‹
 		float angle = 2.0f * halfAngle;
-		// 5. Šp“x‚Ì”ÍˆÍ‚ğ [-pi, pi] ‚Ì”ÍˆÍ‚É³‹K‰»‚·‚éiˆÀ‘S‘Îôj
+		// 5. è§’åº¦ã®ç¯„å›²ã‚’ [-pi, pi] ã®ç¯„å›²ã«æ­£è¦åŒ–ã™ã‚‹ï¼ˆå®‰å…¨å¯¾ç­–ï¼‰
 		if (angle > DirectX::XM_PI)  angle -= DirectX::XM_2PI;
 		if (angle < -DirectX::XM_PI) angle += DirectX::XM_2PI;
 		return angle;

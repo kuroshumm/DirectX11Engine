@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <memory>
 #include <unordered_map>
@@ -20,14 +20,14 @@ namespace Engine
 		) override;
 
 	private:
-		// A. ˆÊ’u‚Ì‰ğŒˆiˆê’¼ü‰»A‚Ü‚½‚ÍƒCƒeƒŒ[ƒVƒ‡ƒ“‚É‚æ‚éŠeŠÖß‚ÌƒOƒ[ƒoƒ‹À•W‚ÌŒˆ’èj
+		// A. ä½ç½®ã®è§£æ±ºï¼ˆä¸€ç›´ç·šåŒ–ã€ã¾ãŸã¯ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ã«ã‚ˆã‚‹å„é–¢ç¯€ã®ã‚°ãƒ­ãƒ¼ãƒãƒ«åº§æ¨™ã®æ±ºå®šï¼‰
 		void ResolvePositions(
 			const DirectX::XMVECTOR& targetPosVec,
 			const DirectX::XMVECTOR& rootPosVec,
 			std::vector<DirectX::XMVECTOR>& tempPositions,
 			const std::vector<float>& boneDistances
 		);
-		// B. Šm’è‚µ‚½ˆÊ’u‚©‚ç‰ñ“]‚ğ‹tZ‚µAÀÛ‚Ìƒ‚ƒfƒ‹‚Ìƒ{[ƒ“‚É“K—p‚·‚é
+		// B. ç¢ºå®šã—ãŸä½ç½®ã‹ã‚‰å›è»¢ã‚’é€†ç®—ã—ã€å®Ÿéš›ã®ãƒ¢ãƒ‡ãƒ«ã®ãƒœãƒ¼ãƒ³ã«é©ç”¨ã™ã‚‹
 		void ApplyPositionsToBones(
 			const IKComponent& ikData,
 			const std::vector<DirectX::XMVECTOR>& tempPositions,

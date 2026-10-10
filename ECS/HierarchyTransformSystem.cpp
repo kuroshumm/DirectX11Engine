@@ -1,4 +1,4 @@
-#include "HierarchyTransformSystem.h"
+ï»¿#include "HierarchyTransformSystem.h"
 
 namespace Engine
 {
@@ -10,7 +10,7 @@ namespace Engine
 		{
 			HierarchyComponent* hierarchyComp = registry.try_get<HierarchyComponent>(entity);
 
-			// ƒ‹[ƒgƒm[ƒh‚Ì‚İˆ—‚ğŠJn
+			// ãƒ«ãƒ¼ãƒˆãƒãƒ¼ãƒ‰ã®ã¿å‡¦ç†ã‚’é–‹å§‹
 			if (!hierarchyComp || hierarchyComp->parent == entt::null)
 			{
 				DirectX::XMMATRIX worldMat;
@@ -21,11 +21,11 @@ namespace Engine
 				}
 				else
 				{
-					// Ã~‚µ‚Ä‚¢‚éê‡‚ÍŠù‘¶‚Ìƒ[ƒ‹ƒhs—ñ‚ğÄ—˜—pi–³‘Ê‚ÈŒvZ‚ğ‰ñ”ğj
+					// é™æ­¢ã—ã¦ã„ã‚‹å ´åˆã¯æ—¢å­˜ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã‚’å†åˆ©ç”¨ï¼ˆç„¡é§„ãªè¨ˆç®—ã‚’å›é¿ï¼‰
 					worldMat = DirectX::XMLoadFloat4x4(&transformComp.worldMatrix);
 				}
 
-				// q‘·ƒm[ƒh‚ÖÄ‹A“`”diDirtyƒtƒ‰ƒO‚ğˆø‚«Œp‚®j
+				// å­å­«ãƒãƒ¼ãƒ‰ã¸å†å¸°ä¼æ’­ï¼ˆDirtyãƒ•ãƒ©ã‚°ã‚’å¼•ãç¶™ãï¼‰
 				if (hierarchyComp && hierarchyComp->firstChild != entt::null)
 				{
 					UpdateSubtree(registry, hierarchyComp->firstChild, worldMat, transformComp.isDirty);
@@ -54,7 +54,7 @@ namespace Engine
 			if (needUpdate)
 			{
 				DirectX::XMMATRIX childLocalMat = ComputeLocalMatrix(childTransform);
-				// q‚Ìƒ[ƒ‹ƒhs—ñ = q‚Ìƒ[ƒJƒ‹s—ñ * e‚Ìƒ[ƒ‹ƒhs—ñ
+				// å­ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ— = å­ã®ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ— * è¦ªã®ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—
 				childWorldMat = DirectX::XMMatrixMultiply(childLocalMat, parentWorldMatrix);
 				DirectX::XMStoreFloat4x4(&childTransform.worldMatrix, childWorldMat);
 			}
@@ -63,7 +63,7 @@ namespace Engine
 				childWorldMat = DirectX::XMLoadFloat4x4(&childTransform.worldMatrix);
 			}
 
-			// qƒm[ƒh‚ÖÄ‹A
+			// å­ãƒãƒ¼ãƒ‰ã¸å†å¸°
 			if (childHierarchy.firstChild != entt::null)
 			{
 				UpdateSubtree(

@@ -1,4 +1,4 @@
-#include "CullingSystem.h"
+ï»¿#include "CullingSystem.h"
 
 namespace
 {
@@ -23,7 +23,7 @@ namespace
         float maxScale = (std::max)({ transform.scale.x, transform.scale.y, transform.scale.z });
         float worldRadius = localRadius * maxScale;
 
-        // ‹‘äƒJƒŠƒ“ƒO”»’è
+        // è¦–éŒå°ã‚«ãƒªãƒ³ã‚°åˆ¤å®š
         return frustum.CheckSphere(center, worldRadius);
     }
 
@@ -34,11 +34,11 @@ namespace
         DirectX::XMVECTOR cameraPos
     )
     {
-        // LODƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ‚ÂƒGƒ“ƒeƒBƒeƒB‚Ì‚İLODXV
+        // LODã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’æŒã¤ã‚¨ãƒ³ãƒ†ã‚£ãƒ†ã‚£ã®ã¿LODæ›´æ–°
         LODComponent* lod = registry.try_get<LODComponent>(entity);
         if (!lod)
         {
-            // LODƒRƒ“ƒ|[ƒlƒ“ƒg‚ğ‚½‚È‚¢ƒGƒ“ƒeƒBƒeƒB‚Í–ˆƒtƒŒ[ƒ€XV
+            // LODã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’æŒãŸãªã„ã‚¨ãƒ³ãƒ†ã‚£ãƒ†ã‚£ã¯æ¯ãƒ•ãƒ¬ãƒ¼ãƒ æ›´æ–°
             if (!registry.all_of<AnimationUpdateTag>(entity))
             {
                 registry.emplace<AnimationUpdateTag>(entity);
@@ -46,14 +46,14 @@ namespace
             return;
         }
 
-        // ƒJƒƒ‰‚ÆƒGƒ“ƒeƒBƒeƒB‚Æ‚Ì‹——£
+        // ã‚«ãƒ¡ãƒ©ã¨ã‚¨ãƒ³ãƒ†ã‚£ãƒ†ã‚£ã¨ã®è·é›¢
         DirectX::XMVECTOR entityPos = DirectX::XMLoadFloat3(&transformComp.position);
         float distanceToCamera = DirectX::XMVectorGetX(
             DirectX::XMVector3Length(DirectX::XMVectorSubtract(entityPos, cameraPos))
         );
         lod->distanceToCamera = distanceToCamera;
 
-        // ‹——£ ¨ LODƒŒƒxƒ‹ ¨ XVŠÔŠu
+        // è·é›¢ â†’ LODãƒ¬ãƒ™ãƒ« â†’ æ›´æ–°é–“éš”
         if (distanceToCamera < 20.0f) 
         {
             lod->level = 0; 
@@ -74,7 +74,7 @@ namespace
         if (lod->frameCounter >= lod->updateInterval)
         {
             lod->frameCounter = 0;
-            // XVƒtƒŒ[ƒ€Fƒ^ƒO‚ğ•t—^
+            // æ›´æ–°ãƒ•ãƒ¬ãƒ¼ãƒ ï¼šã‚¿ã‚°ã‚’ä»˜ä¸
             if (!registry.all_of<AnimationUpdateTag>(entity))
             {
                 registry.emplace<AnimationUpdateTag>(entity);
@@ -82,7 +82,7 @@ namespace
         }
         else
         {
-            // ŠÔˆø‚«ƒtƒŒ[ƒ€Fƒ^ƒO‚ğíœ
+            // é–“å¼•ããƒ•ãƒ¬ãƒ¼ãƒ ï¼šã‚¿ã‚°ã‚’å‰Šé™¤
             registry.remove<AnimationUpdateTag>(entity);
         }
     }
@@ -92,7 +92,7 @@ namespace Engine
 {
 	void CullingSystem::Update(entt::registry& registry)
 	{
-        // ƒAƒNƒeƒBƒu‚ÈƒJƒƒ‰‚ğæ“¾
+        // ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚«ãƒ¡ãƒ©ã‚’å–å¾—
         auto cameraEntity = FindActiveCameraEntity(registry);
         if (cameraEntity == entt::null)
         {
@@ -101,15 +101,15 @@ namespace Engine
         const auto& camComponent = registry.get<CameraComponent>(cameraEntity);
         const auto& camTransform = registry.get<TransformComponent>(cameraEntity);
 
-        // ƒJƒƒ‰‚Ì‹‘ä‚ğæ“¾
+        // ã‚«ãƒ¡ãƒ©ã®è¦–éŒå°ã‚’å–å¾—
         const Frustum& frustum = camComponent.frustum;
-        // ƒJƒƒ‰‚ÌÀ•W
+        // ã‚«ãƒ¡ãƒ©ã®åº§æ¨™
         DirectX::XMVECTOR cameraPos = DirectX::XMLoadFloat3(&camTransform.position);
 
         auto view = registry.view<TransformComponent, ModelComponent>();
         for (auto [entity, transformComp, modelComp] : view.each())
         {
-            // ‰æ–Ê“à‚É‚¢‚È‚¢ê‡‚Íƒ^ƒO‚ğíœ
+            // ç”»é¢å†…ã«ã„ãªã„å ´åˆã¯ã‚¿ã‚°ã‚’å‰Šé™¤
             if (!CheckFrustum(transformComp, modelComp, frustum))
             {
                 registry.remove<VisibleTag>(entity);
@@ -117,13 +117,13 @@ namespace Engine
                 continue;
             }
 
-            // ‰æ–Ê“à‚É‚¢‚éê‡ & •t—^‚³‚ê‚Ä‚È‚¢ê‡‚Éƒ^ƒO‚ğ•t—^
+            // ç”»é¢å†…ã«ã„ã‚‹å ´åˆ & ä»˜ä¸ã•ã‚Œã¦ãªã„å ´åˆã«ã‚¿ã‚°ã‚’ä»˜ä¸
             if (!registry.all_of<VisibleTag>(entity))
             {
                 registry.emplace<VisibleTag>(entity);
             }
             
-            // LODî•ñ‚ÌXV
+            // LODæƒ…å ±ã®æ›´æ–°
             UpdateLOD(registry, entity, transformComp, cameraPos);
         }
 	}

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <chrono>
 #include <string>
 
@@ -14,20 +14,20 @@ namespace Engine
         }
 
         /// <summary>
-        /// ÀŠÔistd::chronoj‚Å³Šm‚É–ˆƒtƒŒ[ƒ€‚ÌŠÔ‚ğŒv‘ª‚µ‚Ü‚·B
+        /// å®Ÿæ™‚é–“ï¼ˆstd::chronoï¼‰ã§æ­£ç¢ºã«æ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã®æ™‚é–“ã‚’è¨ˆæ¸¬ã—ã¾ã™ã€‚
         /// </summary>
         void Update()
         {
             auto now = std::chrono::high_resolution_clock::now();
 
-            // ‘OƒtƒŒ[ƒ€‚©‚ç‚ÌŒo‰ßŠÔ (ƒ~ƒŠ•b)
+            // å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã‹ã‚‰ã®çµŒéæ™‚é–“ (ãƒŸãƒªç§’)
             std::chrono::duration<float, std::milli> frameDelta = now - m_lastTime;
             m_lastTime = now;
             m_frameTimeMs = frameDelta.count();
 
             m_frameCount++;
 
-            // 0.5 •b‚²‚Æ‚É FPS ‚Ì•½‹Ï’l‚ğXV
+            // 0.5 ç§’ã”ã¨ã« FPS ã®å¹³å‡å€¤ã‚’æ›´æ–°
             std::chrono::duration<float> elapsed = now - m_fpsTimer;
             if (elapsed.count() >= 0.5f)
             {

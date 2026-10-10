@@ -1,4 +1,4 @@
-#include "PrimitiveMeshCache.h"
+ï»¿#include "PrimitiveMeshCache.h"
 #include "GeometryGenerator.h"
 
 namespace Engine
@@ -20,23 +20,23 @@ namespace Engine
         switch (type)
         {
         case PrimitiveType::Plane:
-            // ’n–Ê—pƒvƒŒ[ƒ“ (50m x 50m, •ªŠ„” 50x50, UVƒ^ƒCƒŠƒ“ƒO 50x50)
-            meshData = GeometryGenerator::CreatePlane(50.0f, 50.0f, 50, 50, 50.0f, 50.0f);
+            // åœ°é¢ç”¨ãƒ—ãƒ¬ãƒ¼ãƒ³ (50m x 50m, åˆ†å‰²æ•° 50x50, UVã‚¿ã‚¤ãƒªãƒ³ã‚° 50x50)
+            meshData = GeometryGenerator::CreatePlane(500.0f, 500.0f, 50, 50, 500.0f, 500.0f);
             break;
         case PrimitiveType::Cube:
-            // ’PˆÊƒLƒ…[ƒu (1m x 1m x 1m) -> ‘å‚«‚³‚Í TransformComponent.scale ‚Å§Œä
+            // å˜ä½ã‚­ãƒ¥ãƒ¼ãƒ– (1m x 1m x 1m) -> å¤§ãã•ã¯ TransformComponent.scale ã§åˆ¶å¾¡
             meshData = GeometryGenerator::CreateCube(1.0f, 1.0f, 1.0f);
             break;
         case PrimitiveType::Sphere:
-            // ’PˆÊ‹… (”¼Œa 0.5m -> ’¼Œa 1m, ƒXƒ‰ƒCƒX 20, ƒXƒ^ƒbƒN 20)
+            // å˜ä½çƒ (åŠå¾„ 0.5m -> ç›´å¾„ 1m, ã‚¹ãƒ©ã‚¤ã‚¹ 20, ã‚¹ã‚¿ãƒƒã‚¯ 20)
             meshData = GeometryGenerator::CreateSphere(0.5f, 20, 20);
             break;
         case PrimitiveType::Cylinder:
-            // ’PˆÊ‰~’Œ (”¼Œa 0.5m, ‚‚³ 1m, ƒXƒ‰ƒCƒX 20, ƒXƒ^ƒbƒN 1)
+            // å˜ä½å††æŸ± (åŠå¾„ 0.5m, é«˜ã• 1m, ã‚¹ãƒ©ã‚¤ã‚¹ 20, ã‚¹ã‚¿ãƒƒã‚¯ 1)
             meshData = GeometryGenerator::CreateCylinder(0.5f, 0.5f, 1.0f, 20, 1);
             break;
         }
-        // ‡B GPUƒoƒbƒtƒ@‚Æ‹«ŠE‹…‚ğ\’z‚µAƒLƒƒƒbƒVƒ…‚É•Û‘¶‚µ‚Ä•Ô‹p
+        // â‘¢ GPUãƒãƒƒãƒ•ã‚¡ã¨å¢ƒç•Œçƒã‚’æ§‹ç¯‰ã—ã€ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã«ä¿å­˜ã—ã¦è¿”å´
         m_cache[typeIndex] = CreateModelAsset(pDevice, meshData);
         return m_cache[typeIndex];
     }

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <memory>
 #include <entt/entt.hpp>
@@ -6,7 +6,7 @@
 
 namespace Engine
 {
-    // š ‘O•ûéŒ¾‚É‚æ‚èAƒwƒbƒ_[‚ÌˆË‘¶ŠÖŒW‚ğÅ¬‰»I
+    // â˜… å‰æ–¹å®£è¨€ã«ã‚ˆã‚Šã€ãƒ˜ãƒƒãƒ€ãƒ¼ã®ä¾å­˜é–¢ä¿‚ã‚’æœ€å°åŒ–ï¼
     class FABRIKSolver;
     class CCDSolver;
 
@@ -14,12 +14,12 @@ namespace Engine
     {
     public:
         IKSystem();
-        ~IKSystem(); // unique_ptr ‚ÌŠ®‘S‚ÈŒ^ƒfƒXƒgƒ‰ƒNƒ^‚Ì‚½‚ß .cpp ‚ÅÀ‘•
+        ~IKSystem(); // unique_ptr ã®å®Œå…¨ãªå‹ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã®ãŸã‚ .cpp ã§å®Ÿè£…
 
         void Update(entt::registry& registry, float dt);
 
     private:
-        // š ƒ|ƒCƒ“ƒ^ƒƒ“ƒo•Ï”‚Æ‚µ‚Ä•ÛI
+        // â˜… ãƒã‚¤ãƒ³ã‚¿ãƒ¡ãƒ³ãƒå¤‰æ•°ã¨ã—ã¦ä¿æŒï¼
         std::unique_ptr<FABRIKSolver> m_pFabrikSolver;
         std::unique_ptr<CCDSolver>    m_pCcdSolver;
     };

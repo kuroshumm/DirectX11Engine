@@ -1,4 +1,4 @@
-// HierarchyUtils.h
+ï»¿// HierarchyUtils.h
 #pragma once
 #include <entt/entt.hpp>
 #include "Components.h"
@@ -8,7 +8,7 @@ namespace Engine
     class HierarchyService
     {
     public:
-        // zŠÂQÆŒŸ’miparentCandidate ‚ª child ‚Ìq‘·‚Å‚È‚¢‚©ŒŸØj
+        // å¾ªç’°å‚ç…§æ¤œçŸ¥ï¼ˆparentCandidate ãŒ child ã®å­å­«ã§ãªã„ã‹æ¤œè¨¼ï¼‰
         static bool IsAncestorOf(entt::registry& registry, entt::entity potentialAncestor, entt::entity target)
         {
             entt::entity curr = target;
@@ -22,17 +22,17 @@ namespace Engine
             return false;
         }
 
-        // eqŠÖŒW‚Ìİ’è
+        // è¦ªå­é–¢ä¿‚ã®è¨­å®š
         static bool SetParent(entt::registry& registry, entt::entity child, entt::entity newParent)
         {
             if (child == newParent) return false;
             if (newParent != entt::null && IsAncestorOf(registry, child, newParent))
             {
-                // zŠÂQÆ‚Æ‚È‚é‚½‚ß¸”s
+                // å¾ªç’°å‚ç…§ã¨ãªã‚‹ãŸã‚å¤±æ•—
                 return false;
             }
 
-            // 1. Šù‘¶‚Ìe‚©‚ç child ‚ğØ‚è—£‚·iUnlinkj
+            // 1. æ—¢å­˜ã®è¦ªã‹ã‚‰ child ã‚’åˆ‡ã‚Šé›¢ã™ï¼ˆUnlinkï¼‰
             Unparent(registry, child);
 
             if (newParent == entt::null)
@@ -40,14 +40,14 @@ namespace Engine
                 return true;
             }
 
-            // 2. eEq‚Ì HierarchyComponent ‚ğæ“¾E’Ç‰Á
+            // 2. è¦ªãƒ»å­ã® HierarchyComponent ã‚’å–å¾—ãƒ»è¿½åŠ 
             auto& childHier = registry.get_or_emplace<HierarchyComponent>(child);
             auto& parentHier = registry.get_or_emplace<HierarchyComponent>(newParent);
 
             childHier.parent = newParent;
             childHier.depth = parentHier.depth + 1;
 
-            // 3. newParent ‚Ì firstChild ƒŠƒXƒg‚Ìæ“ª‚É‘}“ü
+            // 3. newParent ã® firstChild ãƒªã‚¹ãƒˆã®å…ˆé ­ã«æŒ¿å…¥
             childHier.nextSibling = parentHier.firstChild;
             childHier.prevSibling = entt::null;
 
@@ -58,7 +58,7 @@ namespace Engine
             }
             parentHier.firstChild = child;
 
-            // 4. Dirty ƒtƒ‰ƒO‚ğ—§‚Ä‚é
+            // 4. Dirty ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
             if (auto* tc = registry.try_get<TransformComponent>(child))
             {
                 tc->isDirty = true;
@@ -67,7 +67,7 @@ namespace Engine
             return true;
         }
 
-        // eqŠÖŒW‚Ì‰ğœ
+        // è¦ªå­é–¢ä¿‚ã®è§£é™¤
         static void Unparent(entt::registry& registry, entt::entity child)
         {
             auto* childHier = registry.try_get<HierarchyComponent>(child);

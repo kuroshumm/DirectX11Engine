@@ -1,4 +1,4 @@
-#include "Shader.h"
+ï»¿#include "Shader.h"
 
 namespace Engine
 {
@@ -69,19 +69,19 @@ namespace Engine
 
     HRESULT Shader::CreateSkinnrdInputLayout()
     {
-        // --- ƒCƒ“ƒvƒbƒgƒŒƒCƒAƒEƒg‚Ì’è‹` (C³‰ÓŠ) ---
-        // ‘æ9‰ñ HLSL ‚Ì VS_INPUT ƒVƒOƒlƒ`ƒƒ‚ÆŒµ–§‚Éˆê’v‚³‚¹‚é•K—v‚ª‚ ‚é
+        // --- ã‚¤ãƒ³ãƒ—ãƒƒãƒˆãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã®å®šç¾© (ä¿®æ­£ç®‡æ‰€) ---
+        // ç¬¬9å›ž HLSL ã® VS_INPUT ã‚·ã‚°ãƒãƒãƒ£ã¨åŽ³å¯†ã«ä¸€è‡´ã•ã›ã‚‹å¿…è¦ãŒã‚ã‚‹
         D3D11_INPUT_ELEMENT_DESC layout[] = {
             { "POSITION",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes
             { "NORMAL",       0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes
-            { "TANGENT",      0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes (‘æ9‰ñ’Ç‰Á)
+            { "TANGENT",      0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes (ç¬¬9å›žè¿½åŠ )
             { "COLOR",        0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 16 bytes
             { "TEXCOORD",     0, DXGI_FORMAT_R32G32_FLOAT,       0, 52, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 8 bytes
             { "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_UINT,  0, 60, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 16 bytes
             { "BLENDWEIGHT",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 76, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 16 bytes
         };
 
-        // ’¸“_ƒVƒF[ƒ_[‚ÌƒoƒCƒiƒŠƒR[ƒh‚ðŽæ“¾‚µ‚Ä“ü—ÍƒŒƒCƒAƒEƒg‚ð¶¬
+        // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã®ãƒã‚¤ãƒŠãƒªã‚³ãƒ¼ãƒ‰ã‚’å–å¾—ã—ã¦å…¥åŠ›ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã‚’ç”Ÿæˆ
         HRESULT hr = m_pDevice->CreateInputLayout(
             layout,
             ARRAYSIZE(layout),
@@ -96,16 +96,16 @@ namespace Engine
 
     HRESULT Shader::CreateStaticInputLayout()
     {
-        // --- ƒCƒ“ƒvƒbƒgƒŒƒCƒAƒEƒg‚Ì’è‹` ---
+        // --- ã‚¤ãƒ³ãƒ—ãƒƒãƒˆãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã®å®šç¾© ---
         D3D11_INPUT_ELEMENT_DESC layout[] = {
             { "POSITION",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes
             { "NORMAL",       0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes
-            { "TANGENT",      0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes (‘æ9‰ñ’Ç‰Á)
+            { "TANGENT",      0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 12 bytes (ç¬¬9å›žè¿½åŠ )
             { "COLOR",        0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 16 bytes
             { "TEXCOORD",     0, DXGI_FORMAT_R32G32_FLOAT,       0, 52, D3D11_INPUT_PER_VERTEX_DATA, 0 }, // 8 bytes
         };
 
-        // ’¸“_ƒVƒF[ƒ_[‚ÌƒoƒCƒiƒŠƒR[ƒh‚ðŽæ“¾‚µ‚Ä“ü—ÍƒŒƒCƒAƒEƒg‚ð¶¬
+        // é ‚ç‚¹ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã®ãƒã‚¤ãƒŠãƒªã‚³ãƒ¼ãƒ‰ã‚’å–å¾—ã—ã¦å…¥åŠ›ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆã‚’ç”Ÿæˆ
         HRESULT hr = m_pDevice->CreateInputLayout(
             layout,
             ARRAYSIZE(layout),

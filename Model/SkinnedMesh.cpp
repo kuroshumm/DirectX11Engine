@@ -1,4 +1,4 @@
-#include "SkinnedMesh.h"
+ï»¿#include "SkinnedMesh.h"
 
 namespace Engine
 {
@@ -12,7 +12,7 @@ namespace Engine
     {
         m_indexCount = (UINT)indices.size();
 
-        // ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+        // é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆ
         D3D11_BUFFER_DESC vbd = {};
         vbd.ByteWidth = sizeof(SkinnedVertex) * (UINT)vertices.size();
         vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -24,7 +24,7 @@ namespace Engine
             return hr;
         }
 
-        // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚Ì¶¬
+        // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆ
         D3D11_BUFFER_DESC ibd = {};
         ibd.ByteWidth = sizeof(WORD) * (UINT)indices.size();
         ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;

@@ -1,4 +1,4 @@
-#include "BoneTransformSystem.h"
+ï»¿#include "BoneTransformSystem.h"
 
 namespace Engine
 {
@@ -29,7 +29,7 @@ namespace Engine
 		DirectX::XMMATRIX global = DirectX::XMMatrixMultiply(local, parentGlocbalTransform);
 		DirectX::XMStoreFloat4x4(&bone.GlobalTransformMatrix, global);
 
-		// q‹Ÿ‚½‚¿‚ÖÄ‹A“I‚ÉFK‚ğ“`”À‚³‚¹‚é
+		// å­ä¾›ãŸã¡ã¸å†å¸°çš„ã«FKã‚’ä¼æ¬ã•ã›ã‚‹
 		for (int childIndex : bone.childIndices)
 		{
 			UpdateBoneTransform(bones, childIndex, global);

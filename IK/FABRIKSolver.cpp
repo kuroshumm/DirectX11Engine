@@ -1,4 +1,4 @@
-#include "FABRIKSolver.h"
+ï»¿#include "FABRIKSolver.h"
 #include "Components.h"
 
 namespace Engine
@@ -21,7 +21,7 @@ namespace Engine
 	{
 		int numJoints = (int)ikData.chainIndices.size();
 
-		// 1. ŠeŠÖß‚ÌŒ»İ‚ÌƒOƒ[ƒoƒ‹À•W‚ğƒ[ƒh
+		// 1. å„é–¢ç¯€ã®ç¾åœ¨ã®ã‚°ãƒ­ãƒ¼ãƒãƒ«åº§æ¨™ã‚’ãƒ­ãƒ¼ãƒ‰
 		std::vector<DirectX::XMVECTOR> tempPosition(numJoints);
 		for (size_t index = 0; index < numJoints; ++index)
 		{
@@ -29,7 +29,7 @@ namespace Engine
 			tempPosition[index] = DirectX::XMLoadFloat4x4(&bones[boneIndex].GlobalTransformMatrix).r[3];
 		}
 
-		// 2. ƒoƒCƒ“ƒhƒ|[ƒY‚Å‚ÌŠeƒ{[ƒ“’·i‰Šú‹——£j‚ğƒLƒƒƒbƒVƒ…
+		// 2. ãƒã‚¤ãƒ³ãƒ‰ãƒãƒ¼ã‚ºã§ã®å„ãƒœãƒ¼ãƒ³é•·ï¼ˆåˆæœŸè·é›¢ï¼‰ã‚’ã‚­ãƒ£ãƒƒã‚·ãƒ¥
 		std::vector<float> boneDistances;
 		for (size_t index = 0; index < ikData.chainIndices.size() - 1; ++index)
 		{
@@ -37,7 +37,7 @@ namespace Engine
 			int childBoneIdx = ikData.chainIndices[index + 1];
 			Bone& parentBone = bones[parentBoneIdx];
 			Bone& childBone = bones[childBoneIdx];
-			// ƒ[ƒJƒ‹s—ñ‚Å‚Í‚È‚­AƒOƒ[ƒoƒ‹s—ñ‚Ì•½sˆÚ“®¬•ª“¯m‚Ì‹——£‚ğ‘ª‚é
+			// ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—ã§ã¯ãªãã€ã‚°ãƒ­ãƒ¼ãƒãƒ«è¡Œåˆ—ã®å¹³è¡Œç§»å‹•æˆåˆ†åŒå£«ã®è·é›¢ã‚’æ¸¬ã‚‹
 			DirectX::XMMATRIX parentGlobal = DirectX::XMLoadFloat4x4(&parentBone.GlobalTransformMatrix);
 			DirectX::XMMATRIX childGlobal = DirectX::XMLoadFloat4x4(&childBone.GlobalTransformMatrix);
 			float boneLength = DirectX::XMVectorGetX(DirectX::XMVector3Length(
@@ -46,15 +46,15 @@ namespace Engine
 			boneDistances.push_back(boneLength);
 		}
 
-		// 3. ˆÊ’u‚Ì‰ğŒˆ‚¨‚æ‚ÑƒoƒCƒ“ƒhˆ—‚ğÀs
+		// 3. ä½ç½®ã®è§£æ±ºãŠã‚ˆã³ãƒã‚¤ãƒ³ãƒ‰å‡¦ç†ã‚’å®Ÿè¡Œ
 		Bone& chainRootBone = bones[ikData.chainIndices[0]];
 		DirectX::XMVECTOR rootPos = DirectX::XMLoadFloat4x4(&chainRootBone.GlobalTransformMatrix).r[3];
 		DirectX::XMVECTOR targetPosVec = DirectX::XMLoadFloat3(&targetPosition);
 
-		// ˆêÀ•WˆÊ’u‚Ì‰ğŒˆ
+		// ä¸€æ™‚åº§æ¨™ä½ç½®ã®è§£æ±º
 		ResolvePositions(targetPosVec, rootPos, tempPosition, boneDistances);
 
-		// Šm’èÀ•W‚©‚ç‰ñ“]‚ğ‹tZ‚µ‚Ä“K—p
+		// ç¢ºå®šåº§æ¨™ã‹ã‚‰å›è»¢ã‚’é€†ç®—ã—ã¦é©ç”¨
 		ApplyPositionsToBones(ikData, tempPosition, bones, numJoints);
 	}
 
@@ -72,11 +72,11 @@ namespace Engine
 		float totalBoneDistance = 0.0f;
 		for (float d : boneDistances) totalBoneDistance += d;
 
-		// --- “’B•s‰Â”\‚Èê‡Fƒ^[ƒQƒbƒg‚ÉŒü‚¯‚Äˆê’¼ü‚ÉL‚Î‚·i‘ŠúƒŠƒ^[ƒ“j ---
+		// --- åˆ°é”ä¸å¯èƒ½ãªå ´åˆï¼šã‚¿ãƒ¼ã‚²ãƒƒãƒˆã«å‘ã‘ã¦ä¸€ç›´ç·šã«ä¼¸ã°ã™ï¼ˆæ—©æœŸãƒªã‚¿ãƒ¼ãƒ³ï¼‰ ---
 		if (distanceToTarget > totalBoneDistance)
 		{
 			DirectX::XMVECTOR direction = DirectX::XMVector3Normalize(toTargetVec);
-			for (size_t index = 0; index < numJoints - 1; ++index) // ”ÍˆÍŠOƒAƒNƒZƒX‚ğ–h~
+			for (size_t index = 0; index < numJoints - 1; ++index) // ç¯„å›²å¤–ã‚¢ã‚¯ã‚»ã‚¹ã‚’é˜²æ­¢
 			{
 				float length = boneDistances[index];
 				tempPosition[index + 1] = DirectX::XMVectorMultiplyAdd(
@@ -85,13 +85,13 @@ namespace Engine
 					tempPosition[index]
 				);
 			}
-			return; // ‘ŠúƒŠƒ^[ƒ“
+			return; // æ—©æœŸãƒªã‚¿ãƒ¼ãƒ³
 		}
 
-		// --- “’B‰Â”\‚Èê‡FFABRIKƒCƒeƒŒ[ƒVƒ‡ƒ“ƒ‹[ƒv ---
+		// --- åˆ°é”å¯èƒ½ãªå ´åˆï¼šFABRIKã‚¤ãƒ†ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ãƒ«ãƒ¼ãƒ— ---
 		for (size_t iter = 0; iter < m_maxIterations; ++iter)
 		{
-			// ‘O•û“’B (––’[ -> ª–{)
+			// å‰æ–¹åˆ°é” (æœ«ç«¯ -> æ ¹æœ¬)
 			tempPosition[numJoints - 1] = targetPosVec;
 			for (int index = numJoints - 2; index >= 0; --index)
 			{
@@ -102,7 +102,7 @@ namespace Engine
 					: tempPosition[index + 1];
 			}
 
-			// Œã•û“’B (ª–{ -> ––’[)
+			// å¾Œæ–¹åˆ°é” (æ ¹æœ¬ -> æœ«ç«¯)
 			tempPosition[0] = rootPosVec;
 			for (int index = 0; index < numJoints - 1; ++index)
 			{
@@ -113,7 +113,7 @@ namespace Engine
 					: tempPosition[index];
 			}
 
-			// û‘©”»’è
+			// åæŸåˆ¤å®š
 			DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(tempPosition[numJoints - 1], targetPosVec);
 			if (DirectX::XMVectorGetX(DirectX::XMVector3Length(diff)) < m_tolerance)
 			{
@@ -129,7 +129,7 @@ namespace Engine
 		int numJoints
 	)
 	{
-		// ƒCƒeƒŒ[ƒVƒ‡ƒ“ƒ‹[ƒvI—¹Œã‚É’Ç‰Á‚·‚éAˆÊ’u‚©‚ç‰ñ“]‚Ö‚ÌƒoƒCƒ“ƒhˆ—
+		// ã‚¤ãƒ†ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³ãƒ«ãƒ¼ãƒ—çµ‚äº†å¾Œã«è¿½åŠ ã™ã‚‹ã€ä½ç½®ã‹ã‚‰å›è»¢ã¸ã®ãƒã‚¤ãƒ³ãƒ‰å‡¦ç†
 		for (int i = 0; i < numJoints - 1; ++i)
 		{
 			int boneIdx = ikData.chainIndices[i];
@@ -137,22 +137,22 @@ namespace Engine
 			Bone& bone = bones[boneIdx];
 			Bone& childBone = bones[childBoneIdx];
 
-			// --- ‡@ Œ»İiFK“K—pó‘Ôj‚ÌeqƒOƒ[ƒoƒ‹ˆÊ’u‚©‚çAŒ³‚Ìƒ{[ƒ“‚ÌŒü‚«ƒxƒNƒgƒ‹‚ğZo ---
+			// --- â‘  ç¾åœ¨ï¼ˆFKé©ç”¨çŠ¶æ…‹ï¼‰ã®è¦ªå­ã‚°ãƒ­ãƒ¼ãƒãƒ«ä½ç½®ã‹ã‚‰ã€å…ƒã®ãƒœãƒ¼ãƒ³ã®å‘ããƒ™ã‚¯ãƒˆãƒ«ã‚’ç®—å‡º ---
 			DirectX::XMMATRIX globalMat = DirectX::XMLoadFloat4x4(&bone.GlobalTransformMatrix);
 			DirectX::XMMATRIX childGlobalMat = DirectX::XMLoadFloat4x4(&childBone.GlobalTransformMatrix);
 			DirectX::XMVECTOR currentDir = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(childGlobalMat.r[3], globalMat.r[3]));
 
-			// --- ‡A FABRIK‚ÅŠm’è‚µ‚½V‚µ‚¢ƒOƒ[ƒoƒ‹À•W‚©‚çAV‚µ‚¢ƒ{[ƒ“‚ÌŒü‚«ƒxƒNƒgƒ‹‚ğZo ---
+			// --- â‘¡ FABRIKã§ç¢ºå®šã—ãŸæ–°ã—ã„ã‚°ãƒ­ãƒ¼ãƒãƒ«åº§æ¨™ã‹ã‚‰ã€æ–°ã—ã„ãƒœãƒ¼ãƒ³ã®å‘ããƒ™ã‚¯ãƒˆãƒ«ã‚’ç®—å‡º ---
 			DirectX::XMVECTOR newDir = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(tempPositions[i + 1], tempPositions[i]));
 
-			// ƒ[ƒœZ‚Ì–h~iƒ_ƒ~[ƒm[ƒh“™‚ÅŒü‚«‚ª’è‹`‚Å‚«‚È‚¢ê‡‚Í‚±‚ÌŠÖß‚Ì‰ñ“]XV‚ğƒXƒLƒbƒvj
+			// ã‚¼ãƒ­é™¤ç®—ã®é˜²æ­¢ï¼ˆãƒ€ãƒŸãƒ¼ãƒãƒ¼ãƒ‰ç­‰ã§å‘ããŒå®šç¾©ã§ããªã„å ´åˆã¯ã“ã®é–¢ç¯€ã®å›è»¢æ›´æ–°ã‚’ã‚¹ã‚­ãƒƒãƒ—ï¼‰
 			if (DirectX::XMVector3NearEqual(currentDir, DirectX::XMVectorZero(), DirectX::XMVectorReplicate(0.0001f)) ||
 				DirectX::XMVector3NearEqual(newDir, DirectX::XMVectorZero(), DirectX::XMVectorReplicate(0.0001f)))
 			{
 				continue;
 			}
 
-			// --- ‡B Œ³‚ÌŒü‚«‚©‚çV‚µ‚¢Œü‚«‚Ö‚Ì·•ª‰ñ“]iƒOƒ[ƒoƒ‹Šî€j‚ğZo ---
+			// --- â‘¢ å…ƒã®å‘ãã‹ã‚‰æ–°ã—ã„å‘ãã¸ã®å·®åˆ†å›è»¢ï¼ˆã‚°ãƒ­ãƒ¼ãƒãƒ«åŸºæº–ï¼‰ã‚’ç®—å‡º ---
 			DirectX::XMVECTOR axis = DirectX::XMVector3Cross(currentDir, newDir);
 			DirectX::XMVECTOR dotVec = DirectX::XMVector3Dot(currentDir, newDir);
 			float dot = DirectX::XMVectorGetX(dotVec);
@@ -160,32 +160,32 @@ namespace Engine
 			DirectX::XMVECTOR deltaRot;
 			if (dot > 0.9999f)
 			{
-				// ‚Ù‚Ú“¯‚¶Œü‚«‚ğŒü‚¢‚Ä‚¢‚é‚½‚ßA‰ñ“]‚Í•s—viP“™ƒNƒH[ƒ^ƒjƒIƒ“j
+				// ã»ã¼åŒã˜å‘ãã‚’å‘ã„ã¦ã„ã‚‹ãŸã‚ã€å›è»¢ã¯ä¸è¦ï¼ˆæ’ç­‰ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ï¼‰
 				deltaRot = DirectX::XMQuaternionIdentity();
 			}
 			else if (dot < -0.9999f)
 			{
-				// Š®‘S‚É^‹ti180“x”½‘Îj‚ğŒü‚¢‚Ä‚¢‚é“ÁˆÙ“_
-				// currentDir ‚Æ’¼Œğ‚·‚é“K“–‚È²iorthoAxisj‚ğ‹‚ß‚Ä 180“x ‰ñ“]‚·‚é
+				// å®Œå…¨ã«çœŸé€†ï¼ˆ180åº¦åå¯¾ï¼‰ã‚’å‘ã„ã¦ã„ã‚‹ç‰¹ç•°ç‚¹
+				// currentDir ã¨ç›´äº¤ã™ã‚‹é©å½“ãªè»¸ï¼ˆorthoAxisï¼‰ã‚’æ±‚ã‚ã¦ 180åº¦ å›è»¢ã™ã‚‹
 				DirectX::XMVECTOR orthoAxis = DirectX::XMVector3Orthogonal(currentDir);
 				orthoAxis = DirectX::XMVector3Normalize(orthoAxis);
 				deltaRot = DirectX::XMQuaternionRotationNormal(orthoAxis, DirectX::XM_PI);
 			}
 			else
 			{
-				// ˆê”Ê“I‚ÈƒP[ƒXFcosƒÆ ‚©‚çŠp“x‚ğAŠOÏ‚©‚ç‰ñ“]²‚ğ‹‚ßA³‹K‰»‚µ‚ÄƒNƒH[ƒ^ƒjƒIƒ“‚ğ\’z
+				// ä¸€èˆ¬çš„ãªã‚±ãƒ¼ã‚¹ï¼šcosÎ¸ ã‹ã‚‰è§’åº¦ã‚’ã€å¤–ç©ã‹ã‚‰å›è»¢è»¸ã‚’æ±‚ã‚ã€æ­£è¦åŒ–ã—ã¦ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ã‚’æ§‹ç¯‰
 				float angle = std::acos(dot);
 				DirectX::XMVECTOR normAxis = DirectX::XMVector3Normalize(axis);
 				deltaRot = DirectX::XMQuaternionRotationNormal(normAxis, angle);
 			}
 
-			// --- ‡C Œ»İ‚ÌƒOƒ[ƒoƒ‹‰ñ“]‚É·•ª‚ğæZ‚µAV‚µ‚¢ƒOƒ[ƒoƒ‹‰ñ“]‚ğŒvZ ---
+			// --- â‘£ ç¾åœ¨ã®ã‚°ãƒ­ãƒ¼ãƒãƒ«å›è»¢ã«å·®åˆ†ã‚’ä¹—ç®—ã—ã€æ–°ã—ã„ã‚°ãƒ­ãƒ¼ãƒãƒ«å›è»¢ã‚’è¨ˆç®— ---
 			DirectX::XMVECTOR currentScale, currentRot, currentTrans;
 			DirectX::XMMatrixDecompose(&currentScale, &currentRot, &currentTrans, globalMat);
-			// ƒOƒ[ƒoƒ‹·•ª‰ñ“]‚ğæZi‰ñ“]‡˜‚É’ˆÓj
+			// ã‚°ãƒ­ãƒ¼ãƒãƒ«å·®åˆ†å›è»¢ã‚’ä¹—ç®—ï¼ˆå›è»¢é †åºã«æ³¨æ„ï¼‰
 			DirectX::XMVECTOR newGlobalRot = DirectX::XMQuaternionMultiply(deltaRot, currentRot);
 
-			// --- ‡D eƒ{[ƒ“‚Ì‰ñ“]‚ğæ‚èœ‚«AV‚µ‚¢ƒ[ƒJƒ‹‰ñ“]‚ğZo ---
+			// --- â‘¤ è¦ªãƒœãƒ¼ãƒ³ã®å›è»¢ã‚’å–ã‚Šé™¤ãã€æ–°ã—ã„ãƒ­ãƒ¼ã‚«ãƒ«å›è»¢ã‚’ç®—å‡º ---
 			DirectX::XMVECTOR newLocalRot;
 			if (bone.parentIndex != -1)
 			{
@@ -193,7 +193,7 @@ namespace Engine
 				DirectX::XMVECTOR pScale, pRot, pTrans;
 				DirectX::XMMatrixDecompose(&pScale, &pRot, &pTrans, parentGlobalMat);
 
-				// ƒ[ƒJƒ‹‰ñ“] = V‚µ‚¢ƒOƒ[ƒoƒ‹‰ñ“] * e‚ÌƒOƒ[ƒoƒ‹‰ñ“]‚Ì‹tƒNƒH[ƒ^ƒjƒIƒ“
+				// ãƒ­ãƒ¼ã‚«ãƒ«å›è»¢ = æ–°ã—ã„ã‚°ãƒ­ãƒ¼ãƒãƒ«å›è»¢ * è¦ªã®ã‚°ãƒ­ãƒ¼ãƒãƒ«å›è»¢ã®é€†ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³
 				newLocalRot = DirectX::XMQuaternionMultiply(newGlobalRot, DirectX::XMQuaternionInverse(pRot));
 			}
 			else
@@ -201,25 +201,25 @@ namespace Engine
 				newLocalRot = newGlobalRot;
 			}
 			
-			// --- ‡E Šp“x§–ñiSetConstraint‚Åİ’è‚³‚ê‚½‰Â“®ˆæ§ŒÀj‚Ì“K—p ---
+			// --- â‘¥ è§’åº¦åˆ¶ç´„ï¼ˆSetConstraintã§è¨­å®šã•ã‚ŒãŸå¯å‹•åŸŸåˆ¶é™ï¼‰ã®é©ç”¨ ---
 			auto it = ikData.constraints.find(static_cast<int>(boneIdx));
 			if (it != ikData.constraints.end())
 			{
 				const JointConstraint& constraint = it->second;
 
-				// CCDSolver‚ÅÀ‘•‚µ‚½ ExtractAngleAroundAxis ‚ğg—p
+				// CCDSolverã§å®Ÿè£…ã—ãŸ ExtractAngleAroundAxis ã‚’ä½¿ç”¨
 				float currentAngle = ExtractAngleAroundAxis(newLocalRot, constraint.localAxis);
 				float clampedAngle = std::clamp(currentAngle, constraint.minAngleRad, constraint.maxAngleRad);
 
 				float deltaAngle = clampedAngle - currentAngle;
 				DirectX::XMVECTOR diffRot = DirectX::XMQuaternionRotationAxis(constraint.localAxis, deltaAngle);
 
-				// §ŒÀ‚³‚ê‚½Šp“x‚Åƒ[ƒJƒ‹‰ñ“]‚ğÄ‡¬
+				// åˆ¶é™ã•ã‚ŒãŸè§’åº¦ã§ãƒ­ãƒ¼ã‚«ãƒ«å›è»¢ã‚’å†åˆæˆ
 				newLocalRot = DirectX::XMQuaternionMultiply(diffRot, newLocalRot);
 			}
 
 
-			// --- ‡F V‚µ‚¢ƒ[ƒJƒ‹s—ñ‚ğÄ\’z‚µ‚Ä•Û‘¶ ---
+			// --- â‘¦ æ–°ã—ã„ãƒ­ãƒ¼ã‚«ãƒ«è¡Œåˆ—ã‚’å†æ§‹ç¯‰ã—ã¦ä¿å­˜ ---
 			DirectX::XMMATRIX localMat = DirectX::XMLoadFloat4x4(&bone.LocalTransformMatrix);
 			DirectX::XMVECTOR lScale, lRot, lTrans;
 			DirectX::XMMatrixDecompose(&lScale, &lRot, &lTrans, localMat);
@@ -231,7 +231,7 @@ namespace Engine
 				lTrans
 			);
 			DirectX::XMStoreFloat4x4(&bone.LocalTransformMatrix, newLocalMat);
-			// --- ‡G Ÿ‚Ìƒ{[ƒ“ (i+1) ‚ÌuŒ»İ‚ÌŒü‚«v‚ğ³‚µ‚­ŒvZ‚·‚é‚½‚ßA‚±‚Ìƒ{[ƒ“‚ÌFK‚ğ‘¦À‚ÉXV‚·‚é ---
+			// --- â‘§ æ¬¡ã®ãƒœãƒ¼ãƒ³ (i+1) ã®ã€Œç¾åœ¨ã®å‘ãã€ã‚’æ­£ã—ãè¨ˆç®—ã™ã‚‹ãŸã‚ã€ã“ã®ãƒœãƒ¼ãƒ³ã®FKã‚’å³åº§ã«æ›´æ–°ã™ã‚‹ ---
 			DirectX::XMMATRIX parentGlobal = DirectX::XMMatrixIdentity();
 			if (bone.parentIndex != -1)
 			{
@@ -282,19 +282,19 @@ namespace Engine
 	float FABRIKSolver::ExtractAngleAroundAxis(DirectX::XMVECTOR newRot, DirectX::XMVECTOR localAxis)
 	{
 		// q = (x, y, z, w), axis = (ax, ay, az, 0)
-		// ¦ axis ‚Í‚ ‚ç‚©‚¶‚ß³‹K‰»i’·‚³ 1.0j‚³‚ê‚Ä‚¢‚é•K—v‚ª‚ ‚è‚Ü‚·B
+		// â€» axis ã¯ã‚ã‚‰ã‹ã˜ã‚æ­£è¦åŒ–ï¼ˆé•·ã• 1.0ï¼‰ã•ã‚Œã¦ã„ã‚‹å¿…è¦ãŒã‚ã‚Šã¾ã™ã€‚
 		// 
-		// 1. ƒNƒH[ƒ^ƒjƒIƒ“‚ÌƒxƒNƒgƒ‹•” (x, y, z) ‚Æw’è²‚Ì“àÏ‚ğŒvZ‚·‚é
-		// ‚±‚ê‚É‚æ‚èAw’è²•ûŒü‚Ö‚Ì‰ñ“]¬•ª‚Ì‘å‚«‚³isin(theta/2) ‚É”ä—áj‚ª’Šo‚³‚ê‚Ü‚·
+		// 1. ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ã®ãƒ™ã‚¯ãƒˆãƒ«éƒ¨ (x, y, z) ã¨æŒ‡å®šè»¸ã®å†…ç©ã‚’è¨ˆç®—ã™ã‚‹
+		// ã“ã‚Œã«ã‚ˆã‚Šã€æŒ‡å®šè»¸æ–¹å‘ã¸ã®å›è»¢æˆåˆ†ã®å¤§ãã•ï¼ˆsin(theta/2) ã«æ¯”ä¾‹ï¼‰ãŒæŠ½å‡ºã•ã‚Œã¾ã™
 		DirectX::XMVECTOR dotVec = DirectX::XMVector3Dot(newRot, localAxis);
 		float dot = DirectX::XMVectorGetX(dotVec);
-		// 2. ƒNƒH[ƒ^ƒjƒIƒ“‚Ì W ¬•ª (cos(theta/2) ‚É‘Î‰) ‚ğæ“¾‚·‚é
+		// 2. ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ã® W æˆåˆ† (cos(theta/2) ã«å¯¾å¿œ) ã‚’å–å¾—ã™ã‚‹
 		float w = DirectX::XMVectorGetW(newRot);
-		// 3. atan2 ‚ğ—p‚¢‚ÄA²‚Ü‚í‚è‚Ì”¼Šp (theta/2) ‚ğZo‚·‚é
+		// 3. atan2 ã‚’ç”¨ã„ã¦ã€è»¸ã¾ã‚ã‚Šã®åŠè§’ (theta/2) ã‚’ç®—å‡ºã™ã‚‹
 		float halfAngle = std::atan2(dot, w);
-		// 4. ”¼Šp‚ğ2”{‚µ‚ÄÀÛ‚Ì‰ñ“]Šp theta ‚ğ“¾‚é
+		// 4. åŠè§’ã‚’2å€ã—ã¦å®Ÿéš›ã®å›è»¢è§’ theta ã‚’å¾—ã‚‹
 		float angle = 2.0f * halfAngle;
-		// 5. Šp“x‚Ì”ÍˆÍ‚ğ [-pi, pi] ‚Ì”ÍˆÍ‚É³‹K‰»‚·‚éiˆÀ‘S‘Îôj
+		// 5. è§’åº¦ã®ç¯„å›²ã‚’ [-pi, pi] ã®ç¯„å›²ã«æ­£è¦åŒ–ã™ã‚‹ï¼ˆå®‰å…¨å¯¾ç­–ï¼‰
 		if (angle > DirectX::XM_PI)  angle -= DirectX::XM_2PI;
 		if (angle < -DirectX::XM_PI) angle += DirectX::XM_2PI;
 		return angle;

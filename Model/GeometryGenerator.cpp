@@ -1,10 +1,10 @@
-#include "GeometryGenerator.h"
+ï»¿#include "GeometryGenerator.h"
 
 namespace Engine
 {
 	MeshData GeometryGenerator::CreateCube(float width, float height, float depth)
 	{
-		// 1. ƒK[ƒhß: •s³‚È¡–@‚ğ”rœ
+		// 1. ã‚¬ãƒ¼ãƒ‰ç¯€: ä¸æ­£ãªå¯¸æ³•ã‚’æ’é™¤
 		if (width <= 0.0f || height <= 0.0f || depth <= 0.0f)
 		{
 			throw std::invalid_argument("Box dimensions must be greater than zero.");
@@ -16,34 +16,34 @@ namespace Engine
         float h2 = 0.5f * height;
         float d2 = 0.5f * depth;
 
-        // 2. ’¸“_”z—ñ‚Ì\’z (6–Ê ~ 4’¸“_ = 24’¸“_)
+        // 2. é ‚ç‚¹é…åˆ—ã®æ§‹ç¯‰ (6é¢ Ã— 4é ‚ç‚¹ = 24é ‚ç‚¹)
         Vertex v[24];
-        // --- ‘O–Ê (Z = -d2 –Ê: –@ü (0, 0, -1), Úü (1, 0, 0)) ---
+        // --- å‰é¢ (Z = -d2 é¢: æ³•ç·š (0, 0, -1), æ¥ç·š (1, 0, 0)) ---
         v[0] = Vertex{ {-w2, -h2, -d2}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f} };
         v[1] = Vertex{ {-w2, +h2, -d2}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f} };
         v[2] = Vertex{ {+w2, +h2, -d2}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f} };
         v[3] = Vertex{ {+w2, -h2, -d2}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f} };
-        // --- ”w–Ê (Z = +d2 –Ê: –@ü (0, 0, 1), Úü (-1, 0, 0)) ---
+        // --- èƒŒé¢ (Z = +d2 é¢: æ³•ç·š (0, 0, 1), æ¥ç·š (-1, 0, 0)) ---
         v[4] = Vertex{ {+w2, -h2, +d2}, {0.0f, 0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f} };
         v[5] = Vertex{ {+w2, +h2, +d2}, {0.0f, 0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f} };
         v[6] = Vertex{ {-w2, +h2, +d2}, {0.0f, 0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f} };
         v[7] = Vertex{ {-w2, -h2, +d2}, {0.0f, 0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f} };
-        // --- ã–Ê (Y = +h2 –Ê: –@ü (0, 1, 0), Úü (1, 0, 0)) ---
+        // --- ä¸Šé¢ (Y = +h2 é¢: æ³•ç·š (0, 1, 0), æ¥ç·š (1, 0, 0)) ---
         v[8] = Vertex{ {-w2, +h2, -d2}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f} };
         v[9] = Vertex{ {-w2, +h2, +d2}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f} };
         v[10] = Vertex{ {+w2, +h2, +d2}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f} };
         v[11] = Vertex{ {+w2, +h2, -d2}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f} };
-        // --- ‰º–Ê (Y = -h2 –Ê: –@ü (0, -1, 0), Úü (-1, 0, 0)) ---
+        // --- ä¸‹é¢ (Y = -h2 é¢: æ³•ç·š (0, -1, 0), æ¥ç·š (-1, 0, 0)) ---
         v[12] = Vertex{ {-w2, -h2, +d2}, {0.0f, -1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f} };
         v[13] = Vertex{ {-w2, -h2, -d2}, {0.0f, -1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f} };
         v[14] = Vertex{ {+w2, -h2, -d2}, {0.0f, -1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f} };
         v[15] = Vertex{ {+w2, -h2, +d2}, {0.0f, -1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f} };
-        // --- ¶–Ê (X = -w2 –Ê: –@ü (-1, 0, 0), Úü (0, 0, -1)) ---
+        // --- å·¦é¢ (X = -w2 é¢: æ³•ç·š (-1, 0, 0), æ¥ç·š (0, 0, -1)) ---
         v[16] = Vertex{ {-w2, -h2, +d2}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f} };
         v[17] = Vertex{ {-w2, +h2, +d2}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f} };
         v[18] = Vertex{ {-w2, +h2, -d2}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f} };
         v[19] = Vertex{ {-w2, -h2, -d2}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f} };
-        // --- ‰E–Ê (X = +w2 –Ê: –@ü (1, 0, 0), Úü (0, 0, 1)) ---
+        // --- å³é¢ (X = +w2 é¢: æ³•ç·š (1, 0, 0), æ¥ç·š (0, 0, 1)) ---
         v[20] = Vertex{ {+w2, -h2, -d2}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f} };
         v[21] = Vertex{ {+w2, +h2, -d2}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f} };
         v[22] = Vertex{ {+w2, +h2, +d2}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f} };
@@ -51,8 +51,8 @@ namespace Engine
 
         cubeMeshData.Vertices.assign(&v[0], &v[24]);
 
-        // 3. ƒCƒ“ƒfƒbƒNƒX”z—ñ‚Ì\’z (6–Ê ~ 2OŠpŒ` = 12OŠpŒ` = 36ƒCƒ“ƒfƒbƒNƒX)
-        // Še–Ê‚É‚¨‚¢‚ÄA•\‚©‚çŒ©‚ÄuŒv‰ñ‚è (0->1->2, 0->2->3)v‚Åw’è‚·‚é
+        // 3. ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹é…åˆ—ã®æ§‹ç¯‰ (6é¢ Ã— 2ä¸‰è§’å½¢ = 12ä¸‰è§’å½¢ = 36ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹)
+        // å„é¢ã«ãŠã„ã¦ã€è¡¨ã‹ã‚‰è¦‹ã¦ã€Œæ™‚è¨ˆå›ã‚Š (0->1->2, 0->2->3)ã€ã§æŒ‡å®šã™ã‚‹
         WORD indices[36];
         for (int face = 0; face < 6; ++face)
         {
@@ -71,7 +71,7 @@ namespace Engine
 
     MeshData GeometryGenerator::CreateSphere(float radius, uint32_t sliceCount, uint32_t stackCount)
     {
-        // 1. ƒK[ƒhß: Å’áŒÀ‚Ì•ªŠ„”i3ŠpŒ`‚ğì‚ê‚éÅ’á’lj‚ğ—v‹
+        // 1. ã‚¬ãƒ¼ãƒ‰ç¯€: æœ€ä½é™ã®åˆ†å‰²æ•°ï¼ˆ3è§’å½¢ã‚’ä½œã‚Œã‚‹æœ€ä½å€¤ï¼‰ã‚’è¦æ±‚
         if (radius <= 0.0f || sliceCount < 3 || stackCount < 2)
         {
             throw std::invalid_argument("Invalid sphere parameters.");
@@ -79,30 +79,30 @@ namespace Engine
 
         MeshData meshData;
 
-        // –k‹É“_ (’¸“_ 0)
+        // åŒ—æ¥µç‚¹ (é ‚ç‚¹ 0)
         Vertex topVertex{ {0.0f, +radius, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f} };
         meshData.Vertices.push_back(topVertex);
 
         float phiStep = DirectX::XM_PI / stackCount;
         float thetaStep = 2.0f * DirectX::XM_PI / sliceCount;
-        // ˆÜ“xƒŠƒ“ƒO‚Ìƒ‹[ƒv (–k‹ÉE“ì‹É‚ğœ‚­’†ŠÔƒŠƒ“ƒO)
+        // ç·¯åº¦ãƒªãƒ³ã‚°ã®ãƒ«ãƒ¼ãƒ— (åŒ—æ¥µãƒ»å—æ¥µã‚’é™¤ãä¸­é–“ãƒªãƒ³ã‚°)
         for (uint32_t i = 1; i <= stackCount - 1; ++i)
         {
             float phi = i * phiStep;
-            // Œo“x‚Ìƒ‹[ƒv
-            // ¦ ƒeƒNƒXƒ`ƒƒ‚ÌŒp‚¬–Ú (U=0 ‚Æ U=1) ‚ğ•ª‚¯‚é‚½‚ß sliceCount + 1 ‰ñ‰ñ‚·
+            // çµŒåº¦ã®ãƒ«ãƒ¼ãƒ—
+            // â€» ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ç¶™ãç›® (U=0 ã¨ U=1) ã‚’åˆ†ã‘ã‚‹ãŸã‚ sliceCount + 1 å›å›ã™
             for (uint32_t j = 0; j <= sliceCount; ++j)
             {
                 float theta = j * thetaStep;
                 Vertex v;
-                // ‹…–ÊÀ•W -> ƒfƒJƒ‹ƒgÀ•W (X, Y, Z)
+                // çƒé¢åº§æ¨™ -> ãƒ‡ã‚«ãƒ«ãƒˆåº§æ¨™ (X, Y, Z)
                 v.Pos.x = radius * sinf(phi) * cosf(theta);
                 v.Pos.y = radius * cosf(phi);
                 v.Pos.z = radius * sinf(phi) * sinf(theta);
-                // Œ´“_’†S‚È‚Ì‚ÅAPos ‚ğ³‹K‰»‚·‚ê‚Î‚»‚Ì‚Ü‚Ü–@ü‚É‚È‚é
+                // åŸç‚¹ä¸­å¿ƒãªã®ã§ã€Pos ã‚’æ­£è¦åŒ–ã™ã‚Œã°ãã®ã¾ã¾æ³•ç·šã«ãªã‚‹
                 DirectX::XMVECTOR p = DirectX::XMLoadFloat3(&v.Pos);
                 DirectX::XMStoreFloat3(&v.Normal, DirectX::XMVector3Normalize(p));
-                // Úü (U•ûŒü‚Ì•Î”÷•ª: -sin(theta), 0, cos(theta))
+                // æ¥ç·š (Uæ–¹å‘ã®åå¾®åˆ†: -sin(theta), 0, cos(theta))
                 v.Tangent.x = -sinf(theta);
                 v.Tangent.y = 0.0f;
                 v.Tangent.z = cosf(theta);
@@ -113,19 +113,19 @@ namespace Engine
             }
         }
 
-        // “ì‹É“_
+        // å—æ¥µç‚¹
         Vertex bottomVertex{ {0.0f, -radius, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f} };
         meshData.Vertices.push_back(bottomVertex);
         
-         // --- ƒCƒ“ƒfƒbƒNƒX¶¬ ---
-        // –k‹ÉƒLƒƒƒbƒv‚ÌOŠpŒ`Ú‘±
+         // --- ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ç”Ÿæˆ ---
+        // åŒ—æ¥µã‚­ãƒ£ãƒƒãƒ—ã®ä¸‰è§’å½¢æ¥ç¶š
         for (uint32_t i = 1; i <= sliceCount; ++i)
         {
             meshData.Indices.push_back(0);
             meshData.Indices.push_back(static_cast<WORD>(i + 1));
             meshData.Indices.push_back(static_cast<WORD>(i));
         }
-        // ’†ŠÔƒŠƒ“ƒOiQuad ‚ğ 2 OŠpŒ`‚É•ªŠ„j‚ÌÚ‘±
+        // ä¸­é–“ãƒªãƒ³ã‚°ï¼ˆQuad ã‚’ 2 ä¸‰è§’å½¢ã«åˆ†å‰²ï¼‰ã®æ¥ç¶š
         uint32_t baseIndex = 1;
         uint32_t ringVertexCount = sliceCount + 1;
         for (uint32_t i = 0; i < stackCount - 2; ++i)
@@ -140,7 +140,7 @@ namespace Engine
                 meshData.Indices.push_back(static_cast<WORD>(baseIndex + (i + 1) * ringVertexCount + j + 1));
             }
         }
-        // “ì‹ÉƒLƒƒƒbƒv‚ÌOŠpŒ`Ú‘±
+        // å—æ¥µã‚­ãƒ£ãƒƒãƒ—ã®ä¸‰è§’å½¢æ¥ç¶š
         uint32_t southPoleIndex = static_cast<uint32_t>(meshData.Vertices.size() - 1);
         baseIndex = southPoleIndex - ringVertexCount;
         for (uint32_t i = 0; i < sliceCount; ++i)
@@ -157,7 +157,7 @@ namespace Engine
         uint32_t m, uint32_t n,
         float uvTilingX, float uvTilingY)
     {
-        // 1. ƒK[ƒhß: ¡–@‚¨‚æ‚Ñ•ªŠ„” (Å’á1ƒOƒŠƒbƒhˆÈã)
+        // 1. ã‚¬ãƒ¼ãƒ‰ç¯€: å¯¸æ³•ãŠã‚ˆã³åˆ†å‰²æ•° (æœ€ä½1ã‚°ãƒªãƒƒãƒ‰ä»¥ä¸Š)
         if (width <= 0.0f || depth <= 0.0f || m < 1 || n < 1)
         {
             throw std::invalid_argument("Invalid plane parameters.");
@@ -171,7 +171,7 @@ namespace Engine
         float dz = depth / static_cast<float>(n);
         float du = uvTilingX / static_cast<float>(m);
         float dv = uvTilingY / static_cast<float>(n);
-        // 2. ’¸“_”z—ñ‚Ì¶¬ (è‘O -Z ‚©‚ç ‰œ +Z •ûŒü‚Ö•À‚×‚é)
+        // 2. é ‚ç‚¹é…åˆ—ã®ç”Ÿæˆ (æ‰‹å‰ -Z ã‹ã‚‰ å¥¥ +Z æ–¹å‘ã¸ä¸¦ã¹ã‚‹)
         for (uint32_t i = 0; i <= n; ++i)
         {
             float z = halfDepth - static_cast<float>(i) * dz;
@@ -180,30 +180,30 @@ namespace Engine
                 float x = -halfWidth + static_cast<float>(j) * dx;
                 uint32_t index = i * (m + 1) + j;
                 Vertex& v = meshData.Vertices[index];
-                v.Pos = { x, 0.0f, z };              // ’n–Ê‚È‚Ì‚Å Y=0
-                v.Normal = { 0.0f, 1.0f, 0.0f };       // …•½–Ê‚È‚Ì‚Å^ã‚ğŒü‚­
-                v.Tangent = { 1.0f, 0.0f, 0.0f };      // X²³•ûŒü
+                v.Pos = { x, 0.0f, z };              // åœ°é¢ãªã®ã§ Y=0
+                v.Normal = { 0.0f, 1.0f, 0.0f };       // æ°´å¹³é¢ãªã®ã§çœŸä¸Šã‚’å‘ã
+                v.Tangent = { 1.0f, 0.0f, 0.0f };      // Xè»¸æ­£æ–¹å‘
                 v.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
                 v.TexCoord = { j * du, i * dv };
             }
         }
-        // 3. ƒCƒ“ƒfƒbƒNƒX”z—ñ‚Ì¶¬ (QuadƒZƒ‹‚ğ2–‡‚ÌOŠpŒ`‚É•ªŠ„)
-        // ã‚©‚çŒ©‚ÄŒv‰ñ‚è (CW) ‚ÅÚ‘±
+        // 3. ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹é…åˆ—ã®ç”Ÿæˆ (Quadã‚»ãƒ«ã‚’2æšã®ä¸‰è§’å½¢ã«åˆ†å‰²)
+        // ä¸Šã‹ã‚‰è¦‹ã¦æ™‚è¨ˆå›ã‚Š (CW) ã§æ¥ç¶š
         meshData.Indices.reserve(m * n * 6);
         for (uint32_t i = 0; i < n; ++i)
         {
             for (uint32_t j = 0; j < m; ++j)
             {
-                // lŠpŒ`ƒZƒ‹‚Ì4‹÷‚ÌƒCƒ“ƒfƒbƒNƒX
+                // å››è§’å½¢ã‚»ãƒ«ã®4éš…ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
                 WORD topLeft = static_cast<WORD>(i * (m + 1) + j);
                 WORD topRight = static_cast<WORD>(topLeft + 1);
                 WORD bottomLeft = static_cast<WORD>((i + 1) * (m + 1) + j);
                 WORD bottomRight = static_cast<WORD>(bottomLeft + 1);
-                // OŠpŒ` 1: topLeft -> topRight -> bottomLeft
+                // ä¸‰è§’å½¢ 1: topLeft -> topRight -> bottomLeft
                 meshData.Indices.push_back(topLeft);
                 meshData.Indices.push_back(topRight);
                 meshData.Indices.push_back(bottomLeft);
-                // OŠpŒ` 2: bottomLeft -> topRight -> bottomRight
+                // ä¸‰è§’å½¢ 2: bottomLeft -> topRight -> bottomRight
                 meshData.Indices.push_back(bottomLeft);
                 meshData.Indices.push_back(topRight);
                 meshData.Indices.push_back(bottomRight);
@@ -216,14 +216,14 @@ namespace Engine
         float bottomRadius, float topRadius, float height,
         uint32_t sliceCount, uint32_t stackCount)
     {
-        // 1. ƒK[ƒhß
+        // 1. ã‚¬ãƒ¼ãƒ‰ç¯€
         if (bottomRadius < 0.0f || topRadius < 0.0f || (bottomRadius == 0.0f && topRadius == 0.0f) ||
             height <= 0.0f || sliceCount < 3 || stackCount < 1)
         {
             throw std::invalid_argument("Invalid cylinder parameters.");
         }
         MeshData meshData;
-        // --- ƒp[ƒgA: ‘¤–Ê (Side Tube) ---
+        // --- ãƒ‘ãƒ¼ãƒˆA: å´é¢ (Side Tube) ---
         float stackHeight = height / static_cast<float>(stackCount);
         float radiusStep = (topRadius - bottomRadius) / static_cast<float>(stackCount);
         uint32_t ringCount = stackCount + 1;
@@ -242,9 +242,9 @@ namespace Engine
                     static_cast<float>(j) / sliceCount,
                     1.0f - static_cast<float>(i) / stackCount
                 };
-                // Úü (U•ûŒü•Î”÷•ª)
+                // æ¥ç·š (Uæ–¹å‘åå¾®åˆ†)
                 v.Tangent = { -s, 0.0f, c };
-                // ‘¤–Ê‚ÌŒX‚«iƒe[ƒp[j‚ğl—¶‚µ‚½–@ü
+                // å´é¢ã®å‚¾ãï¼ˆãƒ†ãƒ¼ãƒ‘ãƒ¼ï¼‰ã‚’è€ƒæ…®ã—ãŸæ³•ç·š
                 float dr = bottomRadius - topRadius;
                 DirectX::XMFLOAT3 bitangent(dr * c, -height, dr * s);
                 DirectX::XMVECTOR T = DirectX::XMLoadFloat3(&v.Tangent);
@@ -255,7 +255,7 @@ namespace Engine
                 meshData.Vertices.push_back(v);
             }
         }
-        // ‘¤–Ê‚ÌƒCƒ“ƒfƒbƒNƒXÚ‘±
+        // å´é¢ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹æ¥ç¶š
         uint32_t ringVertexCount = sliceCount + 1;
         for (uint32_t i = 0; i < stackCount; ++i)
         {
@@ -265,28 +265,28 @@ namespace Engine
                 WORD i1 = static_cast<WORD>((i + 1) * ringVertexCount + j);
                 WORD i2 = static_cast<WORD>((i + 1) * ringVertexCount + j + 1);
                 WORD i3 = static_cast<WORD>(i * ringVertexCount + j + 1);
-                // OŠpŒ` 1: i0 -> i1 -> i2
+                // ä¸‰è§’å½¢ 1: i0 -> i1 -> i2
                 meshData.Indices.push_back(i0);
                 meshData.Indices.push_back(i1);
                 meshData.Indices.push_back(i2);
-                // OŠpŒ` 2: i0 -> i2 -> i3
+                // ä¸‰è§’å½¢ 2: i0 -> i2 -> i3
                 meshData.Indices.push_back(i0);
                 meshData.Indices.push_back(i2);
                 meshData.Indices.push_back(i3);
             }
         }
-        // --- ƒp[ƒgB: ã–ÊƒLƒƒƒbƒv (Top Cap) ---
+        // --- ãƒ‘ãƒ¼ãƒˆB: ä¸Šé¢ã‚­ãƒ£ãƒƒãƒ— (Top Cap) ---
         if (topRadius > 0.0f)
         {
             uint32_t baseIndex = static_cast<uint32_t>(meshData.Vertices.size());
             float y = 0.5f * height;
             float dTheta = 2.0f * DirectX::XM_PI / static_cast<float>(sliceCount);
-            // ‰~ü’¸“_
+            // å††å‘¨é ‚ç‚¹
             for (uint32_t i = 0; i <= sliceCount; ++i)
             {
                 float x = topRadius * cosf(i * dTheta);
                 float z = topRadius * sinf(i * dTheta);
-                // ƒeƒNƒXƒ`ƒƒÀ•W‚Í’†S (0.5, 0.5) ‚ğŠî€‚Éƒ}ƒbƒsƒ“ƒO
+                // ãƒ†ã‚¯ã‚¹ãƒãƒ£åº§æ¨™ã¯ä¸­å¿ƒ (0.5, 0.5) ã‚’åŸºæº–ã«ãƒãƒƒãƒ”ãƒ³ã‚°
                 float u = x / height + 0.5f;
                 float v = z / height + 0.5f;
                 meshData.Vertices.push_back(Vertex{
@@ -294,13 +294,13 @@ namespace Engine
                     { 1.0f, 1.0f, 1.0f, 1.0f }, { u, v }
                     });
             }
-            // ’†S’¸“_
+            // ä¸­å¿ƒé ‚ç‚¹
             meshData.Vertices.push_back(Vertex{
                 { 0.0f, y, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f },
                 { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.5f, 0.5f }
                 });
             WORD centerIndex = static_cast<WORD>(meshData.Vertices.size() - 1);
-            // ƒtƒ@ƒ“ó‚ÉOŠpŒ`‚ğÚ‘± (Œv‰ñ‚è)
+            // ãƒ•ã‚¡ãƒ³çŠ¶ã«ä¸‰è§’å½¢ã‚’æ¥ç¶š (æ™‚è¨ˆå›ã‚Š)
             for (uint32_t i = 0; i < sliceCount; ++i)
             {
                 meshData.Indices.push_back(centerIndex);
@@ -308,7 +308,7 @@ namespace Engine
                 meshData.Indices.push_back(static_cast<WORD>(baseIndex + i));
             }
         }
-        // --- ƒp[ƒgC: ’ê–ÊƒLƒƒƒbƒv (Bottom Cap) ---
+        // --- ãƒ‘ãƒ¼ãƒˆC: åº•é¢ã‚­ãƒ£ãƒƒãƒ— (Bottom Cap) ---
         if (bottomRadius > 0.0f)
         {
             uint32_t baseIndex = static_cast<uint32_t>(meshData.Vertices.size());

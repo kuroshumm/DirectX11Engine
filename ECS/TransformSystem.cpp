@@ -1,4 +1,4 @@
-#include "TransformSystem.h"
+ï»¿#include "TransformSystem.h"
 #include "Components.h"
 
 namespace Engine
@@ -9,26 +9,26 @@ namespace Engine
 
 		for (auto [entity, transform] : entities.each())
 		{
-			// ƒXƒP[ƒ‹s—ñ
+			// ã‚¹ã‚±ãƒ¼ãƒ«è¡Œåˆ—
 			DirectX::XMMATRIX scaleMat = DirectX::XMMatrixScaling(
 				transform.scale.x,
 				transform.scale.y,
 				transform.scale.z
 			);
-			// ‰ñ“]s—ñ
+			// å›è»¢è¡Œåˆ—
 			DirectX::XMVECTOR rotQuat = DirectX::XMLoadFloat4(&transform.rotation);
 			DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationQuaternion(rotQuat);
-			// ˆÊ’us—ñ
+			// ä½ç½®è¡Œåˆ—
 			DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslation(
 				transform.position.x,
 				transform.position.y,
 				transform.position.z
 			);
 
-			// S x R x T‚É‚æ‚é‡¬
+			// S x R x Tã«ã‚ˆã‚‹åˆæˆ
 			DirectX::XMMATRIX worldMat = scaleMat * rotMat * posMat;
 
-			// ŒvZŒ‹‰Ê‚ğƒRƒ“ƒ|[ƒlƒ“ƒg‚Ö•Û‘¶
+			// è¨ˆç®—çµæœã‚’ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¸ä¿å­˜
 			DirectX::XMStoreFloat4x4(&transform.worldMatrix, worldMat);
 		}
 	}

@@ -1,4 +1,4 @@
-#include "PrimitiveFactory.h"
+ï»¿#include "PrimitiveFactory.h"
 
 #include "GeometryGenerator.h"
 
@@ -30,17 +30,17 @@ namespace Engine
         const DirectX::XMFLOAT4& baseColor
     )
     {
-        // Entity‚ğì¬
+        // Entityã‚’ä½œæˆ
         entt::entity entity = registry.create();
 
-        // TransformComponentì¬
+        // TransformComponentä½œæˆ
         TransformComponent transformComp;
         transformComp.position = position;
         transformComp.scale = scale;
         transformComp.rotation = { 0.0f, 0.0f, 0.0f, 1.0f };
         registry.emplace<TransformComponent>(entity, transformComp);
 
-        // ModelAsset‚ğì¬
+        // ModelAssetã‚’ä½œæˆ
         ID3D11Device* pDevice = m_pGfx->GetDevice();
         std::shared_ptr<ModelAsset> pModelAsset =m_meshCache.GetOrCreate(pDevice, type);
         registry.emplace<ModelComponent>(entity, pModelAsset);

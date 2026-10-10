@@ -1,4 +1,4 @@
-#include "CameraControllerSystem.h"
+ï»¿#include "CameraControllerSystem.h"
 #include "Components.h"
 #include "InputSystem.h"
 #include "Vector2.h"
@@ -14,7 +14,7 @@ namespace Engine
 
         for (auto [entity, transform, controller] : view.each())
         {
-            // 1. ‰ñ“]ˆ— (ƒ}ƒEƒX’†ƒ{ƒ^ƒ“ƒhƒ‰ƒbƒO“™)
+            // 1. å›žè»¢å‡¦ç† (ãƒžã‚¦ã‚¹ä¸­ãƒœã‚¿ãƒ³ãƒ‰ãƒ©ãƒƒã‚°ç­‰)
             if (input.IsKeyPressed(VK_MBUTTON))
             {
                 Vector2 mouseDelta;
@@ -23,17 +23,17 @@ namespace Engine
                     controller.yaw += mouseDelta.x * controller.sensitivity * dt;
                     controller.pitch += mouseDelta.y * controller.sensitivity * dt;
 
-                    // ƒsƒbƒ`Šp‚Ì§ŒÀiã‰º”½“]–hŽ~j
+                    // ãƒ”ãƒƒãƒè§’ã®åˆ¶é™ï¼ˆä¸Šä¸‹åè»¢é˜²æ­¢ï¼‰
                     controller.pitch = std::clamp(controller.pitch, controller.minPitch, controller.maxPitch);
 
-                    // ƒIƒCƒ‰[Šp‚©‚çƒNƒH[ƒ^ƒjƒIƒ“‚ð¶¬‚µ‚Ä Transform ‚ÉŠi”[
+                    // ã‚ªã‚¤ãƒ©ãƒ¼è§’ã‹ã‚‰ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ã‚’ç”Ÿæˆã—ã¦ Transform ã«æ ¼ç´
                     DirectX::XMVECTOR qRot = DirectX::XMQuaternionRotationRollPitchYaw(controller.pitch, controller.yaw, 0.0f);
                     DirectX::XMStoreFloat4(&transform.rotation, qRot);
                     transform.isDirty = true;
                 }
             }
 
-            // 2. ˆÚ“®ˆ— (WASD “ü—Í)
+            // 2. ç§»å‹•å‡¦ç† (WASD å…¥åŠ›)
             DirectX::XMFLOAT3 moveDirLocal{ 0.0f, 0.0f, 0.0f };
             if (input.IsKeyPressed('W')) moveDirLocal.z += 1.0f;
             if (input.IsKeyPressed('S')) moveDirLocal.z -= 1.0f;
@@ -43,7 +43,7 @@ namespace Engine
             float lengthSq = moveDirLocal.x * moveDirLocal.x + moveDirLocal.y * moveDirLocal.y + moveDirLocal.z * moveDirLocal.z;
             if (lengthSq > 0.0001f)
             {
-                // ƒJƒƒ‰‚ÌŒ»Ý‚ÌŽp¨i‰ñ“]ƒNƒH[ƒ^ƒjƒIƒ“j‚©‚çƒ[ƒJƒ‹ˆÚ“®ƒxƒNƒgƒ‹‚ðƒ[ƒ‹ƒh•ûŒü‚Ö•ÏŠ·
+                // ã‚«ãƒ¡ãƒ©ã®ç¾åœ¨ã®å§¿å‹¢ï¼ˆå›žè»¢ã‚¯ã‚©ãƒ¼ã‚¿ãƒ‹ã‚ªãƒ³ï¼‰ã‹ã‚‰ãƒ­ãƒ¼ã‚«ãƒ«ç§»å‹•ãƒ™ã‚¯ãƒˆãƒ«ã‚’ãƒ¯ãƒ¼ãƒ«ãƒ‰æ–¹å‘ã¸å¤‰æ›
                 DirectX::XMVECTOR vLocalMove = DirectX::XMLoadFloat3(&moveDirLocal);
                 DirectX::XMVECTOR vRot = DirectX::XMLoadFloat4(&transform.rotation);
                 DirectX::XMVECTOR vWorldMove = DirectX::XMVector3Rotate(DirectX::XMVector3Normalize(vLocalMove), vRot);

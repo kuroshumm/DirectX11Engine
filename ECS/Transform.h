@@ -1,61 +1,61 @@
-#pragma once
+ï»¿#pragma once
 #include <DirectXMath.h>
 #include <vector>
 
 namespace Engine
 {
-    // 3D‹óŠÔ‚É‚¨‚¯‚éƒIƒuƒWƒFƒNƒg‚Ìp¨iˆÊ’uE‰ñ“]EƒXƒP[ƒ‹j‚¨‚æ‚Ñ
-    // ƒV[ƒ“ƒOƒ‰ƒt‚É‚¨‚¯‚éŠK‘w\‘¢‚ğ“Š‡‚·‚éƒRƒ“ƒ|[ƒlƒ“ƒgƒNƒ‰ƒX
+    // 3Dç©ºé–“ã«ãŠã‘ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å§¿å‹¢ï¼ˆä½ç½®ãƒ»å›è»¢ãƒ»ã‚¹ã‚±ãƒ¼ãƒ«ï¼‰ãŠã‚ˆã³
+    // ã‚·ãƒ¼ãƒ³ã‚°ãƒ©ãƒ•ã«ãŠã‘ã‚‹éšå±¤æ§‹é€ ã‚’çµ±æ‹¬ã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚¯ãƒ©ã‚¹
     class Transform
     {
     public:
         Transform();
         ~Transform();
 
-        // --- ƒpƒ‰ƒ[ƒ^‚Ìİ’è ---
+        // --- ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®è¨­å®š ---
         void SetPosition(float x, float y, float z);
         void SetPosition(const DirectX::XMFLOAT3& pos);
 
-        void SetRotation(float pitch, float yaw, float roll); // ƒ‰ƒWƒAƒ“w’è (X, Y, Z²‰ñ“])
+        void SetRotation(float pitch, float yaw, float roll); // ãƒ©ã‚¸ã‚¢ãƒ³æŒ‡å®š (X, Y, Zè»¸å›è»¢)
         void SetRotation(const DirectX::XMFLOAT3& rot);
 
         void SetScale(float x, float y, float z);
         void SetScale(const DirectX::XMFLOAT3& scale);
 
-        // --- ƒpƒ‰ƒ[ƒ^‚Ìæ“¾ ---
+        // --- ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã®å–å¾— ---
         DirectX::XMFLOAT3 GetPosition() const { return m_position; }
         DirectX::XMFLOAT3 GetRotation() const { return m_rotation; }
         DirectX::XMFLOAT3 GetScale()    const { return m_scale; }
 
-        // --- s—ñ‚Ìæ“¾ (’x‰„•]‰¿‚ÌƒgƒŠƒK[) ---
+        // --- è¡Œåˆ—ã®å–å¾— (é…å»¶è©•ä¾¡ã®ãƒˆãƒªã‚¬ãƒ¼) ---
         DirectX::XMMATRIX GetLocalMatrix();
         DirectX::XMMATRIX GetWorldMatrix();
 
         bool IsDirty() const { return m_isDirty; }
 
-        // --- ŠK‘w\‘¢‚ÌŠÇ— ---
+        // --- éšå±¤æ§‹é€ ã®ç®¡ç† ---
         void AddChild(Transform* pChild);
         void SetParent(Transform* pParent);
         Transform* GetParent() const { return m_pParent; }
 
     private:
-        // SRT—v‘f
+        // SRTè¦ç´ 
         DirectX::XMFLOAT3 m_position;
-        DirectX::XMFLOAT3 m_rotation; // ƒIƒCƒ‰[Šp (Pitch, Yaw, Roll)
+        DirectX::XMFLOAT3 m_rotation; // ã‚ªã‚¤ãƒ©ãƒ¼è§’ (Pitch, Yaw, Roll)
         DirectX::XMFLOAT3 m_scale;
 
-        // ƒLƒƒƒbƒVƒ…‚³‚ê‚½•ÏŠ·s—ñ
+        // ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã•ã‚ŒãŸå¤‰æ›è¡Œåˆ—
         DirectX::XMMATRIX m_localMatrix;
         DirectX::XMMATRIX m_worldMatrix;
 
-        // ŠK‘wƒ|ƒCƒ“ƒ^
+        // éšå±¤ãƒã‚¤ãƒ³ã‚¿
         Transform* m_pParent;
         std::vector<Transform*> m_children;
 
-        // ’x‰„•]‰¿—pƒtƒ‰ƒO
+        // é…å»¶è©•ä¾¡ç”¨ãƒ•ãƒ©ã‚°
         bool m_isDirty;
 
-        // “à•”ƒƒ\ƒbƒh
+        // å†…éƒ¨ãƒ¡ã‚½ãƒƒãƒ‰
         void SetDirty();
         void UpdateMatrix();
     };

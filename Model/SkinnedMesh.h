@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "Graphics.h"
 
@@ -10,9 +10,9 @@ namespace Engine
 		SkinnedMesh(Graphics* pGfx);
 		~SkinnedMesh();
 
-		// ’¸“_”z—ñ‚¨‚æ‚ÑƒCƒ“ƒfƒbƒNƒX”z—ñ‚©‚ç‚Ì•¨—ƒoƒbƒtƒ@¶¬
+		// é ‚ç‚¹é…åˆ—ãŠã‚ˆã³ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹é…åˆ—ã‹ã‚‰ã®ç‰©ç†ãƒãƒƒãƒ•ã‚¡ç”Ÿæˆ
 		HRESULT Create(const std::vector<SkinnedVertex>& vertices, const std::vector<WORD>& indices);
-		// ƒpƒCƒvƒ‰ƒCƒ“‚Ö‚Ìƒoƒbƒtƒ@ƒoƒCƒ“ƒh‚Æƒhƒ[ƒR[ƒ‹‚Ì”­s
+		// ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã¸ã®ãƒãƒƒãƒ•ã‚¡ãƒã‚¤ãƒ³ãƒ‰ã¨ãƒ‰ãƒ­ãƒ¼ã‚³ãƒ¼ãƒ«ã®ç™ºè¡Œ
 		void Draw();
 
 	private:

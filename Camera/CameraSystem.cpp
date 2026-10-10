@@ -1,4 +1,4 @@
-#include "CameraSystem.h"
+ï»¿#include "CameraSystem.h"
 #include "Components.h"
 
 namespace Engine
@@ -9,7 +9,7 @@ namespace Engine
 
         for (auto [entity, transform, camera] : view.each())
         {
-            // 1. ƒvƒƒWƒFƒNƒVƒ‡ƒ“s—ñ‚ÌXV (FOV/ƒAƒXƒyƒNƒg”ä/ƒNƒŠƒbƒv–Ê•ÏX)
+            // 1. ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³è¡Œåˆ—ã®æ›´æ–° (FOV/ã‚¢ã‚¹ãƒšã‚¯ãƒˆæ¯”/ã‚¯ãƒªãƒƒãƒ—é¢å¤‰æ›´æ™‚)
             if (camera.isProjectionDirty)
             {
                 DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(
@@ -22,12 +22,12 @@ namespace Engine
                 camera.isProjectionDirty = false;
             }
 
-            // 2. ƒrƒ…[s—ñ‚ÌXV (M_View = M_World^-1)
+            // 2. ãƒ“ãƒ¥ãƒ¼è¡Œåˆ—ã®æ›´æ–° (M_View = M_World^-1)
             DirectX::XMMATRIX worldMat = DirectX::XMLoadFloat4x4(&transform.worldMatrix);
             DirectX::XMMATRIX viewMat = DirectX::XMMatrixInverse(nullptr, worldMat);
             DirectX::XMStoreFloat4x4(&camera.viewMatrix, viewMat);
 
-            // 3. ‹‘ä (Frustum) ‚ÌXV
+            // 3. è¦–éŒå° (Frustum) ã®æ›´æ–°
             DirectX::XMMATRIX projMat = DirectX::XMLoadFloat4x4(&camera.projectionMatrix);
             camera.frustum.Update(viewMat, projMat);
         }

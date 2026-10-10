@@ -1,9 +1,9 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include <wrl/client.h>
 #include <d3d11.h>
 
-// ƒWƒIƒƒgƒŠ‚Ì•`‰æÅ¬’PˆÊ
+// ã‚¸ã‚ªãƒ¡ãƒˆãƒªã®æç”»æœ€å°å˜ä½
 struct SubMesh
 {
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
@@ -12,7 +12,7 @@ struct SubMesh
 	UINT vertexStride = 0;
 	int materialIndex = 0;
 
-    // ‹¤’ÊÃ“Iƒtƒ@ƒNƒgƒŠŠÖ”: ”CˆÓ‚Ì’¸“_Œ^‚©‚ç SubMesh (GPUƒoƒbƒtƒ@) ‚ğ¶¬
+    // å…±é€šé™çš„ãƒ•ã‚¡ã‚¯ãƒˆãƒªé–¢æ•°: ä»»æ„ã®é ‚ç‚¹å‹ã‹ã‚‰ SubMesh (GPUãƒãƒƒãƒ•ã‚¡) ã‚’ç”Ÿæˆ
     template<typename VertexType>
     static SubMesh Create(
         ID3D11Device* pDevice,
@@ -20,7 +20,7 @@ struct SubMesh
         const std::vector<WORD>& indices,
         int materialIndex = 0)
     {
-        // ƒK[ƒhß
+        // ã‚¬ãƒ¼ãƒ‰ç¯€
         if (!pDevice || vertices.empty() || indices.empty())
         {
             throw std::invalid_argument("Invalid arguments for SubMesh::Create");
@@ -29,7 +29,7 @@ struct SubMesh
         subMesh.materialIndex = materialIndex;
         subMesh.indexCount = static_cast<UINT>(indices.size());
         subMesh.vertexStride = sizeof(VertexType);
-        // ‡@ ’¸“_ƒoƒbƒtƒ@ (VertexBuffer) ‚Ì¶¬
+        // â‘  é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ (VertexBuffer) ã®ç”Ÿæˆ
         D3D11_BUFFER_DESC vbd = {};
         vbd.ByteWidth = sizeof(VertexType) * static_cast<UINT>(vertices.size());
         vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -40,7 +40,7 @@ struct SubMesh
         {
             throw std::runtime_error("Failed to create vertex buffer.");
         }
-        // ‡A ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ (IndexBuffer) ‚Ì¶¬
+        // â‘¡ ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ (IndexBuffer) ã®ç”Ÿæˆ
         D3D11_BUFFER_DESC ibd = {};
         ibd.ByteWidth = sizeof(WORD) * static_cast<UINT>(indices.size());
         ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;

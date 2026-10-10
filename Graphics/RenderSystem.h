@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <entt/entt.hpp>
 
@@ -11,7 +11,7 @@ namespace Engine
 	class RenderSystem
 	{
 	public:
-		// ‰Šú‰»‚É’è”ƒoƒbƒtƒ@‚ğ1‰ñ‚¾‚¯¶¬
+		// åˆæœŸåŒ–æ™‚ã«å®šæ•°ãƒãƒƒãƒ•ã‚¡ã‚’1å›ã ã‘ç”Ÿæˆ
 		HRESULT Initialize(ID3D11Device* pDevice);
 		// 
 		void Render(entt::registry& registry, Graphics& pGfx);
@@ -19,7 +19,7 @@ namespace Engine
 		void UpdateMaterial(MaterialComponent& material, ID3D11DeviceContext& context);
 
 	private:
-		// ƒ}ƒeƒŠƒAƒ‹ƒpƒ‰ƒ[ƒ^“]‘——p‚Ì‹¤—L’è”ƒoƒbƒtƒ@
+		// ãƒãƒ†ãƒªã‚¢ãƒ«ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿è»¢é€ç”¨ã®å…±æœ‰å®šæ•°ãƒãƒƒãƒ•ã‚¡
 		Microsoft::WRL::ComPtr<ID3D11Buffer> m_pMaterialCB;
 	};
 }

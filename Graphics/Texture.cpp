@@ -1,4 +1,4 @@
-#include "Texture.h"
+ï»¿#include "Texture.h"
 #include <wincodec.h>
 #include <vector>
 
@@ -13,11 +13,11 @@ namespace Engine
     {
         HRESULT hr = S_OK;
 
-        // WICƒRƒ“ƒ|[ƒlƒ“ƒg‚Ì‰Šú‰»
+        // WICã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®åˆæœŸåŒ–
         Microsoft::WRL::ComPtr<IWICImagingFactory> pFactory;
 
-        // --- TODO 1: WICƒtƒ@ƒNƒgƒŠ‚Ì¶¬ ---
-        /* CoCreateInstance ‚ğŒÄ‚Ño‚µAWICƒCƒ[ƒWƒ“ƒOƒtƒ@ƒNƒgƒŠ‚ğ¶¬‚¹‚æB
+        // --- TODO 1: WICãƒ•ã‚¡ã‚¯ãƒˆãƒªã®ç”Ÿæˆ ---
+        /* CoCreateInstance ã‚’å‘¼ã³å‡ºã—ã€WICã‚¤ãƒ¡ãƒ¼ã‚¸ãƒ³ã‚°ãƒ•ã‚¡ã‚¯ãƒˆãƒªã‚’ç”Ÿæˆã›ã‚ˆã€‚
            CLSID: CLSID_WICImagingFactory, IID: IID_PPV_ARGS(&pFactory)
         */
         hr = CoCreateInstance(
@@ -28,24 +28,24 @@ namespace Engine
 		);
         if (FAILED(hr)) return hr;
 
-        // ƒfƒR[ƒ_‚Ì¶¬
+        // ãƒ‡ã‚³ãƒ¼ãƒ€ã®ç”Ÿæˆ
         Microsoft::WRL::ComPtr<IWICBitmapDecoder> pDecoder;
         hr = pFactory->CreateDecoderFromFilename(
             filePath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pDecoder);
         if (FAILED(hr)) return hr;
 
-        // Å‰‚ÌƒtƒŒ[ƒ€‚ğæ“¾
+        // æœ€åˆã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’å–å¾—
         Microsoft::WRL::ComPtr<IWICBitmapFrameDecode> pFrame;
         hr = pDecoder->GetFrame(0, &pFrame);
         if (FAILED(hr)) return hr;
 
-        // ƒtƒH[ƒ}ƒbƒgƒRƒ“ƒo[ƒ^‚Ì¶¬ (Direct3DŒİŠ·‚Ì32bpp RGBA‚Ö•ÏŠ·)
+        // ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ç”Ÿæˆ (Direct3Däº’æ›ã®32bpp RGBAã¸å¤‰æ›)
         Microsoft::WRL::ComPtr<IWICFormatConverter> pConverter;
 
-        // --- TODO 2: ƒtƒH[ƒ}ƒbƒgƒRƒ“ƒo[ƒ^‚Ì¶¬‚Æ‰Šú‰» ---
-        /* 1. pFactory->CreateFormatConverter ‚ğŒÄ‚Ño‚µApConverter ‚ğ¶¬‚¹‚æB
-           2. pConverter->Initialize ‚ğŒÄ‚Ño‚µAˆÈ‰º‚Ìƒpƒ‰ƒ[ƒ^‚ÅƒtƒH[ƒ}ƒbƒg•ÏŠ·‚ğ‰Šú‰»‚¹‚æB
-              ˆø”: pFrame.Get(), GUID_WICPixelFormat32bppRGBA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeCustom
+        // --- TODO 2: ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã‚³ãƒ³ãƒãƒ¼ã‚¿ã®ç”Ÿæˆã¨åˆæœŸåŒ– ---
+        /* 1. pFactory->CreateFormatConverter ã‚’å‘¼ã³å‡ºã—ã€pConverter ã‚’ç”Ÿæˆã›ã‚ˆã€‚
+           2. pConverter->Initialize ã‚’å‘¼ã³å‡ºã—ã€ä»¥ä¸‹ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆå¤‰æ›ã‚’åˆæœŸåŒ–ã›ã‚ˆã€‚
+              å¼•æ•°: pFrame.Get(), GUID_WICPixelFormat32bppRGBA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeCustom
         */
         hr = pFactory->CreateFormatConverter(&pConverter);
         if (FAILED(hr)) return hr;
@@ -63,15 +63,15 @@ namespace Engine
         UINT width, height;
         pConverter->GetSize(&width, &height);
 
-        // ƒoƒCƒgƒXƒgƒŠ[ƒ€‚ÌŒvZ‚Æƒoƒbƒtƒ@ƒAƒƒP[ƒVƒ‡ƒ“ (RGBA = 4 bytes per pixel)
+        // ãƒã‚¤ãƒˆã‚¹ãƒˆãƒªãƒ¼ãƒ ã®è¨ˆç®—ã¨ãƒãƒƒãƒ•ã‚¡ã‚¢ãƒ­ã‚±ãƒ¼ã‚·ãƒ§ãƒ³ (RGBA = 4 bytes per pixel)
         UINT bytesPerPixel = 4;
         UINT rowPitch = width * bytesPerPixel;
         UINT imageSize = rowPitch * height;
         std::vector<uint8_t> pixels(imageSize);
 
-        // --- TODO 3: ƒsƒNƒZƒ‹ƒf[ƒ^‚Ìƒƒ‚ƒŠƒRƒs[ ---
-        /* pConverter->CopyPixels ‚ğŒÄ‚Ño‚µAƒfƒR[ƒh‚³‚ê‚½ƒsƒNƒZƒ‹”z—ñ‚ğ pixels ƒoƒbƒtƒ@‚ÖƒRƒs[‚¹‚æB
-           ˆø”: nullptr, rowPitch, imageSize, pixels.data()
+        // --- TODO 3: ãƒ”ã‚¯ã‚»ãƒ«ãƒ‡ãƒ¼ã‚¿ã®ãƒ¡ãƒ¢ãƒªã‚³ãƒ”ãƒ¼ ---
+        /* pConverter->CopyPixels ã‚’å‘¼ã³å‡ºã—ã€ãƒ‡ã‚³ãƒ¼ãƒ‰ã•ã‚ŒãŸãƒ”ã‚¯ã‚»ãƒ«é…åˆ—ã‚’ pixels ãƒãƒƒãƒ•ã‚¡ã¸ã‚³ãƒ”ãƒ¼ã›ã‚ˆã€‚
+           å¼•æ•°: nullptr, rowPitch, imageSize, pixels.data()
         */
         pConverter->CopyPixels(
             nullptr,
@@ -81,14 +81,14 @@ namespace Engine
         );
         if (FAILED(hr)) return hr;
 
-        // --- TODO 4: ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX‚ÌVRAM“]‘— ---
-        /* D3D11_TEXTURE2D_DESC ‚ğ\’z‚µAwidth, height ‚ğİ’è‚¹‚æB
+        // --- TODO 4: ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒªã‚½ãƒ¼ã‚¹ã®VRAMè»¢é€ ---
+        /* D3D11_TEXTURE2D_DESC ã‚’æ§‹ç¯‰ã—ã€width, height ã‚’è¨­å®šã›ã‚ˆã€‚
            MipLevels=1, ArraySize=1, Format=DXGI_FORMAT_R8G8B8A8_UNORM, SampleDesc.Count=1,
-           Usage=D3D11_USAGE_IMMUTABLE, BindFlags=D3D11_BIND_SHADER_RESOURCE ‚Æ‚¹‚æB
+           Usage=D3D11_USAGE_IMMUTABLE, BindFlags=D3D11_BIND_SHADER_RESOURCE ã¨ã›ã‚ˆã€‚
            
-           D3D11_SUBRESOURCE_DATA initData ‚ğ\’z‚µApSysMem=pixels.data(), SysMemPitch=rowPitch ‚Æ‚¹‚æB
-           pDevice->CreateTexture2D ‚ğŒÄ‚Ño‚µ‚Ä m_pTexture ‚ğ¶¬‚µA
-           pDevice->CreateShaderResourceView ‚ğŒÄ‚Ño‚µ‚Ä m_pSRV ‚ğ¶¬‚¹‚æB
+           D3D11_SUBRESOURCE_DATA initData ã‚’æ§‹ç¯‰ã—ã€pSysMem=pixels.data(), SysMemPitch=rowPitch ã¨ã›ã‚ˆã€‚
+           pDevice->CreateTexture2D ã‚’å‘¼ã³å‡ºã—ã¦ m_pTexture ã‚’ç”Ÿæˆã—ã€
+           pDevice->CreateShaderResourceView ã‚’å‘¼ã³å‡ºã—ã¦ m_pSRV ã‚’ç”Ÿæˆã›ã‚ˆã€‚
         */
         D3D11_TEXTURE2D_DESC desc = {};
         desc.Width = width; 
@@ -118,7 +118,7 @@ namespace Engine
         {
             return;
         }
-        // æ“¾‚µ‚½‰æ‘œƒŠƒ\[ƒXiSRVj‚ğƒpƒCƒvƒ‰ƒCƒ“‚ÉƒZƒbƒg
+        // å–å¾—ã—ãŸç”»åƒãƒªã‚½ãƒ¼ã‚¹ï¼ˆSRVï¼‰ã‚’ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã«ã‚»ãƒƒãƒˆ
         pContext->PSSetShaderResources(slot, 1, m_pSRV.GetAddressOf());
     }
 
@@ -132,7 +132,7 @@ namespace Engine
             return E_INVALIDARG;
         }
 
-        // 1x1‚Ì2DƒeƒNƒXƒ`ƒƒ
+        // 1x1ã®2Dãƒ†ã‚¯ã‚¹ãƒãƒ£
         D3D11_TEXTURE2D_DESC desc = {};
         desc.Width = 1;
         desc.Height = 1;
@@ -143,7 +143,7 @@ namespace Engine
         desc.Usage = D3D11_USAGE_IMMUTABLE;
         desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-        // 4ƒoƒCƒg‚ÌƒsƒNƒZƒ‹ƒf[ƒ^ (RGBA) ‚ğ’¼Úƒƒ‚ƒŠã‚É—pˆÓ
+        // 4ãƒã‚¤ãƒˆã®ãƒ”ã‚¯ã‚»ãƒ«ãƒ‡ãƒ¼ã‚¿ (RGBA) ã‚’ç›´æ¥ãƒ¡ãƒ¢ãƒªä¸Šã«ç”¨æ„
         uint32_t pixel = (static_cast<uint32_t>(a) << 24) 
             | (static_cast<uint32_t>(b) << 16)
             | (static_cast<uint32_t>(g) << 8)
@@ -153,7 +153,7 @@ namespace Engine
         initData.pSysMem = &pixel;
         initData.SysMemPitch = sizeof(uint32_t);
 
-        // GPUƒoƒbƒtƒ@‚ÆƒVƒF[ƒ_[ƒŠƒ\[ƒXƒrƒ…[ (SRV) ‚Ì¶¬
+        // GPUãƒãƒƒãƒ•ã‚¡ã¨ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ãƒªã‚½ãƒ¼ã‚¹ãƒ“ãƒ¥ãƒ¼ (SRV) ã®ç”Ÿæˆ
         HRESULT hr = pDevice->CreateTexture2D(&desc, &initData, &m_pTexture);
         if (FAILED(hr))
         {

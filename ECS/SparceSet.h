@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <cstdint>
 #include <vector>
 #include <cassert>
@@ -6,7 +6,7 @@
 namespace Engine
 {
 	using Entity = uint32_t;
-	const Entity NullEntity = 0xFFFFFFFF; // –³Œø‚ÈƒGƒ“ƒeƒBƒeƒB‚ğ•\‚·’è”
+	const Entity NullEntity = 0xFFFFFFFF; // ç„¡åŠ¹ãªã‚¨ãƒ³ãƒ†ã‚£ãƒ†ã‚£ã‚’è¡¨ã™å®šæ•°
 
 	class ISparceSet
 	{
@@ -26,16 +26,16 @@ namespace Engine
 
 	public:
 		/// <summary>
-		/// “o˜^‚³‚ê‚Ä‚éEntity‚Ì”‚ğæ“¾
+		/// ç™»éŒ²ã•ã‚Œã¦ã‚‹Entityã®æ•°ã‚’å–å¾—
 		/// </summary>
-		/// <returns>m_instances.size() ‚É‚æ‚Á‚Ä¦‚³‚ê‚é—v‘f”‚ğ size_t Œ^‚Å•Ô‚µ‚Ü‚·B</returns>
+		/// <returns>m_instances.size() ã«ã‚ˆã£ã¦ç¤ºã•ã‚Œã‚‹è¦ç´ æ•°ã‚’ size_t å‹ã§è¿”ã—ã¾ã™ã€‚</returns>
 		size_t Size() const override
 		{
 			return m_instances.size();
 		}
 
 		/// <summary>
-		/// Entity‚ª“o˜^‚³‚ê‚Ä‚é‚©
+		/// EntityãŒç™»éŒ²ã•ã‚Œã¦ã‚‹ã‹
 		/// </summary>
 		/// <param name="entity"></param>
 		/// <returns></returns>
@@ -61,7 +61,7 @@ namespace Engine
 		}
 
 		/// <summary>
-		/// “o˜^‚µ‚Ä‚éEntity‚ğÁ‹
+		/// ç™»éŒ²ã—ã¦ã‚‹Entityã‚’æ¶ˆå»
 		/// </summary>
 		/// <param name="entity"></param>
 		void Remove(Entity entity) override
@@ -71,42 +71,42 @@ namespace Engine
 				return;
 			}
 
-			// Á‹‘ÎÛ‚ªŠi”[‚³‚ê‚Ä‚¢‚é”z—ñ‚ÌƒCƒ“ƒfƒbƒNƒX
+			// æ¶ˆå»å¯¾è±¡ãŒæ ¼ç´ã•ã‚Œã¦ã„ã‚‹é…åˆ—ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 			uint32_t index = m_sparce[entity];
 
-			// ––”öƒf[ƒ^‚Ìæ“¾
+			// æœ«å°¾ãƒ‡ãƒ¼ã‚¿ã®å–å¾—
 			Entity lastDense = m_dense[m_dense.size()-1];
 			T lastInstance = m_instances[m_instances.size()-1];
 
-			// w’è‚ÌEntity‚ğ––”öƒf[ƒ^‚Éã‘‚«
+			// æŒ‡å®šã®Entityã‚’æœ«å°¾ãƒ‡ãƒ¼ã‚¿ã«ä¸Šæ›¸ã
 			m_dense[index] = lastDense;
 			m_instances[index] = std::move(lastInstance);
 
-			// ––”öƒf[ƒ^‚ÌÁ‹
+			// æœ«å°¾ãƒ‡ãƒ¼ã‚¿ã®æ¶ˆå»
 			m_dense.pop_back();
 			m_instances.pop_back();
 
-			// m_sparce‚ğXV
+			// m_sparceã‚’æ›´æ–°
 			m_sparce[lastDense] = index;
 			m_sparce[entity] = NullEntity;
 		}
 
 
 		/// <summary>
-		/// Entity‚ÆComponent‚ğ’Ç‰Á
+		/// Entityã¨Componentã‚’è¿½åŠ 
 		/// </summary>
 		/// <param name="entity"></param>
 		/// <param name="component"></param>
 		/// <returns></returns>
 		T& Emplace(Entity entity, T&& component)
 		{
-			// Šù‚É‘¶İ‚·‚éê‡‚ÍŠù‘¶ƒf[ƒ^‚ÌQÆ‚ğ•Ô‚·
+			// æ—¢ã«å­˜åœ¨ã™ã‚‹å ´åˆã¯æ—¢å­˜ãƒ‡ãƒ¼ã‚¿ã®å‚ç…§ã‚’è¿”ã™
 			if (Contains(entity))
 			{
 				return Get(entity);
 			}
 
-			// m_sparce‚ğ•K—v‚É‰‚¶‚ÄŠg’£
+			// m_sparceã‚’å¿…è¦ã«å¿œã˜ã¦æ‹¡å¼µ
 			if (entity >= m_sparce.size())
 			{
 				m_sparce.resize(entity + 1, NullEntity);
@@ -120,7 +120,7 @@ namespace Engine
 			return m_instances.back();
 		}
 		/// <summary>
-		/// Entity‚©‚çComponent‚ğæ“¾
+		/// Entityã‹ã‚‰Componentã‚’å–å¾—
 		/// </summary>
 		/// <param name="entity"></param>
 		/// <returns></returns>
@@ -140,8 +140,8 @@ namespace Engine
 		}
 
 	private:
-		std::vector<uint32_t> m_sparce;	// Entity ID‚ğƒCƒ“ƒfƒbƒNƒX‚Æ‚µ‚ÄAm_dense“à‚ÌˆÊ’u‚ğw‚·”z—ñ
-		std::vector<Entity> m_dense;	// Ši”[‚³‚ê‚Ä‚¢‚éEntity‚ÌID‚ğŒ„ŠÔ‚È‚­•À‚×‚é”z—ñ
-		std::vector<T> m_instances;		// ƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌÀƒf[ƒ^‚ğŠi”[‚·‚é”z—ñ
+		std::vector<uint32_t> m_sparce;	// Entity IDã‚’ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ã—ã¦ã€m_denseå†…ã®ä½ç½®ã‚’æŒ‡ã™é…åˆ—
+		std::vector<Entity> m_dense;	// æ ¼ç´ã•ã‚Œã¦ã„ã‚‹Entityã®IDã‚’éš™é–“ãªãä¸¦ã¹ã‚‹é…åˆ—
+		std::vector<T> m_instances;		// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®å®Ÿãƒ‡ãƒ¼ã‚¿ã‚’æ ¼ç´ã™ã‚‹é…åˆ—
 	};
 }

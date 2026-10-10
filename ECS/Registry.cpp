@@ -1,4 +1,4 @@
-#include "Registry.h"
+﻿#include "Registry.h"
 
 namespace Engine
 {

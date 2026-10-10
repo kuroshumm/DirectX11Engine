@@ -1,4 +1,4 @@
-#include "RenderSystem.h"
+ï»¿#include "RenderSystem.h"
 #include "Components.h"
 
 namespace
@@ -34,11 +34,11 @@ namespace
             UINT stride = subMesh.vertexStride;
             UINT offset = 0;
 
-            // ’¸“_ƒoƒbƒtƒ@‚ÌƒoƒCƒ“ƒh
+            // é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ã®ãƒã‚¤ãƒ³ãƒ‰
             context.IASetVertexBuffers(0, 1, subMesh.vertexBuffer.GetAddressOf(), &stride, &offset);
-            // ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ÌƒoƒCƒ“ƒh
+            // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ã®ãƒã‚¤ãƒ³ãƒ‰
             context.IASetIndexBuffer(subMesh.indexBuffer.Get(), DXGI_FORMAT_R16_UINT, offset);
-            // ƒCƒ“ƒfƒbƒNƒXw’è‚É‚æ‚é•`‰æÀs–½—ß
+            // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹æŒ‡å®šã«ã‚ˆã‚‹æç”»å®Ÿè¡Œå‘½ä»¤
             context.DrawIndexed(subMesh.indexCount, 0, 0);
         }
     }
@@ -48,15 +48,15 @@ namespace Engine
 {
     HRESULT RenderSystem::Initialize(ID3D11Device* pDevice)
     {
-        // --- ƒ}ƒeƒŠƒAƒ‹’è”ƒoƒbƒtƒ@‚Ì¶¬ ---
+        // --- ãƒãƒ†ãƒªã‚¢ãƒ«å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®ç”Ÿæˆ ---
        /*
-           b1ƒŒƒWƒXƒ^‚ÉƒoƒCƒ“ƒh‚·‚é‚½‚ß‚Ìê—p‚ÌID3D11Buffer‚ğ¶¬‚µ‚Ä‚­‚¾‚³‚¢B
+           b1ãƒ¬ã‚¸ã‚¹ã‚¿ã«ãƒã‚¤ãƒ³ãƒ‰ã™ã‚‹ãŸã‚ã®å°‚ç”¨ã®ID3D11Bufferã‚’ç”Ÿæˆã—ã¦ãã ã•ã„ã€‚
            1. D3D11_BUFFER_DESC desc = {};
-           2. Usage ‚É D3D11_USAGE_DYNAMIC ‚ğw’èB
-           3. ByteWidth ‚É sizeof(MaterialConstantBufferData) ‚ğw’èB
-           4. BindFlags ‚É D3D11_BIND_CONSTANT_BUFFER ‚ğw’èB
-           5. CPUAccessFlags ‚É D3D11_CPU_ACCESS_WRITE ‚ğw’èB
-           6. device->CreateBuffer ‚ğŒÄ‚Ño‚µ‚Ä m_pMaterialCB ‚ÉŠi”[‚·‚éB
+           2. Usage ã« D3D11_USAGE_DYNAMIC ã‚’æŒ‡å®šã€‚
+           3. ByteWidth ã« sizeof(MaterialConstantBufferData) ã‚’æŒ‡å®šã€‚
+           4. BindFlags ã« D3D11_BIND_CONSTANT_BUFFER ã‚’æŒ‡å®šã€‚
+           5. CPUAccessFlags ã« D3D11_CPU_ACCESS_WRITE ã‚’æŒ‡å®šã€‚
+           6. device->CreateBuffer ã‚’å‘¼ã³å‡ºã—ã¦ m_pMaterialCB ã«æ ¼ç´ã™ã‚‹ã€‚
        */
 
         D3D11_BUFFER_DESC desc = {};
@@ -71,37 +71,37 @@ namespace Engine
 
     void RenderSystem::Render(entt::registry& registry, Graphics& gfx)
     {
-        // 1. ƒAƒNƒeƒBƒuƒJƒƒ‰‚Ìæ“¾ (.each() ‚É‚æ‚éˆÀ‘S‚È‘–¸)
+        // 1. ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã‚«ãƒ¡ãƒ©ã®å–å¾— (.each() ã«ã‚ˆã‚‹å®‰å…¨ãªèµ°æŸ»)
         CameraComponent* pActiveCamera = FindActiveCamera(registry);
         if (pActiveCamera == nullptr)
         {
             return;
         }
 
-        // ƒJƒƒ‰s—ñ‚Æ‹‘ä‚Ìæ“¾
+        // ã‚«ãƒ¡ãƒ©è¡Œåˆ—ã¨è¦–éŒå°ã®å–å¾—
         DirectX::XMMATRIX viewMat = DirectX::XMLoadFloat4x4(&pActiveCamera->viewMatrix);
         DirectX::XMMATRIX projMat = DirectX::XMLoadFloat4x4(&pActiveCamera->projectionMatrix);
 
         ID3D11DeviceContext* pContext = gfx.GetContext();
 
         auto staticEntities = registry.view<TransformComponent, ModelComponent, MaterialComponent, VisibleTag>(
-            entt::exclude<SkeletonComponent> // ƒXƒLƒ“ƒ‚ƒfƒ‹‚ğœŠO
+            entt::exclude<SkeletonComponent> // ã‚¹ã‚­ãƒ³ãƒ¢ãƒ‡ãƒ«ã‚’é™¤å¤–
         );
 
         for (auto [entity, transform, model, material] : staticEntities.each())
         {
-            // ƒ[ƒ‹ƒhs—ñ‚ÌXV
+            // ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã®æ›´æ–°
             UpdateWorldMat(transform, gfx, viewMat, projMat);
 
-            // ƒ}ƒeƒŠƒAƒ‹ŠÖ˜Aî•ñ‚ÌXV
+            // ãƒãƒ†ãƒªã‚¢ãƒ«é–¢é€£æƒ…å ±ã®æ›´æ–°
             UpdateMaterial(material, *pContext);
 
-            // •`‰æ
+            // æç”»
             RenderMesh(model, *pContext);
 
         }
 
-        // ƒ‚ƒfƒ‹‚Ì‘–¸‚Æ•`‰æ
+        // ãƒ¢ãƒ‡ãƒ«ã®èµ°æŸ»ã¨æç”»
         auto entities = registry.view<
             TransformComponent,
             ModelComponent,
@@ -112,10 +112,10 @@ namespace Engine
 
         for (auto [entity, transform, model, material, skelton, palette] : entities.each())
         {
-            // ƒ[ƒ‹ƒhs—ñ‚ÌXV
+            // ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã®æ›´æ–°
             UpdateWorldMat(transform, gfx, viewMat, projMat);
 
-            // ƒ}ƒeƒŠƒAƒ‹ŠÖ˜Aî•ñ‚ÌXV
+            // ãƒãƒ†ãƒªã‚¢ãƒ«é–¢é€£æƒ…å ±ã®æ›´æ–°
             UpdateMaterial(material, *pContext);
 
             // palette
@@ -124,23 +124,23 @@ namespace Engine
                 pContext->VSSetConstantBuffers(1, 1, palette.pPaletteBuffer.GetAddressOf());
             }
 
-            // •`‰æ
+            // æç”»
             RenderMesh(model, *pContext);
         }
     }
 
     void RenderSystem::UpdateMaterial(MaterialComponent& material, ID3D11DeviceContext& context)
     {
-        // ƒ}ƒeƒŠƒAƒ‹‚ÌƒoƒCƒ“ƒh
+        // ãƒãƒ†ãƒªã‚¢ãƒ«ã®ãƒã‚¤ãƒ³ãƒ‰
         material.pShader->Bind(&context);
 
-        // ƒeƒNƒXƒ`ƒƒ‚ÌƒoƒCƒ“ƒh
+        // ãƒ†ã‚¯ã‚¹ãƒãƒ£ã®ãƒã‚¤ãƒ³ãƒ‰
         if (material.pTexture)
         {
             material.pTexture->Bind(&context, 0);
         }
 
-        // ƒ}ƒeƒŠƒAƒ‹’è”ƒoƒbƒtƒ@‚ÌXV‚ÆƒoƒCƒ“ƒh
+        // ãƒãƒ†ãƒªã‚¢ãƒ«å®šæ•°ãƒãƒƒãƒ•ã‚¡ã®æ›´æ–°ã¨ãƒã‚¤ãƒ³ãƒ‰
         D3D11_MAPPED_SUBRESOURCE mapped;
         if (SUCCEEDED(context.Map(m_pMaterialCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped)))
         {
@@ -149,7 +149,7 @@ namespace Engine
             data->Metallic = material.metallic;
             data->Roughness = material.roughness;
             context.Unmap(m_pMaterialCB.Get(), 0);
-            // ƒsƒNƒZƒ‹ƒVƒF[ƒ_[‚Ì b1 ƒXƒƒbƒg‚ÖƒoƒCƒ“ƒh
+            // ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã® b1 ã‚¹ãƒ­ãƒƒãƒˆã¸ãƒã‚¤ãƒ³ãƒ‰
             context.PSSetConstantBuffers(1, 1, m_pMaterialCB.GetAddressOf());
         }
     }

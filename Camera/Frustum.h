@@ -1,15 +1,15 @@
-#pragma once
+ï»¿#pragma once
 #include <DirectXMath.h>
 
 class Frustum
 {
 public:
-    // ‹‘ä‚ğ\¬‚·‚é6‚Â‚Ì•½–Ê (Left, Right, Bottom, Top, Near, Far)
+    // è¦–éŒå°ã‚’æ§‹æˆã™ã‚‹6ã¤ã®å¹³é¢ (Left, Right, Bottom, Top, Near, Far)
     DirectX::XMVECTOR m_Planes[6];
 
-    // ƒ}ƒgƒŠƒbƒNƒX‚©‚ç•½–Ê•û’ö®‚ğ’Šo‚µA³‹K‰»‚·‚éŠÖ”
+    // ãƒãƒˆãƒªãƒƒã‚¯ã‚¹ã‹ã‚‰å¹³é¢æ–¹ç¨‹å¼ã‚’æŠ½å‡ºã—ã€æ­£è¦åŒ–ã™ã‚‹é–¢æ•°
     void Update(const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix);
 
-    // ƒoƒEƒ“ƒfƒBƒ“ƒOƒXƒtƒBƒA‚Æ‚ÌŒğ·”»’è‚ğs‚¤ŠÖ”
+    // ãƒã‚¦ãƒ³ãƒ‡ã‚£ãƒ³ã‚°ã‚¹ãƒ•ã‚£ã‚¢ã¨ã®äº¤å·®åˆ¤å®šã‚’è¡Œã†é–¢æ•°
     bool CheckSphere(const DirectX::XMFLOAT3& center, float radius) const;
 };

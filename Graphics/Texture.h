@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <string>
@@ -13,9 +13,9 @@ namespace Engine
 
 		ID3D11ShaderResourceView* GetSRV() { return m_pSRV.Get(); }
 
-		// w’è‚³‚ê‚½ƒtƒ@ƒCƒ‹ƒpƒX‚©‚çƒeƒNƒXƒ`ƒƒ‚ğƒ[ƒh‚µAVRAM‚Ö“]‘—‚·‚é
+		// æŒ‡å®šã•ã‚ŒãŸãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹ã‹ã‚‰ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ãƒ­ãƒ¼ãƒ‰ã—ã€VRAMã¸è»¢é€ã™ã‚‹
 		HRESULT LoadFromFile(ID3D11Device* pDevice, const std::wstring& filePath);
-		// ƒ[ƒh‚µ‚½ƒeƒNƒXƒ`ƒƒ‚ğƒpƒCƒvƒ‰ƒCƒ“‚ÉƒZƒbƒg
+		// ãƒ­ãƒ¼ãƒ‰ã—ãŸãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’ãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã«ã‚»ãƒƒãƒˆ
 		void Bind(ID3D11DeviceContext* pContext, UINT slot);
 
 		HRESULT CreateSolidColor(

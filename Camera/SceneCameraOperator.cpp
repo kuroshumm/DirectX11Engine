@@ -1,4 +1,4 @@
-#include "SceneCameraOperator.h"
+ï»¿#include "SceneCameraOperator.h"
 #include "InputSystem.h"
 #include <algorithm>
 #include "Vector3.h"
@@ -20,10 +20,10 @@ namespace Engine
 			return;
 		}
 		
-		// ‰ñ“]
+		// å›è»¢
 		Rotate(deltaTime, pCamera);
 
-		// ˆÚ“®
+		// ç§»å‹•
 		Move(deltaTime, pCamera);
 	}
 
@@ -36,7 +36,7 @@ namespace Engine
 			return;
 		}
 
-		// ƒ}ƒEƒX‚ÌˆÚ“®—Ê‚ğæ“¾
+		// ãƒã‚¦ã‚¹ã®ç§»å‹•é‡ã‚’å–å¾—
 		Vector2 mouseDelta;
 		if (!inputSystem.TryGetMouseDelta(mouseDelta))
 		{
@@ -45,15 +45,15 @@ namespace Engine
 
 		DirectX::XMFLOAT3 currentRot = pCamera->GetTransform().GetRotation();
 
-		// ƒsƒNƒZƒ‹•ÏˆÊ‚ğƒ‰ƒWƒAƒ“‚ÉƒXƒP[ƒ‹ƒ_ƒEƒ“‚µ‚Ä‚©‚ç‰ÁZ‚·‚é
+		// ãƒ”ã‚¯ã‚»ãƒ«å¤‰ä½ã‚’ãƒ©ã‚¸ã‚¢ãƒ³ã«ã‚¹ã‚±ãƒ¼ãƒ«ãƒ€ã‚¦ãƒ³ã—ã¦ã‹ã‚‰åŠ ç®—ã™ã‚‹
 		currentRot.x += mouseDelta.y * SENSITIVITY * deltaTime;
 		currentRot.y += mouseDelta.x * SENSITIVITY * deltaTime;
 
-		// ƒXƒP[ƒ‹ƒ_ƒEƒ“‚³‚ê‚½ˆÀ‘S‚Èó‘Ô’l‚É‘Î‚µ‚ÄAŒÀŠE’li}88.8‹j‚Ì“Vˆä‚ğ“K—p‚·‚é
+		// ã‚¹ã‚±ãƒ¼ãƒ«ãƒ€ã‚¦ãƒ³ã•ã‚ŒãŸå®‰å…¨ãªçŠ¶æ…‹å€¤ã«å¯¾ã—ã¦ã€é™ç•Œå€¤ï¼ˆÂ±88.8Â°ï¼‰ã®å¤©äº•ã‚’é©ç”¨ã™ã‚‹
 		//currentRot.x = std::clamp(currentRot.x, -1.55f, 1.55f);
-		currentRot.z = 0.0f; // Roll¬•ª‚Ì‰i‹vS‘©
+		currentRot.z = 0.0f; // Rollæˆåˆ†ã®æ°¸ä¹…æ‹˜æŸ
 
-		// ƒJƒƒ‰‚ğ‰ñ“]
+		// ã‚«ãƒ¡ãƒ©ã‚’å›è»¢
 		pCamera->GetTransform().SetRotation(currentRot);
 	}
 
@@ -61,24 +61,24 @@ namespace Engine
 	{
 		InputSystem& inputSystem = InputSystem::GetInstance();
 
-		// “ü—ÍƒxƒNƒgƒ‹‚ÌZo
+		// å…¥åŠ›ãƒ™ã‚¯ãƒˆãƒ«ã®ç®—å‡º
 		Vector3 moveDir = Vector3::zero;
-		if (inputSystem.IsKeyPressed('W')) moveDir += Vector3::forward; // ‘Oi
-		if (inputSystem.IsKeyPressed('S')) moveDir -= Vector3::forward; // Œã‘Ş
-		if (inputSystem.IsKeyPressed('A')) moveDir -= Vector3::right;   // ¶ˆÚ“®
-		if (inputSystem.IsKeyPressed('D')) moveDir += Vector3::right;   // ‰EˆÚ“®
+		if (inputSystem.IsKeyPressed('W')) moveDir += Vector3::forward; // å‰é€²
+		if (inputSystem.IsKeyPressed('S')) moveDir -= Vector3::forward; // å¾Œé€€
+		if (inputSystem.IsKeyPressed('A')) moveDir -= Vector3::right;   // å·¦ç§»å‹•
+		if (inputSystem.IsKeyPressed('D')) moveDir += Vector3::right;   // å³ç§»å‹•
 
-		// ƒJƒƒ‰‚Ìƒ[ƒ‹ƒhs—ñ‚ğæ“¾
+		// ã‚«ãƒ¡ãƒ©ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰è¡Œåˆ—ã‚’å–å¾—
 		DirectX::XMMATRIX cameraWorldMatrix = pCamera->GetTransform().GetWorldMatrix();
 		
-		// ƒ[ƒJƒ‹ƒxƒNƒgƒ‹‚ğSIMDŒ^‚ÖLoad‚µAƒJƒƒ‰‚Ì‰ñ“]‚ğ“K—piæZ•ÏŠ·j
+		// ãƒ­ãƒ¼ã‚«ãƒ«ãƒ™ã‚¯ãƒˆãƒ«ã‚’SIMDå‹ã¸Loadã—ã€ã‚«ãƒ¡ãƒ©ã®å›è»¢ã‚’é©ç”¨ï¼ˆä¹—ç®—å¤‰æ›ï¼‰
 		DirectX::XMVECTOR vMoveDir = DirectX::XMVectorSet(moveDir.x, moveDir.y, moveDir.z, 0.0f);
 		DirectX::XMVECTOR vWorldDir = DirectX::XMVector3TransformNormal(vMoveDir, cameraWorldMatrix);
 
-		// ƒxƒNƒgƒ‹‚Ì³‹K‰»iÎ‚ßˆÚ“®‚Ì‘¬“x‚Ì”ì‘å‰»‚ğ–h‚®‚½‚ß’PˆÊƒxƒNƒgƒ‹‰»j
+		// ãƒ™ã‚¯ãƒˆãƒ«ã®æ­£è¦åŒ–ï¼ˆæ–œã‚ç§»å‹•æ™‚ã®é€Ÿåº¦ã®è‚¥å¤§åŒ–ã‚’é˜²ããŸã‚å˜ä½ãƒ™ã‚¯ãƒˆãƒ«åŒ–ï¼‰
 		vWorldDir = DirectX::XMVector3Normalize(vWorldDir);
 
-		// SIMDŒ^‚©‚ç•W€‚ÌfloatŒ^‚ÖStore‚µˆÊ’u‚ğ‰ÁZXV
+		// SIMDå‹ã‹ã‚‰æ¨™æº–ã®floatå‹ã¸Storeã—ä½ç½®ã‚’åŠ ç®—æ›´æ–°
 		DirectX::XMFLOAT3 dirInfo;
 		DirectX::XMStoreFloat3(&dirInfo, vWorldDir);
 

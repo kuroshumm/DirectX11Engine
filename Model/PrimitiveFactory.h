@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <memory>
 #include <entt/entt.hpp>
 
@@ -32,7 +32,7 @@ namespace Engine
         inline static Graphics* m_pGfx = nullptr;
         inline static std::shared_ptr<Shader> m_staticShader = nullptr;
         inline static std::shared_ptr<Texture> m_defaultTexture = nullptr;
-        inline static PrimitiveMeshCache m_meshCache; // Œ`ó‚²‚Æ‚Ì ModelAsset ƒLƒƒƒbƒVƒ…
+        inline static PrimitiveMeshCache m_meshCache; // å½¢çŠ¶ã”ã¨ã® ModelAsset ã‚­ãƒ£ãƒƒã‚·ãƒ¥
 
     };
 }
