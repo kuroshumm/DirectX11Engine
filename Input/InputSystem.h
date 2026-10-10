@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <windows.h>
 #include "Vector2.h"
 
@@ -10,30 +10,35 @@ namespace Engine
 		InputSystem();
 		~InputSystem();
 
-		// ‚Ç‚±‚©‚ç‚Å‚àƒAƒNƒZƒX‚Å‚«‚é‚æ‚¤‚É‚·‚é‚½‚ß‚ÌƒVƒ“ƒOƒ‹ƒgƒ“ƒCƒ“ƒXƒ^ƒ“ƒX‚Ìæ“¾
+		// ã©ã“ã‹ã‚‰ã§ã‚‚ã‚¢ã‚¯ã‚»ã‚¹ã§ãã‚‹ã‚ˆã†ã«ã™ã‚‹ãŸã‚ã®ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã®å–å¾—
 		static InputSystem& GetInstance()
 		{
 			static InputSystem instance;
 			return instance;
 		}
 
-		// ƒL[‚Ìó‘Ô‚ğXV‚·‚éŠÖ”
+		// ã‚­ãƒ¼ã®çŠ¶æ…‹ã‚’æ›´æ–°ã™ã‚‹é–¢æ•°
 		void UpdateKey(WPARAM wParam, bool isPressed);
-		// ƒ}ƒEƒX‚Ìó‘Ô‚ğXV‚·‚éŠÖ” 
+		void PostUpdateKey();
+
+		// ãƒã‚¦ã‚¹ã®çŠ¶æ…‹ã‚’æ›´æ–°ã™ã‚‹é–¢æ•° 
 		void UpdateMouse(LPARAM lParam);
-		// ƒ}ƒEƒX‚Ì•Ï‰»—Ê‚ğ‰Šú‰»‚·‚éŠÖ”
+		// ãƒã‚¦ã‚¹ã®å¤‰åŒ–é‡ã‚’åˆæœŸåŒ–ã™ã‚‹é–¢æ•°
 		void ResetMouseDelta();
 
-		// ƒL[‚Ìó‘Ô‚ğæ“¾‚·‚éŠÖ”
+		// ã‚­ãƒ¼ã®çŠ¶æ…‹ã‚’å–å¾—ã™ã‚‹é–¢æ•°
 		bool IsKeyPressed(WPARAM key) const;
-		// ƒ}ƒEƒX‚ÌˆÚ“®—Ê‚ğæ“¾
+		// ã‚­ãƒ¼ã‚’æŠ¼ã—ãŸç¬é–“ã‹
+		bool IsKeyTriggered(WPARAM key) const;
+		// ãƒã‚¦ã‚¹ã®ç§»å‹•é‡ã‚’å–å¾—
 		bool TryGetMouseDelta(Vector2& mouseDelta) const;
 
 	private:
-		bool m_keys[256]; // ƒL[‚Ìó‘Ô‚ğŠi”[‚·‚é”z—ñ
+		bool m_keys[256];		// ã‚­ãƒ¼ã®çŠ¶æ…‹ã‚’æ ¼ç´ã™ã‚‹é…åˆ—
+		bool m_prevKeys[256];	// å‰å›ãƒ•ãƒ¬ãƒ¼ãƒ ã®ã‚­ãƒ¼çŠ¶æ…‹
 
-		Vector2 m_mouse; // ƒ}ƒEƒX‚ÌXYÀ•W
-		Vector2 m_lastMouse; // ‘OƒtƒŒ[ƒ€‚ÌXYÀ•W
-		Vector2 m_mouseDelta; // ‘OƒtƒŒ[ƒ€‚ÌXYÀ•W‚Ì•Ï‰»—Ê
+		Vector2 m_mouse; // ãƒã‚¦ã‚¹ã®XYåº§æ¨™
+		Vector2 m_lastMouse; // å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®XYåº§æ¨™
+		Vector2 m_mouseDelta; // å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã®XYåº§æ¨™ã®å¤‰åŒ–é‡
 	};
 }

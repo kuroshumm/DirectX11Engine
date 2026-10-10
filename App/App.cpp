@@ -2,10 +2,12 @@
 #include <vector>
 #include <algorithm>
 #include <chrono>
+#include <fstream>
 
 #include "App.h"
 #include "InputSystem.h"
 #include "AnimationClip.h"
+#include "AnimSequenceLoader.h"
 #include "Components.h"
 #include "GameTime.h"
 #include "PrimitiveFactory.h"
@@ -35,17 +37,28 @@ namespace Engine
         InitSceneCamera();
 
         PrimitiveFactory::Initialize(m_pGraphics.get(), m_pStaticPBRSHader);
-        PrimitiveFactory::CreatePrimitive(
+        entt::entity groundEntity = PrimitiveFactory::CreatePrimitive(
             *m_registry,
             PrimitiveType::Plane,
             DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
             DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),
-            DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f) // 陰影が視認しやすいダークグレー
+            DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
         );
 
+        auto pGroundTexture = std::make_shared<Texture>();
+        if (SUCCEEDED(pGroundTexture->LoadFromFile(m_pGraphics->GetDevice(), L"Model/Grid_1m.png")))
+        {
+            auto& mat = m_registry->get<MaterialComponent>(groundEntity);
+            mat.pTexture = pGroundTexture;
+            mat.roughness = 0.8f;
+            mat.metallic = 0.0f;
+        }
 
         m_pTextRenderer = std::make_unique<TextRenderer>();
         m_pTextRenderer->Initialize(m_pGraphics->GetSwapChain());
+
+        m_modelLoader = std::make_unique<ModelLoader>(m_pGraphics.get());
+        m_animLoader = std::make_unique<AnimationLoader>();
 
         m_renderSystem = std::make_unique<RenderSystem>();
         m_transformSystem = std::make_unique<TransformSystem>();
@@ -57,8 +70,16 @@ namespace Engine
         m_ikSystem = std::make_unique<IKSystem>();
         m_hierarchyTransformSystem = std::make_unique<HierarchyTransformSystem>();
         m_cameraControllerSystem = std::make_unique<CameraControllerSystem>();
-        m_cameraSystem = std::make_unique < CameraSystem >();
-        m_thirdPesronCameraSysten = std::make_unique<ThirdPersonCameraSystem>();
+        m_cameraSystem = std::make_unique<CameraSystem>();
+        m_cullingSystem = std::make_unique<CullingSystem>();
+        m_thirdPersonCameraSystem = std::make_unique<ThirdPersonCameraSystem>();
+        m_playerInputSystem = std::make_unique<PlayerInputSystem>();
+        m_playerMovementSystem = std::make_unique<PlayerMovementSystem>();
+        m_combatSystem = std::make_unique<CombatSystem>();
+        m_characterActionStateSystem = std::make_unique<CharacterActionStateSystem>();
+        m_locomotionStateSystem = std::make_unique<LocomotionStateSystem>();
+        m_attackingStateSystem = std::make_unique<AttackingStateSystem>();
+        m_actionApplierSystem = std::make_unique<ActionApplierSystem>();
 
         m_renderSystem->Initialize(m_pGraphics->GetDevice());
 
@@ -97,18 +118,25 @@ namespace Engine
     HRESULT App::InitGeometry()
     {
 		HRESULT hr = S_OK;
-        m_pLambertianShader = std::make_shared<Shader>();
-        hr = LoadShader(m_pLambertianShader, L"Shaders/PBRVertexShader.hlsl", L"Shaders/PBRPixelShader.hlsl");
-        if (FAILED(hr))
+
+        m_pLambertianShader = ShaderLoader::LoadSkinned(
+            m_pGraphics->GetDevice(),
+            L"Shaders/PBRVertexShader.hlsl",
+            L"Shaders/PBRPixelShader.hlsl"
+        );
+        if (!m_pLambertianShader)
         {
-            return hr;
+            return E_FAIL;
         }
 
-        m_pStaticPBRSHader = std::make_shared<Shader>();
-        hr = LoadShader(m_pStaticPBRSHader, L"Shaders/StaticPBRVertexShader.hlsl", L"Shaders/PBRPixelShader.hlsl");
-        if (FAILED(hr))
+        m_pStaticPBRSHader = ShaderLoader::LoadStatic(
+            m_pGraphics->GetDevice(),
+            L"Shaders/StaticPBRVertexShader.hlsl",
+            L"Shaders/PBRPixelShader.hlsl"
+        );
+        if (!m_pStaticPBRSHader)
         {
-            return hr;
+            return E_FAIL;
         }
 
 		hr = LoadTexture(L"Model/Paladin_diffuse.png");
@@ -117,49 +145,16 @@ namespace Engine
             return hr;
 		}
 
-        hr = LoadAnimationClip(m_pAnimClipIdle, "Animation/SAS_Idle.fbx");
-        if (FAILED(hr))
-        {
-            return hr;
-        }
-        hr = LoadAnimationClip(m_pAnimClipWalk, "Animation/SAS_Walk.fbx");
-        if (FAILED(hr))
-        {
-            return hr;
-        }
-        hr = LoadAnimationClip(m_pAnimClipRun, "Animation/SAS_Run.fbx");
-        if (FAILED(hr))
-        {
-            return hr;
-        }
+        m_pAnimClipIdle      = AnimationLoader::Load("YBot/BouncingFight_Idle.fbx");
+        m_pAnimClipWalk      = AnimationLoader::Load("YBot/Punching_Walking.fbx");
+        m_pAnimClipWalkRight = AnimationLoader::Load("YBot/Punching_Walking_Right.fbx");
+        m_pAnimClipWalkLeft  = AnimationLoader::Load("YBot/Punching_Walking_Left.fbx");
+        m_pAnimClipWalkBack  = AnimationLoader::Load("YBot/Punching_Walking_Back.fbx");
+        m_pAnimClipRun       = AnimationLoader::Load("YBot/Running.fbx");
+        m_pAnimClipCombo1    = AnimationLoader::Load("YBot/Punching_Jab_left.fbx");
+        m_pAnimClipCombo2    = AnimationLoader::Load("YBot/Punching_Jab_right.fbx");
 
 		return hr;
-    }
-
-    HRESULT App::LoadShader(std::shared_ptr<Shader> pShader, const wchar_t* vsPath, const wchar_t* psPath)
-    {
-        HRESULT hr = S_OK;
-        pShader->Initialize(m_pGraphics->GetDevice());
-
-        // 頂点シェーダーのコンパイル
-        hr = pShader->CompileVertexShader(vsPath, "VSMain");
-        if (FAILED(hr))
-        {
-            return hr;
-        }
-
-        // ピクセルシェーダーのコンパイル
-        hr = pShader->CompilePixelShader(psPath, "PSMain");
-        if (FAILED(hr))
-        {
-            return hr;
-        }
-
-        // --- インプットレイアウトの定義 (修正箇所) ---
-        // 第9回 HLSL の VS_INPUT シグネチャと厳密に一致させる必要がある
-        hr = pShader->CreateSkinnrdInputLayout();
-
-        return hr;
     }
 
     HRESULT App::LoadTexture(const wchar_t* filePath)
@@ -172,14 +167,6 @@ namespace Engine
 		return hr;
 	}
 
-    HRESULT App::LoadAnimationClip(std::shared_ptr<AnimationClip>& pAnimClip, const std::string& filePath)
-    {
-        HRESULT hr = S_OK;
-
-        pAnimClip = std::make_shared<AnimationClip>(filePath);
-
-        return hr;
-    }
 
     int App::Run()
     {
@@ -213,17 +200,35 @@ namespace Engine
     void App::Update(float dt)
     {
         m_fpsCounter.Update();
+        // 1. 入力層 (Input Layer)
+        m_playerInputSystem->Update(*m_registry.get(), dt);
 
-        // カメラの更新（視錐台の計算）
-        m_cameraControllerSystem->Update(*m_registry, dt);
-        m_thirdPesronCameraSysten->Update(*m_registry, dt);
-        m_cameraSystem->Update(*m_registry);
+        // 2. カメラ更新 (Camera Layer)
+        m_cameraControllerSystem->Update(*m_registry.get(), dt);
+        m_thirdPersonCameraSystem->Update(*m_registry.get(), dt);
+        m_cameraSystem->Update(*m_registry.get());
 
-        // カリング判定
-        m_cullingSystem->Update(*m_registry.get());
+        // 3. 要求・提案層 (Proposal Layer)
+        m_playerMovementSystem->Update(*m_registry.get(), dt);
+        m_combatSystem->Update(*m_registry.get());
 
+        // 4. 状態調停層 (Arbitration Layer)
+        m_characterActionStateSystem->Update(*m_registry.get(), dt);
+
+        // 5. 状態別実行層 (State Execution Layer)
+        m_locomotionStateSystem->Update(*m_registry.get());
+        m_attackingStateSystem->Update(*m_registry.get(), dt);
+
+        // 6. 結果反映層 (Action Applier Layer)
+        m_actionApplierSystem->Update(*m_registry.get(), *m_animatorSystem.get(), dt);
+
+        // 7. 物理積分層 (Physics Layer)
         m_movementSystem->Update(*m_registry.get(), dt);
 
+        // 8. カリング判定 (Culling)
+        m_cullingSystem->Update(*m_registry.get());
+
+        // 9. アニメーション・スケルトン・トランスフォームパイプライン
         m_animatorSystem->Update(*m_registry.get(), dt);
         m_animationSystem->Update(*m_registry.get(), dt);
         
@@ -238,7 +243,7 @@ namespace Engine
         // 更新の一番最後に
 		// マウスの変化量をリセットしておく 
 		InputSystem& inputSystem = InputSystem::GetInstance();
-		inputSystem.ResetMouseDelta();
+        inputSystem.PostUpdateKey();
     }
 
     void App::Render()
@@ -262,8 +267,7 @@ namespace Engine
 
     HRESULT App::InitPlayer()
     {
-        m_modelLoader = std::make_unique<ModelLoader>(m_pGraphics.get());
-        ModelLoader::LoadResult loadResult = m_modelLoader->Load("Model/SwordMan.fbx");
+        ModelLoader::LoadResult loadResult = m_modelLoader->Load("YBot/Y_Bot.fbx");
         if (!loadResult.isSuccess)
         {
             return E_FAIL;
@@ -274,7 +278,7 @@ namespace Engine
         TransformComponent transformComp;
         transformComp.position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
         transformComp.rotation = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-        transformComp.scale = DirectX::XMFLOAT3(0.05f, 0.05f, 0.05f);
+        transformComp.scale = DirectX::XMFLOAT3(0.01f, 0.01f, 0.01f);
         m_registry->emplace<TransformComponent>(entity, std::move(transformComp));
 
         ModelComponent modelComp;
@@ -294,30 +298,72 @@ namespace Engine
         m_registry->emplace<AnimationComponent>(entity, std::move(animationComp));
 
         AnimatorComponent animatorComp;
-        animatorComp.AddState("Idle", m_pAnimClipIdle, true);
-        animatorComp.AddState("Walk", m_pAnimClipWalk, true);
-        animatorComp.AddState("Run", m_pAnimClipRun, true);
+        animatorComp.AddState(AnimStateType::IDLE,       AnimSequenceLoader::Load(AnimStateType::IDLE), true);
+        animatorComp.AddState(AnimStateType::WALK,       AnimSequenceLoader::Load(AnimStateType::WALK), true);
+        animatorComp.AddState(AnimStateType::WALK_RIGHT, AnimSequenceLoader::Load(AnimStateType::WALK_RIGHT), true);
+        animatorComp.AddState(AnimStateType::WALK_LEFT,  AnimSequenceLoader::Load(AnimStateType::WALK_LEFT), true);
+        animatorComp.AddState(AnimStateType::WALK_BACK,  AnimSequenceLoader::Load(AnimStateType::WALK_BACK), true);
+        animatorComp.AddState(AnimStateType::RUN,        AnimSequenceLoader::Load(AnimStateType::RUN), true);
+        animatorComp.AddState(AnimStateType::COMBO1,     AnimSequenceLoader::Load(AnimStateType::COMBO1), false);
+        animatorComp.AddState(AnimStateType::COMBO2,     AnimSequenceLoader::Load(AnimStateType::COMBO2), false);
         m_registry->emplace<AnimatorComponent>(entity, std::move(animatorComp));
 
-        m_animatorSystem->Play(*m_registry.get(), entity, "Idle");
+        m_animatorSystem->Play(*m_registry.get(), entity, AnimStateType::IDLE);
+
+        auto findBone = [&](std::initializer_list<const char*> names) -> int {
+            for (const char* name : names) {
+                int idx = loadResult.skeltonAsset->GetBoneIndex(name);
+                if (idx != -1) return idx;
+            }
+            return -1;
+        };
 
         IKComponent ikComp;
-        int upLegIndex = loadResult.skeltonAsset->GetBoneIndex("mixamorig:LeftUpLeg");
-        int legIndex = loadResult.skeltonAsset->GetBoneIndex("mixamorig:LeftLeg");
-        int footIndex = loadResult.skeltonAsset->GetBoneIndex("mixamorig:LeftFoot");
+        int upLegIndex = findBone({ "LeftUpLeg", "thigh_l", "mixamorig:LeftUpLeg" });
+        int legIndex = findBone({ "LeftLeg", "calf_l", "mixamorig:LeftLeg" });
+        int footIndex = findBone({ "LeftFoot", "foot_l", "mixamorig:LeftFoot" });
         if (upLegIndex != -1 && legIndex != -1 && footIndex != -1)
         {
             ikComp.effectorBoneIndex = footIndex;
             ikComp.chainIndices = { upLegIndex, legIndex, footIndex };
-            // ヒザ関節の 1D 角度制限 (X 軸周りに 0°〜 120°)
+            // ヒザ関節の 1D 角度制約(X 軸周りに 0°〜120°)
             ikComp.SetConstraint(legIndex, DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), 0.0f, 120.0f);
             m_registry->emplace<IKComponent>(entity, std::move(ikComp));
         }
 
         MaterialComponent material;
         material.pShader = m_pLambertianShader;
-        material.pTexture = m_pTexture;
+        //material.pTexture = m_pTexture;
         m_registry->emplace<MaterialComponent>(entity, std::move(material));
+
+        VelocityComponent velocity;
+        m_registry->emplace<VelocityComponent>(entity, std::move(velocity));
+
+        CharacterLocomotionComponent charaLocomotion;
+        m_registry->emplace<CharacterLocomotionComponent>(entity, std::move(charaLocomotion));
+        CharacterMovementConfigComponent charaMovementConfig;
+        m_registry->emplace<CharacterMovementConfigComponent>(entity, std::move(charaMovementConfig));
+
+        PlayerInputComponent playerInput;
+        m_registry->emplace<PlayerInputComponent>(entity, std::move(playerInput));
+
+        LocomotionProposalComponent locomotionProposal;
+        m_registry->emplace<LocomotionProposalComponent>(entity, std::move(locomotionProposal));
+
+        CombatRequestComponent combatReq;
+        m_registry->emplace<CombatRequestComponent>(entity, std::move(combatReq));
+
+        CharacterActionStateComponent charaActionState;
+        m_registry->emplace<CharacterActionStateComponent>(entity, std::move(charaActionState));
+
+        CharacterCombatStateComponent charaCombatState;
+        m_registry->emplace<CharacterCombatStateComponent>(entity, std::move(charaCombatState));
+
+        CharacterActionResultComponent charaActionResult;
+        m_registry->emplace<CharacterActionResultComponent>(entity, std::move(charaActionResult));
+
+        LocomotionAnimComponent locomotionAnim;
+        m_registry->emplace<LocomotionAnimComponent>(entity, std::move(locomotionAnim));
 
         // LOD
         m_registry->emplace<LODComponent>(entity);
@@ -416,6 +462,18 @@ namespace Engine
         case WM_KEYDOWN:
         case WM_KEYUP:
             inputSystem.UpdateKey(wParam, message == WM_KEYDOWN);
+            break;
+
+        // 左クリック
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+            inputSystem.UpdateKey(VK_LBUTTON, message == WM_LBUTTONDOWN);
+            break;
+        
+        // 右クリック
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+            inputSystem.UpdateKey(VK_RBUTTON, message == WM_RBUTTONDOWN);
             break;
 
         case WM_MBUTTONDOWN:

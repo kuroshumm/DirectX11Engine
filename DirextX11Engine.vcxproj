@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -113,6 +113,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -131,6 +132,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)App;$(ProjectDir)Core;$(ProjectDir)Graphics;$(ProjectDir)Model;$(ProjectDir)Animation;$(ProjectDir)IK;$(ProjectDir)Camera;$(ProjectDir)ECS;$(ProjectDir)Input;$(ProjectDir)Library;D:\DirectX11_Sample\DirextX11Engine\Library\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,17 +143,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ActionApplierSystem.h" />
     <ClInclude Include="Animation\AnimationClip.h" />
     <ClInclude Include="Animation\AnimationSystem.h" />
     <ClInclude Include="Animation\AnimatorSystem.h" />
     <ClInclude Include="Animation\BonePaletteUploadSystem.h" />
     <ClInclude Include="Animation\BoneTransformSystem.h" />
+    <ClInclude Include="AnimSequenceLoader.h" />
     <ClInclude Include="App\App.h" />
+    <ClInclude Include="AttackingStateSystem.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Camera\CameraControllerSystem.h" />
     <ClInclude Include="Camera\CameraSystem.h" />
     <ClInclude Include="Camera\Frustum.h" />
     <ClInclude Include="Camera\SceneCameraOperator.h" />
+    <ClInclude Include="CharacterActionStateSystem.h" />
+    <ClInclude Include="CombatSystem.h" />
     <ClInclude Include="Core\Common.h" />
     <ClInclude Include="Core\FPSCounter.h" />
     <ClInclude Include="Core\GameTime.h" />
@@ -178,6 +185,7 @@
     <ClInclude Include="IK\IIKSolver.h" />
     <ClInclude Include="IK\IKSystem.h" />
     <ClInclude Include="Input\InputSystem.h" />
+    <ClInclude Include="LocomotionStateSystem.h" />
     <ClInclude Include="Model\GeometryGenerator.h" />
     <ClInclude Include="Model\IModel.h" />
     <ClInclude Include="Model\Model.h" />
@@ -187,9 +195,27 @@
     <ClInclude Include="Model\PrimitiveMeshCache.h" />
     <ClInclude Include="Model\SkinnedMesh.h" />
     <ClInclude Include="Model\SubMesh.h" />
+    <ClInclude Include="PlayerInputSystem.h" />
+    <ClInclude Include="PlayerMovementSystem.h" />
     <ClInclude Include="ThirdPersonCameraSystem.h" />
+    <ClInclude Include="ActionApplierSystem.h" />
+    <ClInclude Include="Animation\SkeletonTypes.h" />
+    <ClInclude Include="Core\LocomotionTypes.h" />
+    <ClInclude Include="ECS\Components\AnimationComponents.h" />
+    <ClInclude Include="ECS\Components\CameraComponents.h" />
+    <ClInclude Include="ECS\Components\CharacterComponents.h" />
+    <ClInclude Include="ECS\Components\CombatComponents.h" />
+    <ClInclude Include="ECS\Components\RenderComponents.h" />
+    <ClInclude Include="ECS\Components\TransformComponents.h" />
+    <ClInclude Include="Graphics\RenderTypes.h" />
+    <ClInclude Include="Model\SkeletonAsset.h" />
+    <ClInclude Include="ShaderLoader.h" />
+    <ClInclude Include="AnimationLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimSequenceLoader.cpp" />
+    <ClCompile Include="ShaderLoader.cpp" />
+    <ClCompile Include="AnimationLoader.cpp" />
     <ClCompile Include="Animation\AnimationClip.cpp" />
     <ClCompile Include="Animation\AnimationSystem.cpp" />
     <ClCompile Include="Animation\AnimatorSystem.cpp" />
@@ -197,11 +223,14 @@
     <ClCompile Include="Animation\BoneTransformSystem.cpp" />
     <ClCompile Include="App\App.cpp" />
     <ClCompile Include="App\main.cpp" />
+    <ClCompile Include="AttackingStateSystem.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Camera\CameraControllerSystem.cpp" />
     <ClCompile Include="Camera\CameraSystem.cpp" />
     <ClCompile Include="Camera\Frustum.cpp" />
     <ClCompile Include="Camera\SceneCameraOperator.cpp" />
+    <ClCompile Include="CharacterActionStateSystem.cpp" />
+    <ClCompile Include="CombatSystem.cpp" />
     <ClCompile Include="ECS\HierarchyService.cpp" />
     <ClCompile Include="ECS\HierarchyTransformSystem.cpp" />
     <ClCompile Include="ECS\MovementSystem.cpp" />
@@ -218,6 +247,7 @@
     <ClCompile Include="IK\FABRIKSolver.cpp" />
     <ClCompile Include="IK\IKSystem.cpp" />
     <ClCompile Include="Input\InputSystem.cpp" />
+    <ClCompile Include="LocomotionStateSystem.cpp" />
     <ClCompile Include="Model\GeometryGenerator.cpp" />
     <ClCompile Include="Model\Model.cpp" />
     <ClCompile Include="Model\ModelLoader.cpp" />
@@ -230,7 +260,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Model\SkinnedMesh.cpp" />
+    <ClCompile Include="PlayerInputSystem.cpp" />
+    <ClCompile Include="PlayerMovementSystem.cpp" />
     <ClCompile Include="ThirdPersonCameraSystem.cpp" />
+    <ClCompile Include="ActionApplierSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\LambertianVertexShader.hlsl">

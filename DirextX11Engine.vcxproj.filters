@@ -28,6 +28,9 @@
     <Filter Include="ECS">
       <UniqueIdentifier>{33333333-4444-5555-6666-777777777777}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ECS\Components">
+      <UniqueIdentifier>{33333333-4444-5555-6666-888888888888}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Input">
       <UniqueIdentifier>{44444444-5555-6666-7777-888888888888}</UniqueIdentifier>
     </Filter>
@@ -171,8 +174,72 @@
     <ClInclude Include="Model\SubMesh.h">
       <Filter>Model</Filter>
     </ClInclude>
+    <ClInclude Include="ThirdPersonCameraSystem.h" />
+    <ClInclude Include="PlayerInputSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerMovementSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="CombatSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterActionStateSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="LocomotionStateSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="AttackingStateSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ActionApplierSystem.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation\SkeletonTypes.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\LocomotionTypes.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\RenderTypes.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\SkeletonAsset.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\Components\TransformComponents.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\Components\RenderComponents.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\Components\AnimationComponents.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\Components\CameraComponents.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\Components\CombatComponents.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS\Components\CharacterComponents.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLoader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationLoader.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ShaderLoader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationLoader.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
     <ClCompile Include="Animation\AnimationClip.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
@@ -274,6 +341,28 @@
     </ClCompile>
     <ClCompile Include="Model\SkinnedMesh.cpp">
       <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdPersonCameraSystem.cpp" />
+    <ClCompile Include="PlayerInputSystem.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerMovementSystem.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="CombatSystem.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterActionStateSystem.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="LocomotionStateSystem.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="AttackingStateSystem.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="ActionApplierSystem.cpp">
+      <Filter>ECS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

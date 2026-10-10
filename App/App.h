@@ -27,6 +27,15 @@
 #include "ModelLoader.h"
 #include "CullingSystem.h"
 #include "ThirdPersonCameraSystem.h"
+#include "PlayerInputSystem.h"
+#include "PlayerMovementSystem.h"
+#include "CombatSystem.h"
+#include "CharacterActionStateSystem.h"
+#include "LocomotionStateSystem.h"
+#include "AttackingStateSystem.h"
+#include "ActionApplierSystem.h"
+#include "AnimationLoader.h"
+#include "ShaderLoader.h"
 
 namespace Engine
 {
@@ -46,9 +55,7 @@ namespace Engine
         // 分割された初期化用プライベートメソッド
         HRESULT InitWindow(HINSTANCE hInstance, int width, int height);
         HRESULT InitGeometry();
-        HRESULT LoadShader(std::shared_ptr<Shader> pShader, const wchar_t* vsPath, const wchar_t* psPath);
 		HRESULT LoadTexture(const wchar_t* filePath);
-        HRESULT LoadAnimationClip(std::shared_ptr<AnimationClip>& pAnimClip, const std::string& filePath);
 
         static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         void Update(float dt);
@@ -64,10 +71,16 @@ namespace Engine
         std::shared_ptr<Shader>       m_pStaticPBRSHader;
 
         std::unique_ptr<ModelLoader> m_modelLoader;
+        std::unique_ptr<AnimationLoader> m_animLoader;
 
         std::shared_ptr<AnimationClip> m_pAnimClipIdle;
         std::shared_ptr<AnimationClip> m_pAnimClipWalk;
+        std::shared_ptr<AnimationClip> m_pAnimClipWalkRight;
+        std::shared_ptr<AnimationClip> m_pAnimClipWalkLeft;
+        std::shared_ptr<AnimationClip> m_pAnimClipWalkBack;
         std::shared_ptr<AnimationClip> m_pAnimClipRun;
+        std::shared_ptr<AnimationClip> m_pAnimClipCombo1;
+        std::shared_ptr<AnimationClip> m_pAnimClipCombo2;
 
         std::unique_ptr<entt::registry> m_registry;
         std::unique_ptr<RenderSystem> m_renderSystem;
@@ -82,7 +95,14 @@ namespace Engine
         std::unique_ptr<CameraControllerSystem> m_cameraControllerSystem;
         std::unique_ptr<CameraSystem> m_cameraSystem;
         std::unique_ptr<CullingSystem> m_cullingSystem;
-        std::unique_ptr<ThirdPersonCameraSystem> m_thirdPesronCameraSysten;
+        std::unique_ptr<ThirdPersonCameraSystem> m_thirdPersonCameraSystem;
+        std::unique_ptr<PlayerInputSystem> m_playerInputSystem;
+        std::unique_ptr<PlayerMovementSystem> m_playerMovementSystem;
+        std::unique_ptr<CombatSystem> m_combatSystem;
+        std::unique_ptr<CharacterActionStateSystem> m_characterActionStateSystem;
+        std::unique_ptr<LocomotionStateSystem> m_locomotionStateSystem;
+        std::unique_ptr<AttackingStateSystem> m_attackingStateSystem;
+        std::unique_ptr<ActionApplierSystem> m_actionApplierSystem;
 
         std::unique_ptr<TextRenderer> m_pTextRenderer;
         FPSCounter m_fpsCounter;

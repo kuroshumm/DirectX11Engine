@@ -1,4 +1,4 @@
-#include "InputSystem.h"
+﻿#include "InputSystem.h"
 #include <stdio.h>
 #include <algorithm>
 
@@ -16,14 +16,20 @@ namespace Engine
 
 	void InputSystem::UpdateKey(WPARAM key, bool isPressed)
 	{
-		// WPARAM�͕��ɂȂ邱�Ƃ͂Ȃ��̂ŏ���`�F�b�N�̂�
+		// WPARAMは負になることはないので上限チェックのみ
 		if (key > 255)
 		{
 			return;
 		}
 
-		// WPARAM�̓L�[�R�[�h��\�����߁A�Ή�����C���f�b�N�X�ɏ�Ԃ�ۑ�
+		// WPARAMはキーコードを表すため、対応するインデックスに状態を保存
 		m_keys[key] = isPressed;
+	}
+
+	void InputSystem::PostUpdateKey()
+	{
+		std::copy(std::begin(m_keys), std::end(m_keys), std::begin(m_prevKeys));
+		ResetMouseDelta();
 	}
 
 	void InputSystem::UpdateMouse(LPARAM lParam)
@@ -48,13 +54,24 @@ namespace Engine
 
 	bool InputSystem::IsKeyPressed(WPARAM key) const
 	{
-		// WPARAM�͕��ɂȂ邱�Ƃ͂Ȃ��̂ŏ���`�F�b�N�̂�
+		// WPARAMは負になることはないので上限チェックのみ
 		if (key > 255)
 		{
 			return false;
 		}
 
 		return m_keys[key];
+	}
+
+	bool InputSystem::IsKeyTriggered(WPARAM key) const
+	{
+		// WPARAMは負になることはないので上限チェックのみ
+		if (key > 255)
+		{
+			return false;
+		}
+
+		return m_keys[key] && !m_prevKeys[key];
 	}
 
 	bool InputSystem::TryGetMouseDelta(Vector2& mouseDelta) const
