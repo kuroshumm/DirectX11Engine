@@ -23,59 +23,23 @@
 
 ## 2. システムアーキテクチャ (Architecture Overview)
 
-フェーズ1で構築するサブシステム群と、既存の DirectX 11 / ECS 基盤との相互接続関係を以下に示す。
+フェーズ1で構築するサブシステム群、およびアクション調停パイプラインのアーキテクチャを以下に示す。
 
-```mermaid
-graph TD
-    subgraph Input Layer
-        IS["InputSystem<br/>(WASD入力, マウスデルタ)"]
-    end
+![フェーズ1 システムアーキテクチャ](file:///d:/DirectX11_Sample/DirextX11Engine/Document/Images/phase1_pipeline_architecture.png)
 
-    subgraph Primitive Generation & Resource Cache (G2)
-        GG["GeometryGenerator<br/>(数学的頂点/インデックス生成)"]
-        PMC["PrimitiveMeshCache<br/>(ModelAsset の形状別共有キャッシュ)"]
-        PF["PrimitiveFactory<br/>(CreatePrimitive API)"]
-        SPBR["StaticPBRVertexShader.hlsl<br/>(静的メッシュ用頂点シェーダー)"]
-    end
+### 2.1. レイヤー責務とデータ所有権 (Data Ownership)
 
-    subgraph ECS Scene Architecture (G1, G3)
-        Ground["Ground Entity<br/>(Transform + ModelAsset[Plane] + Material)"]
-        Player["Player Entity<br/>(Transform + SkinnedModel + Animator + PlayerTag)"]
-        Camera["Camera Entity<br/>(Transform + Camera + ThirdPersonCameraComponent)"]
-    end
+パイプラインの各層は明確な関心事の分離（Separation of Concerns）と単一書き込み権限（Single Writer Principle）に基づいて設計されている。
 
-    subgraph Gameplay & Camera Systems (G4, G5)
-        TPCS["ThirdPersonCameraSystem<br/>(マウスデルタ → 球面座標計算 → カメラTransform更新)"]
-        PMS["PlayerMovementSystem<br/>(カメラ相対WASD → 移動/旋回Slerp → CrossFade)"]
-    end
-
-    subgraph Rendering Pipeline
-        AnimSys["AnimatorSystem / AnimationSystem<br/>(ボーン行列計算 & パレット転送)"]
-        CullSys["CullingSystem<br/>(視錐台カリング & LOD)"]
-        RenderSys["RenderSystem<br/>(Static / Skinned PBR描画)"]
-    end
-
-    IS -->|マウスデルタ| TPCS
-    IS -->|WASDキー| PMS
-    
-    GG --> PMC
-    PMC --> PF
-    SPBR -.-> PF
-    PF --> Ground
-
-    TPCS -->|更新| Camera
-    Camera -.->|注視点参照| Player
-    Camera -.->|カメラ向き参照| PMS
-
-    PMS -->|移動 & 旋回| Player
-    PMS -->|CrossFade要求| AnimSys
-    
-    Player --> AnimSys
-    Ground --> RenderSys
-    Player --> RenderSys
-    Camera --> CullSys
-    CullSys --> RenderSys
-```
+| レイヤー | 主要システム | 主な管理データ（Writer） | 役割・責務 |
+|---|---|---|---|
+| **1. 入力層 (Input Layer)** | `PlayerInputSystem` | `PlayerInputComponent` | OS入力を抽象化し、移動軸と先行入力バッファに書き込む（ゲームロジック非依存）。 |
+| **2. 要求層 (Proposal Layer)** | `PlayerMovementSystem`<br/>`CombatSystem` | `LocomotionProposalComponent`<br/>`CombatRequestComponent` | 入力と視線方向から「プレイヤーが何をしたいか（移動/戦闘）」の要求を発行する（状態変更は行わない）。 |
+| **3. 状態調停層 (Arbitration Layer)** | `CharacterActionStateSystem` | `CharacterActionStateComponent` | 要求と現在状態から、次フレームで有効な全体状態（`ActionState`）を一元的に決定・調停する。 |
+| **4. 状態別実行層 (State Execution Layer)** | `LocomotionStateSystem`<br/>`AttackingStateSystem` | `CharacterActionResultComponent`<br/>`CharacterLocomotionComponent` | 確定した `ActionState` に合致するシステムのみが動作し、目標速度・目標旋回・再生アニメを結果コンポーネントに出力する。 |
+| **5. 結果反映層 (Action Applier Layer)** | `ActionApplierSystem` | `VelocityComponent`<br/>`TransformComponent` (旋回)<br/>`AnimatorSystem` | 結果コンポーネントを読み取り、物理コンポーネントやアニメーション再生（CrossFade）へ一括反映する。 |
+| **6. 物理積分層 (Physics Layer)** | `MovementSystem` | `TransformComponent` (位置) | 確定した速度に基づき位置を積分し（`position += velocity * dt`）、接地（`Y = 0`）を維持する。 |
+| **7. 描画層 (Rendering Layer)** | `RenderSystem`<br/>`CullingSystem` | GPU 定数バッファ | 静的プリミティブ（地面）およびスキニングモデル（プレイヤー）の PBR 描画を行う。 |
 
 ---
 
@@ -262,19 +226,19 @@ struct ThirdPersonCameraComponent
 
 ### 5.2. 球面座標系によるカメラ座標計算アルゴリズム
 
-注視点座標 $\mathbf{P}_{\text{focus}}$ を基準とし、球面座標系 $(\rho, \theta, \phi)$ からデカルト座標系への変換を行う。
+注視点座標 `P_focus` を基準とし、球面座標系 `(rho, theta, phi)` からデカルト座標系への変換を行う。
 
-$$
-\mathbf{P}_{\text{focus}} = \mathbf{P}_{\text{player}} + \begin{pmatrix} 0 \\ \text{heightOffset} \\ 0 \end{pmatrix}
-$$
+```math
+// 注視点座標の算出
+P_focus = P_player + (0, heightOffset, 0)^T
 
-$$
-\mathbf{P}_{\text{cam}} = \mathbf{P}_{\text{focus}} + \begin{pmatrix}
-\text{armLength} \cdot \cos(\text{pitch}) \cdot \sin(\text{yaw}) \\
-\text{armLength} \cdot \sin(\text{pitch}) \\
-\text{armLength} \cdot \cos(\text{pitch}) \cdot \cos(\text{yaw})
-\end{pmatrix}
-$$
+// 球面座標からカメラワールド座標の算出
+P_cam = P_focus + (
+    armLength * cos(pitch) * sin(yaw),
+    armLength * sin(pitch),
+    armLength * cos(pitch) * cos(yaw)
+)^T
+```
 
 ```cpp
 // Camera/ThirdPersonCameraSystem.cpp
@@ -324,82 +288,116 @@ void ThirdPersonCameraSystem::Update(entt::registry& registry, const InputSystem
 
 ---
 
-## 6. サブシステム4: カメラ相対移動とアニメーション遷移 (G4 解決)
+## 6. サブシステム4: アクション状態調停パイプラインとキャラクター移動制御 (G4 解決)
 
-### 6.1. カメラ相対移動ベクトルの算出
+### 6.1. 既存構造体・列挙型の採否と責務の再定義
 
-WASD の入力を、TPSカメラの「水平面上における前方・右方ベクトル」に投影してワールド移動ベクトルを合成する。
+直前のアーキテクチャ設計およびドメイン分析に基づき、既存コンポーネントの採否と責務を以下のように確定する。
 
-```mermaid
-graph TD
-    WASD["WASD キー入力<br/>(前後 z, 左右 x)"]
-    CamForward["カメラの前方ベクトル<br/>(Forward)"]
-    CamRight["カメラの右方ベクトル<br/>(Right)"]
-    
-    ProjF["Y成分を0にして正規化<br/>Flattened Forward: (fx, 0, fz)"]
-    ProjR["Y成分を0にして正規化<br/>Flattened Right: (rx, 0, rz)"]
-    
-    MoveDir["ワールド移動ベクトル<br/>V = z * FlattenedForward + x * FlattenedRight"]
-    
-    WASD --> MoveDir
-    CamForward --> ProjF --> MoveDir
-    CamRight --> ProjR --> MoveDir
-```
+| 構造体 / 列挙型名 | 採否 | 新アーキテクチャにおける役割・責務 |
+|---|---|---|
+| `CombatActionType` | **必要（存続）** | プレイヤーの「攻撃・防御意図（インテント）」および `CombatSystem` が発行する「戦闘要求（`CombatRequestComponent`）」の種別を表すドメイン型。 |
+| `PlayerInputComponent` | **必要（存続・純化）** | ハードウェア入力をゲーム内の論理入力（カメラ基準移動軸 `moveAxis`、先行入力バッファ `bufferAction` / `actionBufferTimer`）に抽象化して保持する。単一書き込み権限（Single Writer Principle）は `PlayerInputSystem` のみが保持する。 |
+| `CharacterMovementStateComponent` | **不要（廃止・分解）** | `isMoving`, `isSprinting` は `PlayerInputComponent` および `CharacterLocomotionComponent` と二重管理（State Duplication）になっており未代入バグの原因であるため廃止。`isGrounded` は物理/衝突判定用の将来コンポーネントへ分離する。 |
+| `CharacterLocomotionComponent` | **必要（存続・責務限定）** | 全体状態が `LOCOMOTION` であるときの内部サブ状態（`IDLE`, `WALK`, `RUN`）を保持する階層型ステートマシン（HSM）のサブコンポーネント。 |
 
-### 6.2. キャラクター旋回 (Slerp) と移動更新
-
-プレイヤーが移動方向へ急激に瞬間反転するのを防ぎ、クォータニオンの球面線形補間（`XMQuaternionSlerp`）によって滑らかに向きを変える。
-
-$$
-\mathbf{q}_{\text{current}} \leftarrow \text{Slerp}(\mathbf{q}_{\text{current}}, \mathbf{q}_{\text{target}}, \text{turnSpeed} \cdot \Delta t)
-$$
-
-### 6.3. 移動速度とアニメーション・クロスフェードの連動
-
-入力の強さやShiftキー（スプリント）に応じて、`AnimatorSystem::CrossFade` を呼び出す。
-
-| 状態 | 移動速度 | アニメーション | クロスフェード時間 |
-|---|---|---|---|
-| 停止（入力なし） | 0.0 m/s | `Idle` | 0.25 秒 |
-| 通常移動 (WASD) | 3.5 m/s | `Walk` | 0.20 秒 |
-| ダッシュ (WASD + Shift) | 6.5 m/s | `Run` | 0.15 秒 |
+### 6.2. 新設するコンポーネント設計 (ECS)
 
 ```cpp
-// PlayerMovementSystem.cpp の制御ロジック概要
-if (isMoving)
-{
-    float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
-    
-    // 1. 移動方向への回転目標クォータニオン
-    float targetYaw = std::atan2(moveDirX, moveDirZ);
-    DirectX::XMVECTOR targetQuat = DirectX::XMQuaternionRotationRollPitchYaw(0.0f, targetYaw, 0.0f);
-    
-    // 2. Slerp による旋回
-    DirectX::XMVECTOR currentQuat = DirectX::XMLoadFloat4(&transform.rotation);
-    DirectX::XMVECTOR newQuat = DirectX::XMQuaternionSlerp(currentQuat, targetQuat, turnSpeed * deltaTime);
-    DirectX::XMStoreFloat4(&transform.rotation, newQuat);
+// ECS/Components.h
 
-    // 3. 座標更新 & 接地クランプ (Y = 0)
-    transform.position.x += moveDirX * currentSpeed * deltaTime;
-    transform.position.z += moveDirZ * currentSpeed * deltaTime;
-    transform.position.y = 0.0f;
-
-    // 4. アニメーション切り替え
-    std::string targetAnim = isSprinting ? "Run" : "Walk";
-    if (currentAnimName != targetAnim)
-    {
-        animatorComp.CrossFade(targetAnim, isSprinting ? 0.15f : 0.2f);
-    }
-}
-else
+// 1. 移動提案（PlayerMovementSystem -> CharacterActionStateSystem / LocomotionStateSystem）
+struct LocomotionProposalComponent
 {
-    // 停止時は Y = 0 固定 & Idle へフェード
-    transform.position.y = 0.0f;
-    if (currentAnimName != "Idle")
-    {
-        animatorComp.CrossFade("Idle", 0.25f);
-    }
-}
+    DirectX::XMFLOAT3 desiredVelocity{ 0.0f, 0.0f, 0.0f }; // 希望移動速度
+    float desiredYaw = 0.0f;                                // 希望向くべき水平角度 (rad)
+    bool hasMoveInput = false;                              // 移動入力の有無
+    bool isSprinting = false;                               // スプリント意図
+};
+
+// 2. 戦闘要求（CombatSystem -> CharacterActionStateSystem）
+struct CombatRequestComponent
+{
+    CombatActionType actionType = CombatActionType::NONE;
+    entt::entity targetEntity = entt::null;                 // 攻撃対象エンティティ
+    bool isConsumed = false;                                // 調停により消費されたか
+};
+
+// 3. キャラクター大域アクション状態
+enum class ActionState : uint8_t
+{
+    LOCOMOTION, // 移動・待機・走行
+    ATTACKING,  // 攻撃中（コンボ・突進・打撃）
+    DODGING,    // 回避中（無敵時間・ステップ）
+    HIT_STUN    // 被弾硬直
+};
+
+struct CharacterActionStateComponent
+{
+    ActionState currentState = ActionState::LOCOMOTION;
+    float stateTimer = 0.0f; // 状態滞在時間
+};
+
+// 4. アクション結果（各StateSystem -> ActionApplierSystem）
+struct CharacterActionResultComponent
+{
+    DirectX::XMFLOAT3 velocity{ 0.0f, 0.0f, 0.0f }; // 今フレーム適用する確定速度
+    float targetYaw = 0.0f;                         // 今フレーム目標とするYaw角
+    bool shouldRotate = false;                      // 旋回更新を行うか
+    float turnSpeed = 10.0f;                        // 旋回追従速度
+    
+    std::string targetAnim = "Idle";                // 再生すべきアニメーション名
+    float crossFadeDuration = 0.25f;                // クロスフェード時間
+};
+```
+
+### 6.3. 6層パイプラインの調停・実行シーケンス
+
+競合の根絶と単一書き込み権限を保証するため、毎フレーム以下のシーケンスで実行される。
+
+![アクション調停・実行シーケンス](file:///d:/DirectX11_Sample/DirextX11Engine/Document/Images/action_arbitration_pipeline.png)
+
+### 6.4. カメラ相対移動ベクトルの算出アルゴリズム
+
+WASD の入力を、TPSカメラの水平前方・右方ベクトルに射影してワールド移動ベクトルを合成する。
+
+```math
+// カメラのクォータニオン回転から3次元前方・右方ベクトルを取得
+Forward_3D = Rotate( (0, 0, 1), CameraRotation )
+Right_3D   = Rotate( (1, 0, 0), CameraRotation )
+
+// 水平面 (Y = 0) へ射影して正規化
+FlattenedForward = Normalize( (Forward_3D.x, 0, Forward_3D.z) )
+FlattenedRight   = Normalize( (Right_3D.x,   0, Right_3D.z) )
+
+// ワールド入力移動ベクトル
+MoveDir = Normalize( FlattenedForward * moveAxis.y + FlattenedRight * moveAxis.x )
+```
+
+### 6.5. 状態別実行とアクション適用（Slerp旋回・クロスフェード・物理積分）
+
+#### 1. LocomotionStateSystem の責務
+`CharacterActionStateComponent.currentState == ActionState::LOCOMOTION` のエンティティのみを処理する。
+- `LocomotionProposalComponent` の入力に基づき、`CharacterLocomotionComponent` のサブステート（`IDLE`, `WALK`, `RUN`）を更新。
+- サブステートに応じた移動速度（0.0 m/s, 3.5 m/s, 6.5 m/s）およびアニメーション（`Idle`, `Walk`, `Run`）を決定し、`CharacterActionResultComponent` に書き込む。
+
+#### 2. ActionApplierSystem の責務
+各 StateSystem が書き込んだ `CharacterActionResultComponent` を読み取り、実体へ反映する唯一の適用役。
+- `VelocityComponent` に確定速度を設定。
+- `TransformComponent.rotation` を目標 Yaw へ向けて Slerp 旋回補間。
+- `AnimatorSystem::CrossFade` を呼び出してアニメーションを切り替える。
+
+```math
+// クォータニオンの球面線形補間 (Slerp)
+q_current = Slerp( q_current, q_target, clamp(turnSpeed * dt, 0.0, 1.0) )
+```
+
+#### 3. MovementSystem の責務
+物理積分と接地維持のみを担当する。
+```math
+// 位置積分
+position = position + velocity * dt
+position.y = 0.0 // フロアクランプ (接地維持)
 ```
 
 ---
@@ -408,19 +406,7 @@ else
 
 各コンポーネントの依存関係に従い、以下の 5 ステップで順次構築する。
 
-```mermaid
-flowchart TD
-    Step1["Step 1: 静的PBRパイプライン開通<br/>・StaticPBRVertexShader.hlsl<br/>・Shader.cpp 頂点レイアウト拡張"]
-    Step2["Step 2: プリミティブ生成・キャッシュ実装<br/>・GeometryGenerator<br/>・PrimitiveMeshCache<br/>・PrimitiveFactory"]
-    Step3["Step 3: シーン再構築 & 地面描画<br/>・500体撤去<br/>・50m地面Plane生成<br/>・原点プレイヤー配置"]
-    Step4["Step 4: TPS追従カメラ実装<br/>・ThirdPersonCameraComponent<br/>・ThirdPersonCameraSystem"]
-    Step5["Step 5: プレイヤー移動 & アニメーション遷移<br/>・PlayerTag<br/>・PlayerMovementSystem (WASD + Slerp + CrossFade)"]
-
-    Step1 --> Step2
-    Step2 --> Step3
-    Step3 --> Step4
-    Step4 --> Step5
-```
+![実装ステップと作業順序](file:///d:/DirectX11_Sample/DirextX11Engine/Document/Images/phase1_implementation_steps.png)
 
 ### Step 1: 静的PBRレンダリングパイプラインの開通
 1. [`Shaders/StaticPBRVertexShader.hlsl`](file:///d:/DirectX11_Sample/DirextX11Engine/Shaders/StaticPBRVertexShader.hlsl) の作成・コンパイル設定確認。
@@ -435,7 +421,7 @@ flowchart TD
 1. [`App/App.cpp`](file:///d:/DirectX11_Sample/DirextX11Engine/App/App.cpp) で `StaticPBRVertexShader` をロードし、`PrimitiveFactory::Initialize` を実行。
 2. `App::InitGeometry` 内の 500 体ランダム生成コードを撤去。
 3. `PrimitiveFactory::CreatePrimitive` で 50m × 50m の地面を配置。
-4. 原点 $(0, 0, 0)$ に SwordMan プレイヤーを 1 体配置し、ビルドして地面の上にキャラクターが描画されることを確認。
+4. 原点 `(0, 0, 0)` に SwordMan プレイヤーを 1 体配置し、ビルドして地面の上にキャラクターが描画されることを確認。
 
 ### Step 4: TPS追従カメラの実装
 1. [`ECS/Components.h`](file:///d:/DirectX11_Sample/DirextX11Engine/ECS/Components.h) に `ThirdPersonCameraComponent` を定義。
@@ -443,11 +429,22 @@ flowchart TD
 3. カメラエンティティに `ThirdPersonCameraComponent` を設定（`targetEntity = player`）し、従来の `FreeLookCameraControllerComponent` を無効化。
 4. マウス操作でプレイヤーの周囲を滑らかにカメラが旋回・追従することを確認。
 
-### Step 5: カメラ相対移動とアニメーション遷移の実装
-1. [`ECS/Components.h`](file:///d:/DirectX11_Sample/DirextX11Engine/ECS/Components.h) に `PlayerTag` を定義。
-2. [`ECS/PlayerMovementSystem.h`](file:///d:/DirectX11_Sample/DirextX11Engine/ECS/PlayerMovementSystem.h) / `.cpp` を新規作成。
-3. カメラ向き基準の移動ベクトル算出、クォータニオン Slerp 旋回、`position.y = 0.0f` クランプ、および速度に応じた `Idle` ⇄ `Walk` ⇄ `Run` の `CrossFade` を実装。
-4. `App::Update` の更新ループに `PlayerMovementSystem` と `ThirdPersonCameraSystem` を組み込む。
+### Step 5: アクション状態調停＆移動パイプラインの実装
+1. **既存コンポーネントの整理・リファクタリング**:
+   - `CharacterMovementStateComponent` を削除（二重管理の撤廃）。
+   - `PlayerInputSystem.cpp` の値コピーバグ（`auto` → `auto&`）を修正し、`PlayerInputComponent` を単一書き込み権限で運用。
+2. **新規コンポーネントの定義**:
+   - `LocomotionProposalComponent`（移動提案）
+   - `CombatRequestComponent`（戦闘要求）
+   - `CharacterActionStateComponent`（大域アクション状態：LOCOMOTION, ATTACKING...）
+   - `CharacterActionResultComponent`（確定アクション結果：速度, Yaw, アニメ）
+3. **提案・調停・実行・反映システムの分離実装**:
+   - `PlayerMovementSystem`: 入力とカメラから `LocomotionProposalComponent` を生成。
+   - `CharacterActionStateSystem`: 要求から `ActionState` の一元的調停を行う。
+   - `LocomotionStateSystem`: `ActionState::LOCOMOTION` 時に動作し、サブステート（IDLE/WALK/RUN）を更新して `CharacterActionResultComponent` へ書き込む。
+   - `ActionApplierSystem`: 結果を `VelocityComponent`、旋回 Slerp、`AnimatorSystem::CrossFade` へ一括反映。
+   - `MovementSystem`: `VelocityComponent` を位置へ積分し、`Y = 0.0` のフロアクランプを維持。
+4. `App::Update` に新パイプライン順序でシステムを登録。
 
 ---
 
@@ -469,20 +466,28 @@ flowchart TD
 | **V3** | **TPSカメラ追従** | マウス移動 | マウス水平・垂直移動に合わせてカメラがプレイヤー周囲を旋回し、指定した仰角制限（minPitch〜maxPitch）でクランプされること。 |
 | **V4** | **カメラ相対移動** | WASD キー入力 | 常に「画面手前 / 奥 / 左右」のカメラ視線基準でプレイヤーが進行すること。 |
 | **V5** | **キャラクター旋回** | 進行方向の変更 | 急反転せず、進行方向へ向けて Slerp で滑らかに体を向けること。 |
-| **V6** | **アニメーション遷移** | 移動 $\leftrightarrow$ 停止、Shiftダッシュ | 停止（Idle）から移動で Walk、Shift押しで Run へと足滑りなくスムーズにクロスフェードし、キーを離すと Idle に復帰すること。 |
-| **V7** | **接地維持** | 移動中の挙動観察 | プレイヤーの足元が常に地面（$Y = 0$）に接地し、上下に浮遊・沈下しないこと。 |
+| **V6** | **アニメーション遷移** | 移動 ↔ 停止、Shiftダッシュ | 停止（Idle）から移動で Walk、Shift押しで Run へと足滑りなくスムーズにクロスフェードし、キーを離すと Idle に復帰すること。 |
+| **V7** | **接地維持** | 移動中の挙動観察 | プレイヤーの足元が常に地面（`Y = 0`）に接地し、上下に浮遊・沈下しないこと。 |
 
 ---
 
 ## 9. 専門用語集 (Glossary)
 
+*   **単一書き込み権限の原則 (Single Writer Principle)**:
+    特定のコンポーネントやデータフィールドに対する変更責任と権限を持つシステムを唯一に限定する設計原則。複数のシステムが同一データを競合して書き換えることによる順序依存バグや競合状態を防止する。
+*   **信頼できる唯一の情報源 (SSOT / Single Source of Truth)**:
+    システム内で同一の意味を持つデータが複数箇所に重複して存在せず、唯一の確定したデータ源を参照する設計原則。フラグの二重管理（State Duplication）による不整合を防ぐ。
+*   **階層型ステートマシン (HSM / Hierarchical State Machine)**:
+    状態の中にさらに子状態を持たせる構造。全体の大域状態が「移動（Locomotion）」のとき、その内部で「待機（Idle）」「歩行（Walk）」「走行（Run）」の下位サブ状態を安全に切り替える設計手法。
+*   **直交性 (Orthogonality)**:
+    二つ以上のコンポーネントやシステムが互いに依存せず、一方の変更や拡張が他方に副作用を与えない性質。「プレイヤーの入力インテント」と「キャラクターの現在状態」を分離することで直交性を担保する。
 *   **球面座標系 (Spherical Coordinate System)**:
-    空間上の位置を、原点からの距離（半径 $r$ またはアーム長）、方位角（Yaw $\theta$）、仰角（Pitch $\phi$）の 3 つのパラメータで表す座標系。注視点を中心とする TPS オービットカメラの算出に最も適している。
+    空間上の位置を、原点からの距離（半径 `r` またはアーム長）、方位角（Yaw `theta`）、仰角（Pitch `phi`）の 3 つのパラメータで表す座標系。注視点を中心とする TPS オービットカメラの算出に最も適している。
 *   **Slerp (Spherical Linear Interpolation / 球面線形補間)**:
     単位クォータニオン間を角速度一定で滑らかに回転補間する手法。急激な向きの切り替わりによるアニメーションの不連続・ガタつき（ジャーク）を防止する。
 *   **オービットカメラ (Orbit Camera)**:
     特定のターゲット（キャラクター）を常に中心（注視点）に据え、その周囲の球面上を軌道（Orbit）周回する三人称視点カメラ制御方式。
 *   **フロアクランプ (Floor Clamp)**:
-    物理エンジン（重力・剛体シミュレーション）を導入せずに、毎フレームキャラクターの垂直座標を地表の高さ（$Y = 0$）に強制的に固定・制限する軽量な接地処理。
+    物理エンジン（重力・剛体シミュレーション）を導入せずに、毎フレームキャラクターの垂直座標を地表の高さ（`Y = 0`）に強制的に固定・制限する軽量な接地処理。
 *   **PBR (Physically Based Rendering / 物理ベースレンダリング)**:
     光の物理的な反射・拡散特性（金属度 Metallic、粗さ Roughness）に基づき、現実世界の光学法則を近似して質感を描画するレンダリング手法。

@@ -63,3 +63,62 @@
 *   **解決策**:
     注視点の計算処理を `CalcFocusPos(targetTransform, tpsConfig)` として独立分離し、算出された共通の注視点ベクトル `focusPos` を `CalcCameraPos`（カメラ位置決定）および `CalcCameraRotQuat`（カメラ姿勢決定）の双方へ確実に引き渡す構造にリファクタリングした。これにより、カメラの光軸中心がキャラクターの胸・肩（`Y ≈ 6.0`）に正しく合致し、頭頂から足元までが画面の上下に収まる標準的な三人称構図を確立した。
 
+---
+
+### 2.6. 不具合6: Mixamo FBX変換時におけるFixBind/ApplyRotation起因の空間不整合とボーン命名規則の変更
+*   **現象**:
+    Mixamoから取得したY-BotモデルにBlenderアドオン（Mixamo Rootbaker）でRootBoneを付加してDirectX11エンジンに読み込んだ際、メッシュパーツ（関節球と手足外殻）が空中に飛び散り、バインド姿勢（Tポーズ）において下半身が前方に90度折れ曲がって座り込むような重大な描画破綻が発生した。
+*   **原因**:
+    1. **メッシュパーツ間のノード回転空間の不一致**:
+       実機から抽出した頂点バウンディングボックスおよびノード階層ログにより、`Joints`（関節球メッシュ）は回転なし（`Rot: (0,0,0,1)`、頂点 $Y \in [0.8, 159.8]$）の直立姿勢であったのに対し、`Surface`（ボディ外殻メッシュ）は $X$ 軸周りに90度回転（`Rot: (0.707107, 0, 0, 0.707107)`、頂点 $Z \in [-180.5, 0.0]$）の倒伏姿勢でエクスポートされていた。
+    2. **逆バインド行列（$M_{offset}$）の単一キャッシュ適用**:
+       Assimpの仕様上、$M_{offset}$（Inverse Bind Pose Matrix）は各メッシュのローカル空間を基準に算出されるため、`Joints`（Y-Up用）と `Surface`（Z-Up/90度回転補正用）で90度異なる行列が格納されていた。しかし、`ModelLoader.cpp` の `CalcGlobalBoneIndex` では先頭メッシュ（`Joints`）の $M_{offset}$ のみをボーン情報に登録し、後続の `Surface` にも同一の $M_{offset}$ を適用していた。その結果、倒れた生頂点に対して直立用の逆バインド行列が乗算され、90度回転補正が失われて座り込んだ姿勢になっていた。
+    3. **Blenderアドオン設定（FixBind / ApplyRotation）の副作用**:
+       Mixamo Rootbaker の「Fix Bind」や「Apply Rotation」がONになっていたことで、アーマチュアとメッシュオブジェクト間でトランスフォームの不均一なフリーズ・補正が発生していた。
+*   **解決策**:
+    1. **DCCツール側でのコンバート設定是正**:
+       Blender側で「Fix Bind」および「Apply Rotation」のチェックを解除してエクスポートすることで、全メッシュ（`Joints`, `Surface`）とスケルトンのバインド空間が完全に統一された。
+    2. **ボーン命名規則の更新とコード側同期**:
+       再コンバートに伴い、ボーン命名規則がUnreal Engine形式（`Pelvis`, `thigh_l`, `calf_l`, `foot_l`）からMixamo標準命名規則（`root`, `Hips`, `LeftUpLeg`, `LeftLeg`, `LeftFoot`, `LeftToeBase`）へ移行した。
+       これに対応するため、`App.cpp` 内のIKボーン検索処理（`findBone` ラムダ）において、`LeftUpLeg`（太もも）、`LeftLeg`（すね）、`LeftFoot`（足首）を優先検索しつつ旧名称へのフォールバックを備えた堅牢な検索機構へと改修した。また、アニメーションクリップ（`Idle`, `StandardWalk`, `Running`）の全ボーンチャンネルがモデル側と100%一致して同期再生されることを実機ログにより検証・確認した。
+
+---
+
+### 2.7. 不具合7: C++の型推論規則によるコンポーネント参照脱落とパイプライン更新消失
+*   **現象**:
+    `PlayerInputSystem::Update` において `PlayerInputComponent` の `moveAxis` に移動入力値を代入しているにもかかわらず、後続のシステム（`PlayerMovementSystem` や `LocomotionStateSystem`、`ActionApplierSystem`）に移動データが伝搬せず、プレイヤーが全く移動・回転しない現象が発生した。
+*   **原因**:
+    1. **`registry.get<T>` と `auto` による参照修飾子の剥離（Decay）**:
+       EnTT の `registry.get<T>(entity)` は本来内部ストレージ内の実体への左辺値参照（`T&`）を返すが、呼び出し元で `auto playerInput = registry.get<PlayerInputComponent>(entity);` と記述していた。C++の型推論（Type Deduction）規則により、`auto` は型から参照修飾子 `&` を取り除いて推論するため、推論される型は `PlayerInputComponent`（値型）となる。その結果、スタック領域にローカルな複製（コピー）が生成され、このコピーに対して代入操作を行っても関数終了時に破棄され、Registry 内の実体には一切反映されていなかった。
+    2. **`view.each()` における構造化束縛の値コピー**:
+       `PlayerMovementSystem` や `CharacterActionStateSystem`、`LocomotionStateSystem`、`AttackingStateSystem`、`ActionApplierSystem`、`CombatSystem` などの各システムにおいて、`for (auto [entity, a, b] : view.each())` という構文で各コンポーネントを取り出していた。この構文では、タプルからアンパックされる各コンポーネントがすべて値コピー（複製）となるため、各システム内で計算結果（`locomotionProposal.velocity` や `charaActionResult`、`velocity.velocity`、`transform.rotation`）を代入しても Registry 上の実体コンポーネントが全く更新されていなかった。
+    3. **移動入力軸（`CalcMoveDir`）の符号反転**:
+       `PlayerInputSystem.cpp` の `CalcMoveDir` において、Wキー押下時に `moveDirLocal.y -= 1.0f`、Aキー押下時に `moveDirLocal.x += 1.0f` と記述されていた。3Dカメラ相対ベクトルとの合成演算（`cameraFoward * y + cameraRight * x`）において、前進方向（`+Z` 向きのカメラ前方ベクトル）に対して負の係数が掛かるため後退方向を向き、左右も反転する潜在的不整合が存在していた。
+*   **解決策**:
+    1. **明示的な参照修飾（`auto&` / `auto&&`）の徹底**:
+       `registry.get<T>` を受け取る箇所を `auto& playerInput = registry.get<...>(...);` へ修正した。
+    2. **`view.each()` での構造化束縛を参照受けへ統一**:
+       全システムのループを `for (auto&& [entity, a, b] : view.each())` に変更し、Registry 内の各コンポーネントの実体を参照として安全にバインド・更新する構造へ統一した。
+    3. **入力軸ベクトルの正規化と符号整合**:
+       Wキーで `moveDirLocal.y += 1.0f`（前進）、Sキーで `moveDirLocal.y -= 1.0f`（後退）、Dキーで `moveDirLocal.x += 1.0f`（右移動）、Aキーで `moveDirLocal.x -= 1.0f`（左移動）に修正した。
+
+---
+
+### 2.8. 不具合8: AnimStateType導入に伴う循環インクルードと型不一致によるビルド遮断
+*   **現象**:
+    `AnimStateType` の導入および `AnimSequenceAsset` のデータ構造リファクタリングに伴い、コンパイル時に `C2065: 'AnimationClip': 定義されていない識別子です`、`C2653: 'AnimStateType': 識別子がクラス名でも名前空間名でもありません`、`C2665: 'find': オーバーロードされた関数ですべての引数の型を変換できませんでした` など計158件のエラーが発生し、ビルドが完全に遮断された。
+*   **原因**:
+    1. **循環インクルードとレイヤー違反（Circular Include & Layer Violation）**:
+       低レイヤー基盤ヘッダーである `Core/Common.h` が `Core/LocomotionTypes.h` をインクルードし、それが `AnimStateType` を参照するためだけに高レイヤーの `ECS/Components/AnimationComponents.h` をインクルードしていた。一方で `AnimationComponents.h` は `AnimationClip.h` をインクルードし、`AnimationClip.h` は `Common.h` をインクルードしていた。この循環依存により、`AnimationClip.h` の定義完了前に `AnimSequenceAsset.h` が評価され、`AnimationClip` が未定義となった。また、`AnimSequenceAsset.h` 自身も `AnimStateType` の定義を持たずに参照していた。
+    2. **新旧メンバ変数名・型の不整合**:
+       `AnimSequenceAsset` のメンバ変数が `name`（`std::string`）から `animState`（`AnimStateType`）に変更されたが、`AnimSequenceLoader.cpp` 内で `asset->name = ...` への代入が残存していた。
+    3. **`AnimatorSystem.cpp` でのポインタ・クリップ直接代入**:
+       `AnimatorComponent::stateMap` のキー変更に伴う `stateMap.find` の引数型不一致、および `AnimationComponent::pCurrentClip`（`AnimationClip*`）に対して `pAnimSeq`（`AnimSequenceAsset*`）を直接代入・比較していたことによる型不整合（C2679 / C2446）。
+*   **解決策**:
+    1. **`AnimStateType.h` の独立分離**:
+       `AnimStateType` を専用の軽量ヘッダー `Animation/AnimStateType.h` へ切り出し、`LocomotionTypes.h`、`AnimSequenceAsset.h`、`AnimationComponents.h` から参照させることで Core層から ECS層への逆流参照および循環インクルードを完全に断ち切った。
+    2. **`AnimSequenceAsset.h` での前方宣言**:
+       `class AnimationClip;` を前方宣言し、不要なヘッダー直接依存を最小化した。
+    3. **`AnimSequenceLoader.cpp` および `AnimatorSystem.cpp` の型整合性修正**:
+       `asset->animState = AnimStateType::...` への代入、および `it->second.pAnimSeq->clip` によるクリップ参照の統一を行い、全158件のエラーを解消してビルドを成功（0エラー）させた。
+
