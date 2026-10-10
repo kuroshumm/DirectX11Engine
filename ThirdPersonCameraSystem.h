@@ -1,8 +1,7 @@
-#pragma once
+﻿#pragma once
 
 #include <entt/entt.hpp>
 
-#include "Components.h"
 #include "InputSystem.h"
 
 namespace Engine

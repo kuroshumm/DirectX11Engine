@@ -1,4 +1,6 @@
-#include "ThirdPersonCameraSystem.h"
+﻿#include "ThirdPersonCameraSystem.h"
+#include "Components/TransformComponents.h"
+#include "Components/CameraComponents.h"
 
 namespace
 {
