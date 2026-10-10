@@ -1,11 +1,7 @@
-#pragma once
-#include <wrl/client.h>
+ï»¿#pragma once
 #include <string>
+#include <vector>
 #include <unordered_map>
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 #include "Common.h"
 
@@ -14,14 +10,31 @@ namespace Engine
 	class AnimationClip
 	{
 	public:
-		AnimationClip(const std::string& filePath);
+		AnimationClip(
+			float duration,
+			float tickPerSecond,
+			std::vector<NodeAnimation> nodeAnimations,
+			std::unordered_map<std::string, int> nameToChannelMap);
 		~AnimationClip();
 
 	public:
-		const NodeAnimation& GetNodeAnimation(size_t index) const;
 		const float GetDuration() const { return m_Duration; }
 		const float GetTicksPerSecond() const { return m_TicsPerSecond; }
-		// –¼‘O‚©‚çƒ`ƒƒƒ“ƒlƒ‹”Ô†‚ğŒŸõi‰‰ñƒoƒCƒ“ƒh‚É 1 ‰ñ‚¾‚¯g—pj
+		const NodeAnimation& GetNodeAnimation(size_t index) const
+		{
+			static const NodeAnimation emptyAnim{};
+
+			if (m_NodeAnimations.size() <= index)
+			{
+				return emptyAnim;
+			}
+
+			const NodeAnimation& nodeAnim = m_NodeAnimations[index];
+
+			return nodeAnim;
+		}
+
+		// åå‰ã‹ã‚‰ãƒãƒ£ãƒ³ãƒãƒ«ç•ªå·ã‚’å–å¾—ï¼ˆåˆæœŸåŒ–ãƒã‚¤ãƒ³ãƒ‰æ™‚ã« 1 å›ã ã‘ä½¿ç”¨ï¼‰
 		int FindChannelIndex(const std::string& nodeName) const
 		{
 			auto it = m_nameToChannelMap.find(nodeName);
@@ -29,14 +42,10 @@ namespace Engine
 		}
 
 	private:
-		HRESULT LoadFromFile(const std::string& filePath);
+		float m_Duration;      // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ç·æ™‚é–“ï¼ˆDurationï¼‰
+		float m_TicsPerSecond; // 1ç§’ã‚ãŸã‚Šã®ãƒ†ã‚£ãƒƒã‚¯æ•°ï¼ˆå†ç”Ÿé€Ÿåº¦åŸºæº–ï¼‰
 
-	private:
-		float m_Duration;      // ƒAƒjƒ[ƒVƒ‡ƒ“‚Ì‘‘±ŠÔ
-		float m_TicsPerSecond; // ‚P•b‚ ‚½‚è‚ÌƒeƒBƒbƒN”iÄ¶‘¬“xŠî€j
-
-		// ƒ{[ƒ“–¼‚ğƒL[‚É‚µ‚ÄAŠeƒ{[ƒ“‚ÌƒL[ƒtƒŒ[ƒ€”z—ñ‚ğŒŸõE•Û‚·‚éƒ}ƒbƒv
-		//std::unordered_map<std::string, NodeAnimation> m_NodeAnimations;
+		// å„ãƒœãƒ¼ãƒ³ã®ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³é…åˆ—ã¨åå‰é€†å¼•ããƒãƒƒãƒ—
 		std::vector<NodeAnimation> m_NodeAnimations;
 		std::unordered_map<std::string, int> m_nameToChannelMap;
 	};

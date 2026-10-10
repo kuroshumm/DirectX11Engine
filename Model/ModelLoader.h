@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <memory>
 #include <wrl/client.h>
 #include <assimp/Importer.hpp>
@@ -16,10 +16,10 @@ namespace Engine
 	public:
 		ModelLoader(Graphics* pGfx);
 
-		// FBXƒtƒ@ƒCƒ‹‚©‚çModelAsset‚ğ¶¬iƒWƒIƒƒgƒŠ‚Ì‚İj
+		// FBXãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ModelAssetã‚’ç”Ÿæˆï¼ˆã‚¸ã‚ªãƒ¡ãƒˆãƒªã®ã¿ï¼‰
 		std::shared_ptr<ModelAsset> LoadModelAsset(const std::string& filePath);
 		
-		// ˆêŠ‡ƒ[ƒhFModelAsset‚ÆSkeltonAsset‚ğ“¯‚É¶¬
+		// ä¸€æ‹¬ãƒ­ãƒ¼ãƒ‰ï¼šModelAssetã¨SkeltonAssetã‚’åŒæ™‚ã«ç”Ÿæˆ
 		struct LoadResult
 		{
 			bool isSuccess = false;
@@ -28,7 +28,7 @@ namespace Engine
 		};
 		LoadResult Load(const std::string& filePath);
 
-		// GPU’è”ƒoƒbƒtƒ@iPaletteBufferj‚Ì¶¬ƒwƒ‹ƒp[
+		// GPUå®šæ•°ãƒãƒƒãƒ•ã‚¡ï¼ˆPaletteBufferï¼‰ã®ç”Ÿæˆãƒ˜ãƒ«ãƒ‘ãƒ¼
 		static HRESULT CreatePaletteBuffer(
 			ID3D11Device* pDevice,
 			Microsoft::WRL::ComPtr<ID3D11Buffer>& outBuffer
@@ -51,8 +51,8 @@ namespace Engine
 		{
 			SubMesh subMesh;
 
-			// --- ’¸“_ƒoƒbƒtƒ@ (VertexBuffer) ‚Ì¶¬ ---
-			// ¶¬Œã‚Í•ÏX‚³‚ê‚È‚¢‚½‚ß D3D11_USAGE_IMMUTABLE ‚ğg—p‚µAPCIeŒo—R‚Ì“]‘—‚ğÅ¬‰»
+			// --- é ‚ç‚¹ãƒãƒƒãƒ•ã‚¡ (VertexBuffer) ã®ç”Ÿæˆ ---
+			// ç”Ÿæˆå¾Œã¯å¤‰æ›´ã•ã‚Œãªã„ãŸã‚ D3D11_USAGE_IMMUTABLE ã‚’ä½¿ç”¨ã—ã€PCIeçµŒç”±ã®è»¢é€ã‚’æœ€å°åŒ–
 			D3D11_BUFFER_DESC vbd = {};
 			vbd.ByteWidth = sizeof(VertexType) * (UINT)vertices.size();
 			vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -60,7 +60,7 @@ namespace Engine
 			D3D11_SUBRESOURCE_DATA vinit = { vertices.data() };
 			HRESULT hr = m_pGfx->GetDevice()->CreateBuffer(&vbd, &vinit, &subMesh.vertexBuffer);
 
-			// --- ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@ (IndexBuffer) ‚Ì¶¬ ---
+			// --- ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒãƒƒãƒ•ã‚¡ (IndexBuffer) ã®ç”Ÿæˆ ---
 			D3D11_BUFFER_DESC ibd = {};
 			ibd.ByteWidth = sizeof(WORD) * (UINT)indices.size();
 			ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;

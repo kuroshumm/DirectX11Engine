@@ -1,4 +1,5 @@
-#include "ModelLoader.h"
+ï»¿#include "ModelLoader.h"
+#include <fstream>
 
 namespace
 {
@@ -7,7 +8,7 @@ namespace
 	DirectX::XMFLOAT4X4 ConvertMatrix(const aiMatrix4x4& aiMat)
 	{
 		DirectX::XMFLOAT4X4 dxMat;
-		// “]’u‚¹‚¸AAssimp‚Ìƒƒ‚ƒŠ”z—ñ‚Ì’Ê‚è‚É‘f’¼‚ÉŠ®‘SƒRƒs[‚µ‚Ü‚·
+		// è»¢ç½®ã›ãšã€Assimpã®ãƒ¡ãƒ¢ãƒªé…åˆ—ã®é€šã‚Šã«ç´ ç›´ã«å®Œå…¨ã‚³ãƒ”ãƒ¼ã—ã¾ã™
 		dxMat._11 = aiMat.a1; dxMat._12 = aiMat.b1; dxMat._13 = aiMat.c1; dxMat._14 = aiMat.d1;
 		dxMat._21 = aiMat.a2; dxMat._22 = aiMat.b2; dxMat._23 = aiMat.c2; dxMat._24 = aiMat.d2;
 		dxMat._31 = aiMat.a3; dxMat._32 = aiMat.b3; dxMat._33 = aiMat.c3; dxMat._34 = aiMat.d3;
@@ -20,30 +21,30 @@ namespace
 		std::string boneName = pBone->mName.C_Str();
 		int globalBoneIndex = 0;
 
-		// «‘‚É‚±‚Ì–¼‘O‚ª“o˜^‚³‚ê‚Ä‚¢‚é‚©ƒ`ƒFƒbƒN
+		// è¾æ›¸ã«ã“ã®åå‰ãŒç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ã‹ãƒã‚§ãƒƒã‚¯
 		if (skeltonAsset.boneMapping.find(boneName) == skeltonAsset.boneMapping.end())
 		{
-			// –¢“o˜^i‰‚ß‚ÄŒ©‚éƒ{[ƒ“j‚Ìê‡
+			// æœªç™»éŒ²ï¼ˆåˆã‚ã¦è¦‹ã‚‹ãƒœãƒ¼ãƒ³ï¼‰ã®å ´åˆ
 			Bone newBone = {};
 			newBone.name = boneName;
 
-			// (‚±‚±‚Å inverseBindMatrix “™‚àAssimp‚Ì bone->mOffsetMatrix ‚©‚çæ“¾‚µ‚Ä•ÏŠ·E‘ã“ü‚µ‚Ü‚·)
+			// (ã“ã“ã§ inverseBindMatrix ç­‰ã‚‚Assimpã® bone->mOffsetMatrix ã‹ã‚‰å–å¾—ã—ã¦å¤‰æ›ãƒ»ä»£å…¥ã—ã¾ã™)
 			newBone.InverseBindMatrix = ConvertMatrix(pBone->mOffsetMatrix);
 			DirectX::XMStoreFloat4x4(&newBone.GlobalTransformMatrix, DirectX::XMMatrixIdentity());
 
-			// ”z—ñ‚Ì––”ö‚É’Ç‰Á
+			// é…åˆ—ã®æœ«å°¾ã«è¿½åŠ 
 			skeltonAsset.initialBones.push_back(newBone);
 
-			// ¡’Ç‰Á‚µ‚½êŠi”z—ñ‚ÌƒTƒCƒY - 1j‚ªA‚±‚Ìƒ{[ƒ“‚ÌƒOƒ[ƒoƒ‹ƒCƒ“ƒfƒbƒNƒX‚Æ‚È‚é
-			globalBoneIndex = skeltonAsset.initialBones.size() - 1;
+			// ä»Šè¿½åŠ ã—ãŸå ´æ‰€ï¼ˆé…åˆ—ã®ã‚µã‚¤ã‚º - 1ï¼‰ãŒã€ã“ã®ãƒœãƒ¼ãƒ³ã®ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã¨ãªã‚‹
+			globalBoneIndex = static_cast<int>(skeltonAsset.initialBones.size() - 1);
 
-			// «‘‚Éu‚±‚Ì–¼‘O‚Ìƒ{[ƒ“‚Í x ”Ô–Ú‚É‚ ‚év‚Æ‹L‰¯‚³‚¹‚é
+			// è¾æ›¸ã«ã€Œã“ã®åå‰ã®ãƒœãƒ¼ãƒ³ã¯ x ç•ªç›®ã«ã‚ã‚‹ã€ã¨è¨˜æ†¶ã•ã›ã‚‹
 			skeltonAsset.boneMapping[boneName] = globalBoneIndex;
 		}
 		else
 		{
-			// “o˜^Ï‚İi•Ê‚ÌƒƒbƒVƒ…‚Å‚·‚Å‚É“o˜^‚³‚ê‚½ƒ{[ƒ“j‚Ìê‡
-			// «‘‚©‚çƒOƒ[ƒoƒ‹ƒCƒ“ƒfƒbƒNƒX‚ğˆø‚Á’£‚èo‚µ‚Ä‚­‚é‚¾‚¯
+			// ç™»éŒ²æ¸ˆã¿ï¼ˆåˆ¥ã®ãƒ¡ãƒƒã‚·ãƒ¥ã§ã™ã§ã«ç™»éŒ²ã•ã‚ŒãŸãƒœãƒ¼ãƒ³ï¼‰ã®å ´åˆ
+			// è¾æ›¸ã‹ã‚‰ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’å¼•ã£å¼µã‚Šå‡ºã—ã¦ãã‚‹ã ã‘
 			globalBoneIndex = skeltonAsset.boneMapping[boneName];
 		}
 
@@ -62,14 +63,14 @@ namespace
 		std::string nodeName = node->mName.C_Str();
 		int currentIndex = -1;
 
-		// Šù‚É“o˜^‚³‚ê‚Ä‚é‚©
+		// æ—¢ã«ç™»éŒ²ã•ã‚Œã¦ã‚‹ã‹
 		if (mapping.find(nodeName) != mapping.end())
 		{
 			currentIndex = mapping[nodeName];
 		}
 		else
 		{
-			// ƒEƒFƒCƒg‚ğ‚½‚È‚¢’†ŠÔƒm[ƒh‚àŠÖß‚Æ‚µ‚Ä’Ç‰Á‚·‚é
+			// ã‚¦ã‚§ã‚¤ãƒˆã‚’æŒãŸãªã„ä¸­é–“ãƒãƒ¼ãƒ‰ã‚‚é–¢ç¯€ã¨ã—ã¦è¿½åŠ ã™ã‚‹
 			Bone newBone = {};
 			newBone.name = nodeName;
 			DirectX::XMStoreFloat4x4(&newBone.InverseBindMatrix, DirectX::XMMatrixIdentity());
@@ -80,7 +81,7 @@ namespace
 
 		bones[currentIndex].parentIndex = parentIndex;
 		bones[currentIndex].LocalTransformMatrix = ConvertMatrix(node->mTransformation);
-		// LocalTransformMatrix ‚ğ•ª‰ğ‚µ‚ÄƒLƒƒƒbƒVƒ…‚É•Û‘¶iƒ[ƒh‚É1‰ñ‚¾‚¯j
+		// LocalTransformMatrix ã‚’åˆ†è§£ã—ã¦ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã«ä¿å­˜ï¼ˆãƒ­ãƒ¼ãƒ‰æ™‚ã«1å›ã ã‘ï¼‰
 		DirectX::XMVECTOR s, r, t;
 		DirectX::XMMatrixDecompose(&s, &r, &t,
 			DirectX::XMLoadFloat4x4(&bones[currentIndex].LocalTransformMatrix));
@@ -119,7 +120,7 @@ namespace
 				? DirectX::XMFLOAT2(mesh.mTextureCoords[0][v].x, mesh.mTextureCoords[0][v].y)
 				: DirectX::XMFLOAT2(0.0f, 0.0f);
 
-			// Color‚ÍŒ»ó”’ŒÅ’è‚Æ‚·‚é
+			// Colorã¯ç¾çŠ¶ç™½å›ºå®šã¨ã™ã‚‹
 			vertex.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 			vertices.push_back(vertex);
 		}
@@ -145,7 +146,7 @@ namespace
 				? DirectX::XMFLOAT2(mesh.mTextureCoords[0][v].x, mesh.mTextureCoords[0][v].y)
 				: DirectX::XMFLOAT2(0.0f, 0.0f);
 
-			// Color‚ÍŒ»ó”’ŒÅ’è‚Æ‚·‚é
+			// Colorã¯ç¾çŠ¶ç™½å›ºå®šã¨ã™ã‚‹
 			vertex.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 			vertex.BlendIndices = { 0, 0, 0, 0 };
 			vertex.BlendWeight = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -164,23 +165,23 @@ namespace
 		std::vector<int> weightCount(mesh.mNumVertices, 0);
 		for (UINT boneIndex = 0, max = mesh.mNumBones; boneIndex < max; ++boneIndex)
 		{
-			// ‘S‚Ä‚Ìƒ{[ƒ“‚É‘Î‚µ‚Ä‰e‹¿“x‚ğŒvZ‚·‚é
+			// å…¨ã¦ã®ãƒœãƒ¼ãƒ³ã«å¯¾ã—ã¦å½±éŸ¿åº¦ã‚’è¨ˆç®—ã™ã‚‹
 			aiBone* bone = mesh.mBones[boneIndex];
 			for (UINT weightIndex = 0, weightNum = bone->mNumWeights; weightIndex < weightNum; ++weightIndex)
 			{
 				UINT vertexId = bone->mWeights[weightIndex].mVertexId;
 				float weight = bone->mWeights[weightIndex].mWeight;
 
-				// ŒvZ‚·‚é‰e‹¿‚·‚éƒ{[ƒ“‚Í‚S‚Â‚É§ŒÀiGPU‘¤‚ÌXMUINT4, XMFLOAT4‚ª4—v‘f‚Ì‚½‚ßj
+				// è¨ˆç®—ã™ã‚‹å½±éŸ¿ã™ã‚‹ãƒœãƒ¼ãƒ³ã¯ï¼”ã¤ã«åˆ¶é™ï¼ˆGPUå´ã®XMUINT4, XMFLOAT4ãŒ4è¦ç´ ã®ãŸã‚ï¼‰
 				int slot = weightCount[vertexId];
 				if (slot >= 4)
 				{
 					continue;
 				}
 
-				// ‰e‹¿‚·‚éƒ{[ƒ“‚ÌƒCƒ“ƒfƒbƒNƒX
+				// å½±éŸ¿ã™ã‚‹ãƒœãƒ¼ãƒ³ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 				reinterpret_cast<UINT*>(&vertices[vertexId].BlendIndices)[slot] = CalcGlobalBoneIndex(bone, skeltonAsset);
-				// ‰e‹¿‚·‚éƒ{[ƒ“‚Ì‰e‹¿“x
+				// å½±éŸ¿ã™ã‚‹ãƒœãƒ¼ãƒ³ã®å½±éŸ¿åº¦
 				reinterpret_cast<float*>(&vertices[vertexId].BlendWeight)[slot] = weight;
 
 				weightCount[vertexId]++;
@@ -206,18 +207,31 @@ namespace
 
 	
 
-	void DumpNodeHierarchy(aiNode* node, int depth)
+	void DumpNodeHierarchy(aiNode* node, int depth, std::ofstream& ofs)
 	{
 		if (!node) return;
-		std::string str;
-		for (int i = 0; i < depth; ++i) str += "  ";
-		str += "- ";
-		str += node->mName.C_Str();
-		str += "\n";
-		OutputDebugStringA(str.c_str());
+		std::string indent(depth * 2, ' ');
+		ofs << indent << "- Node: '" << node->mName.C_Str() << "', Meshes: " << node->mNumMeshes << "\n";
+		aiVector3D scaling, position;
+		aiQuaternion rotation;
+		node->mTransformation.Decompose(scaling, rotation, position);
+		ofs << indent << "  Pos: (" << position.x << ", " << position.y << ", " << position.z << ")"
+			<< " Rot: (" << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << ")"
+			<< " Scale: (" << scaling.x << ", " << scaling.y << ", " << scaling.z << ")\n";
+
+		if (node->mNumMeshes > 0)
+		{
+			ofs << indent << "  MeshIndices: ";
+			for (unsigned int i = 0; i < node->mNumMeshes; ++i)
+			{
+				ofs << node->mMeshes[i] << " ";
+			}
+			ofs << "\n";
+		}
+
 		for (unsigned int i = 0; i < node->mNumChildren; ++i)
 		{
-			DumpNodeHierarchy(node->mChildren[i], depth + 1);
+			DumpNodeHierarchy(node->mChildren[i], depth + 1, ofs);
 		}
 	}
 }
@@ -247,20 +261,20 @@ namespace Engine
 
 		std::shared_ptr<ModelAsset> pModelAsset = std::make_shared<ModelAsset>();
 
-		// ƒV[ƒ““à‚Ì‘SƒƒbƒVƒ…‚ğ”½•œˆ—‚µSubMesh‚ÖƒRƒ“ƒo[ƒg
+		// ã‚·ãƒ¼ãƒ³å†…ã®å…¨ãƒ¡ãƒƒã‚·ãƒ¥ã‚’åå¾©å‡¦ç†ã—SubMeshã¸ã‚³ãƒ³ãƒãƒ¼ãƒˆ
 		for (UINT meshIndex = 0, max = scene->mNumMeshes; meshIndex < max; ++meshIndex)
 		{
 			aiMesh* mesh = scene->mMeshes[meshIndex];
 
-			// ’¸“_ƒf[ƒ^‚Ì’Šo
+			// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã®æŠ½å‡º
 			std::vector<Vertex> vertices = CreateMeshVertices(*mesh);
-			// ƒCƒ“ƒfƒbƒNƒXƒf[ƒ^‚Ì’Šo
+			// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒ‡ãƒ¼ã‚¿ã®æŠ½å‡º
 			std::vector<WORD> indices = CreateMeshIndex(*mesh);
-			// SubMesh‚Ìì¬
+			// SubMeshã®ä½œæˆ
 			SubMesh subMesh = CreateSubMesh<Vertex>(vertices, indices);
 
-			// DirectXMath‚Ì‹@”\‚ğg‚Á‚ÄA‘S’¸“_‚ğ•ï‚İ‚Ş‰ŠúƒXƒtƒBƒA‚ğ©“®ŒvZ
-            // (’¸“_‚Ìƒƒ‚ƒŠæ“ªƒ|ƒCƒ“ƒ^A’¸“_”A1’¸“_‚ ‚½‚è‚ÌƒoƒCƒgƒTƒCƒY‚ğ“n‚·)
+			// DirectXMathã®æ©Ÿèƒ½ã‚’ä½¿ã£ã¦ã€å…¨é ‚ç‚¹ã‚’åŒ…ã¿è¾¼ã‚€åˆæœŸã‚¹ãƒ•ã‚£ã‚¢ã‚’è‡ªå‹•è¨ˆç®—
+            // (é ‚ç‚¹ã®ãƒ¡ãƒ¢ãƒªå…ˆé ­ãƒã‚¤ãƒ³ã‚¿ã€é ‚ç‚¹æ•°ã€1é ‚ç‚¹ã‚ãŸã‚Šã®ãƒã‚¤ãƒˆã‚µã‚¤ã‚ºã‚’æ¸¡ã™)
 			DirectX::BoundingSphere::CreateFromPoints(
 				pModelAsset->totalLocalBounds,
 				vertices.size(),
@@ -295,27 +309,27 @@ namespace Engine
 		}
 
 		{
-			OutputDebugStringA("\n=== FBX Node Hierarchy ===\n");
-			DumpNodeHierarchy(scene->mRootNode, 0);
-			OutputDebugStringA("==========================\n\n");
+			std::ofstream ofs("C:/Users/kuros/.gemini/antigravity-ide/brain/e39f8484-d67b-4eae-83a6-5d586606eb46/scratch/node_dump.txt");
+			ofs << "=== FBX Node Hierarchy: " << filePath << " ===\n";
+			DumpNodeHierarchy(scene->mRootNode, 0, ofs);
 		}
 
 		for (UINT meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
 		{
 			aiMesh* mesh = scene->mMeshes[meshIndex];
 
-			// ’¸“_ƒf[ƒ^‚Ì’Šo
+			// é ‚ç‚¹ãƒ‡ãƒ¼ã‚¿ã®æŠ½å‡º
 			std::vector<SkinnedVertex> vertices = CreateSkinnedMeshVertices(*mesh);
-			// ƒ{[ƒ“‚Ì‰e‹¿“x‚ğŒvZ
+			// ãƒœãƒ¼ãƒ³ã®å½±éŸ¿åº¦ã‚’è¨ˆç®—
 			LoadSkinnedMeshVerticesBlendWeight(*mesh, vertices, *loadResult.skeltonAsset.get());
-			// ƒCƒ“ƒfƒbƒNƒXƒf[ƒ^‚Ì’Šo
+			// ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãƒ‡ãƒ¼ã‚¿ã®æŠ½å‡º
 			std::vector<WORD> indices = CreateMeshIndex(*mesh);
 
-			// SubMesh‚Ìì¬
+			// SubMeshã®ä½œæˆ
 			SubMesh subMesh = CreateSubMesh<SkinnedVertex>(vertices, indices);
 
-			// DirectXMath‚Ì‹@”\‚ğg‚Á‚ÄA‘S’¸“_‚ğ•ï‚İ‚Ş‰ŠúƒXƒtƒBƒA‚ğ©“®ŒvZ
-			// (’¸“_‚Ìƒƒ‚ƒŠæ“ªƒ|ƒCƒ“ƒ^A’¸“_”A1’¸“_‚ ‚½‚è‚ÌƒoƒCƒgƒTƒCƒY‚ğ“n‚·)
+			// DirectXMathã®æ©Ÿèƒ½ã‚’ä½¿ã£ã¦ã€å…¨é ‚ç‚¹ã‚’åŒ…ã¿è¾¼ã‚€åˆæœŸã‚¹ãƒ•ã‚£ã‚¢ã‚’è‡ªå‹•è¨ˆç®—
+			// (é ‚ç‚¹ã®ãƒ¡ãƒ¢ãƒªå…ˆé ­ãƒã‚¤ãƒ³ã‚¿ã€é ‚ç‚¹æ•°ã€1é ‚ç‚¹ã‚ãŸã‚Šã®ãƒã‚¤ãƒˆã‚µã‚¤ã‚ºã‚’æ¸¡ã™)
 			DirectX::BoundingSphere::CreateFromPoints(
 				loadResult.modelAsset->totalLocalBounds,
 				vertices.size(),

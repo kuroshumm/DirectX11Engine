@@ -1,4 +1,4 @@
-#include "AnimationSystem.h"
+ï»¿#include "AnimationSystem.h"
 #include "AnimationClip.h"
 
 namespace Engine
@@ -8,29 +8,29 @@ namespace Engine
         auto entities = registry.view<AnimationComponent, SkeletonComponent, AnimationUpdateTag>();
         for (auto [entity, animationComp, skeltonComp] : entities.each())
         {
-            // ‡@ Ä¶ƒtƒ‰ƒOEƒNƒŠƒbƒvEƒ‚ƒfƒ‹‚Ì‘¶İƒ`ƒFƒbƒN
+            // â‘  å†ç”Ÿãƒ•ãƒ©ã‚°ãƒ»ã‚¯ãƒªãƒƒãƒ—ãƒ»ãƒ¢ãƒ‡ãƒ«ã®å­˜åœ¨ãƒã‚§ãƒƒã‚¯
             if (!animationComp.isPlaying || !animationComp.pCurrentClip || skeltonComp.rootBoneIndex == -1)
             {
                 continue;
             }
 
-            // AnimatorComponent ‚ğæ“¾‚µAƒNƒƒXƒtƒF[ƒh‘JˆÚ’†‚©Šm”F
+            // AnimatorComponent ã‚’å–å¾—ã—ã€ã‚¯ãƒ­ã‚¹ãƒ•ã‚§ãƒ¼ãƒ‰é·ç§»ä¸­ã‹ç¢ºèª
             const AnimatorComponent* pAnimator = registry.try_get<AnimatorComponent>(entity);
             const bool isBlending = (pAnimator && pAnimator->isTransitioning && pAnimator->pPrevClip);
             const float blendWeight = isBlending ? pAnimator->transitionWeight : 1.0f;
             std::shared_ptr<AnimationClip> currClip = animationComp.pCurrentClip;
             std::shared_ptr<AnimationClip> prevClip = isBlending ? pAnimator->pPrevClip : nullptr;
 
-            // ‡A Šeƒ{[ƒ“‚É‘Î‚µ‚ÄƒL[ƒtƒŒ[ƒ€•âŠÔ‚ğ“K—p
+            // â‘¡ å„ãƒœãƒ¼ãƒ³ã«å¯¾ã—ã¦ã‚­ãƒ¼ãƒ•ãƒ¬ãƒ¼ãƒ è£œé–“ã‚’é©ç”¨
             auto& bones = skeltonComp.bones;
             for (Bone& bone : bones)
             {
-                // 1. Current ƒNƒŠƒbƒv‚Ìp¨ƒTƒ“ƒvƒŠƒ“ƒO
+                // 1. Current ã‚¯ãƒªãƒƒãƒ—ã®å§¿å‹¢ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°
                 BoneTransformTRS currPose = SampleBoneTransform(currClip, animationComp.currentTime, bone);
                 DirectX::XMVECTOR finalScale = currPose.scale;
                 DirectX::XMVECTOR finalRot = currPose.rot;
                 DirectX::XMVECTOR finalPos = currPose.pos;
-                // 2. ‘JˆÚ’†‚È‚ç Prev ƒNƒŠƒbƒv‚àƒTƒ“ƒvƒŠƒ“ƒO‚µ‚Ä Lerp / Slerp ‡¬
+                // 2. é·ç§»ä¸­ãªã‚‰ Prev ã‚¯ãƒªãƒƒãƒ—ã‚‚ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ã—ã¦ Lerp / Slerp åˆæˆ
                 if (isBlending)
                 {
                     BoneTransformTRS prevPose = SampleBoneTransform(prevClip, pAnimator->prevTime, bone);
@@ -38,7 +38,7 @@ namespace Engine
                     finalPos = DirectX::XMVectorLerp(prevPose.pos, currPose.pos, blendWeight);
                     finalRot = DirectX::XMQuaternionSlerp(prevPose.rot, currPose.rot, blendWeight);
                 }
-                // 3. s—ñ‡¬‚ÆŠi”[
+                // 3. è¡Œåˆ—åˆæˆã¨æ ¼ç´
                 DirectX::XMMATRIX localMatrix = DirectX::XMMatrixAffineTransformation(
                     finalScale, DirectX::XMVectorZero(), finalRot, finalPos
                 );
@@ -46,7 +46,7 @@ namespace Engine
             }
 
             
-            // ‡B ƒ^ƒCƒ}[‚ÌXViTicksPerSecond ‚ğ”½‰fj
+            // â‘¢ ã‚¿ã‚¤ãƒãƒ¼ã®æ›´æ–°ï¼ˆTicksPerSecond ã‚’åæ˜ ï¼‰
             animationComp.currentTime += dt * currClip->GetTicksPerSecond() * animationComp.playbackSpeed;
             if (animationComp.isLoop && currClip->GetDuration() > 0.0f)
             {
@@ -68,11 +68,11 @@ namespace Engine
         {
             return { defaultScale, defaultRot, defaultPos };
         }
-        // ƒNƒŠƒbƒv‚²‚Æ‚É³‚µ‚¢ƒ`ƒƒƒ“ƒlƒ‹”Ô†‚ğˆÀ‘S‚ÉŒŸõ
+        // ã‚¯ãƒªãƒƒãƒ—ã”ã¨ã«æ­£ã—ã„ãƒãƒ£ãƒ³ãƒãƒ«ç•ªå·ã‚’å®‰å…¨ã«æ¤œç´¢
         int channelIndex = clip->FindChannelIndex(bone.name);
         if (channelIndex < 0)
         {
-            // ‚±‚ÌƒNƒŠƒbƒv‚ÉŠY“–ƒ{[ƒ“‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ª‚È‚¢ê‡‚Í‰Šúp¨‚ğ•Ô‚·
+            // ã“ã®ã‚¯ãƒªãƒƒãƒ—ã«è©²å½“ãƒœãƒ¼ãƒ³ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãŒãªã„å ´åˆã¯åˆæœŸå§¿å‹¢ã‚’è¿”ã™
             return { defaultScale, defaultRot, defaultPos };
         }
         const NodeAnimation& nodeAnim = clip->GetNodeAnimation(channelIndex);
@@ -81,7 +81,7 @@ namespace Engine
             return { defaultScale, defaultRot, defaultPos };
         }
 
-        // 1. ˆÚ“® (Position)
+        // 1. ç§»å‹• (Position)
         DirectX::XMVECTOR pos;
         if (nodeAnim.PositionKeys.empty())
         {
@@ -100,7 +100,7 @@ namespace Engine
                 DirectX::XMLoadFloat3(&nodeAnim.PositionKeys[right].Value), f);
         }
 
-        // 2. ƒXƒP[ƒ‹ (Scaling)
+        // 2. ã‚¹ã‚±ãƒ¼ãƒ« (Scaling)
         DirectX::XMVECTOR scale;
         if (nodeAnim.ScalingKeys.empty())
         {
@@ -118,7 +118,7 @@ namespace Engine
                 DirectX::XMLoadFloat3(&nodeAnim.ScalingKeys[left].Value),
                 DirectX::XMLoadFloat3(&nodeAnim.ScalingKeys[right].Value), f);
         }
-        // 3. ‰ñ“] (Rotation)
+        // 3. å›è»¢ (Rotation)
         DirectX::XMVECTOR rot;
         if (nodeAnim.RotaionKeys.empty())
         {

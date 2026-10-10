@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <entt/entt.hpp>
 
@@ -26,7 +26,7 @@ namespace Engine
         template<typename keyType>
         static void CalcInterpolationFactor(
             float currentTime,
-            const std::vector<keyType>& keys, // š QÆ“n‚µ & ‚ÉC³
+            const std::vector<keyType>& keys, // â˜… å‚ç…§æ¸¡ã— & ã«ä¿®æ­£
             size_t& outLeftIndex,
             size_t& outRightIndex,
             float& outF)
@@ -53,7 +53,7 @@ namespace Engine
                 return;
             }
 
-            // “ñ•ª’Tõ
+            // äºŒåˆ†æ¢ç´¢
             auto it = std::upper_bound(keys.begin(), keys.end(), currentTime,
                 [](float time, const auto& key)
                 {

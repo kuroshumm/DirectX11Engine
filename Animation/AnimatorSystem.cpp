@@ -1,4 +1,4 @@
-﻿#include "AnimatorSystem.h"
+#include "AnimatorSystem.h"
 
 namespace Engine
 {
@@ -42,8 +42,7 @@ namespace Engine
 	void AnimatorSystem::Play(
 		entt::registry& registry,
 		entt::entity entity,
-		std::string stateName
-	)
+		AnimStateType sateType)
 	{
 		if (!registry.all_of<AnimatorComponent, AnimationComponent>(entity))
 		{
@@ -53,13 +52,13 @@ namespace Engine
 		auto& animator  = registry.get<AnimatorComponent>(entity);
 		auto& animation = registry.get<AnimationComponent>(entity);
 
-		auto it = animator.stateMap.find(stateName);
-		if (it == animator.stateMap.end() || !it->second.Clip)
+		auto it = animator.stateMap.find(sateType);
+		if (it == animator.stateMap.end() || !it->second.pAnimSeq)
 		{
 			return;
 		}
 
-		animator.currentStateName = stateName;
+		animator.currentState = sateType;
 
 		// 即時切り替えのため、進行中の遷移はキャンセル
 		animator.isTransitioning = false;
@@ -67,7 +66,7 @@ namespace Engine
 		animator.transitionWeight = 1.0f;
 
 		// AnimationComponentにクリップとループ設定を流し込む
-		animation.pCurrentClip = it->second.Clip;
+		animation.pCurrentClip = it->second.pAnimSeq->clip;
 		animation.isLoop = it->second.isLoop;
 		animation.currentTime = 0.0f;
 		animation.isPlaying = true;
@@ -76,7 +75,7 @@ namespace Engine
 	void AnimatorSystem::CrossFade(
 		entt::registry& registry,
 		entt::entity entity,
-		std::string stateName,
+		AnimStateType stateType,
 		float duration
 	)
 	{
@@ -89,31 +88,31 @@ namespace Engine
 		auto& animation = registry.get<AnimationComponent>(entity);
 
 		// 遷移先ステートの取得
-		auto it = animator.stateMap.find(stateName);
-		if (it == animator.stateMap.end() || !it->second.Clip)
+		auto it = animator.stateMap.find(stateType);
+		if (it == animator.stateMap.end() || !it->second.pAnimSeq)
 		{
 			return;
 		}
 
 		// 既に遷移先のステートに移行済みの場合は何もしない
-		if (animator.currentStateName == stateName && animation.pCurrentClip == it->second.Clip)
+		if (animator.currentState == stateType && animation.pCurrentClip == it->second.pAnimSeq->clip)
 		{
 			return;
 		}
 
 		// 遷移前のパラメータ保存
-		animator.prevStateName = animator.currentStateName;
+		animator.prevState = animator.currentState;
 		animator.pPrevClip = animation.pCurrentClip;
 		animator.prevTime = animation.currentTime;
 		animator.transitionDuration = (duration > 0.0f) ? duration : 0.0001f; // ゼロ除算防止
 		animator.transitionTimer = 0.0f;
 		animator.transitionWeight = 0.0f;
 		// 前クリップが存在し、かつ新旧が異なる場合のみ遷移を有効化
-		animator.isTransitioning = (animator.pPrevClip != nullptr && animator.pPrevClip != it->second.Clip);
+		animator.isTransitioning = (animator.pPrevClip != nullptr && animator.pPrevClip != it->second.pAnimSeq->clip);
 
 		// 遷移先のパラメータ設定
-		animator.currentStateName = stateName;
-		animation.pCurrentClip = it->second.Clip;
+		animator.currentState = stateType;
+		animation.pCurrentClip = it->second.pAnimSeq->clip;
 		animation.currentTime = 0.0f;
 		animation.isLoop = it->second.isLoop;
 		animation.isPlaying = true;

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <entt/entt.hpp>
 #include "Components.h"
@@ -9,7 +9,12 @@ namespace Engine
 	{
 	public:
 		void Update(entt::registry& registry, float dt);
-		void Play(entt::registry& registry, entt::entity entity, std::string stateName);
-		void CrossFade(entt::registry& registry, entt::entity entity, std::string stateName, float transitionTime);
+		void Play(entt::registry& registry, entt::entity entity, AnimStateType stateType);
+		void CrossFade(
+			entt::registry& registry,
+			entt::entity entity,
+			AnimStateType stateType,
+			float transitionTime
+		);
 	};
 }
