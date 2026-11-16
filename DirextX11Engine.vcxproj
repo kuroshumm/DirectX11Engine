@@ -149,6 +149,7 @@
     <ClInclude Include="Animation\AnimatorSystem.h" />
     <ClInclude Include="Animation\BonePaletteUploadSystem.h" />
     <ClInclude Include="Animation\BoneTransformSystem.h" />
+    <ClInclude Include="AnimEventSystem.h" />
     <ClInclude Include="AnimSequenceLoader.h" />
     <ClInclude Include="App\App.h" />
     <ClInclude Include="AttackingStateSystem.h" />
@@ -158,14 +159,25 @@
     <ClInclude Include="Camera\Frustum.h" />
     <ClInclude Include="Camera\SceneCameraOperator.h" />
     <ClInclude Include="CharacterActionStateSystem.h" />
+    <ClInclude Include="CharacterFactory.h" />
+    <ClInclude Include="CollisionComponents.h" />
+    <ClInclude Include="CollisionDetectionSystem.h" />
+    <ClInclude Include="CollisionSpawnSystem.h" />
+    <ClInclude Include="CollisionType.h" />
+    <ClInclude Include="CollisionVisualizerSystem.h" />
     <ClInclude Include="CombatSystem.h" />
+    <ClInclude Include="CombatType.h" />
     <ClInclude Include="Core\Common.h" />
+    <ClInclude Include="Core\DebugLog.h" />
     <ClInclude Include="Core\FPSCounter.h" />
     <ClInclude Include="Core\GameTime.h" />
     <ClInclude Include="Core\TextRenderer.h" />
     <ClInclude Include="Core\TypeID.h" />
     <ClInclude Include="Core\Vector2.h" />
     <ClInclude Include="Core\Vector3.h" />
+    <ClInclude Include="DamageResolutionSystem.h" />
+    <ClInclude Include="DamageStateSystem.h" />
+    <ClInclude Include="DeadStateSystem.h" />
     <ClInclude Include="ECS\Components.h" />
     <ClInclude Include="ECS\HierarchyService.h" />
     <ClInclude Include="ECS\HierarchyTransformSystem.h" />
@@ -186,6 +198,7 @@
     <ClInclude Include="IK\IKSystem.h" />
     <ClInclude Include="Input\InputSystem.h" />
     <ClInclude Include="LocomotionStateSystem.h" />
+    <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Model\GeometryGenerator.h" />
     <ClInclude Include="Model\IModel.h" />
     <ClInclude Include="Model\Model.h" />
@@ -213,7 +226,15 @@
     <ClInclude Include="AnimationLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimEventSystem.cpp" />
     <ClCompile Include="AnimSequenceLoader.cpp" />
+    <ClCompile Include="CharacterFactory.cpp" />
+    <ClCompile Include="CollisionDetectionSystem.cpp" />
+    <ClCompile Include="CollisionSpawnSystem.cpp" />
+    <ClCompile Include="CollisionVisualizerSystem.cpp" />
+    <ClCompile Include="DamageResolutionSystem.cpp" />
+    <ClCompile Include="DamageStateSystem.cpp" />
+    <ClCompile Include="DeadStateSystem.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="AnimationLoader.cpp" />
     <ClCompile Include="Animation\AnimationClip.cpp" />
@@ -231,6 +252,7 @@
     <ClCompile Include="Camera\SceneCameraOperator.cpp" />
     <ClCompile Include="CharacterActionStateSystem.cpp" />
     <ClCompile Include="CombatSystem.cpp" />
+    <ClCompile Include="Core\DebugLog.cpp" />
     <ClCompile Include="ECS\HierarchyService.cpp" />
     <ClCompile Include="ECS\HierarchyTransformSystem.cpp" />
     <ClCompile Include="ECS\MovementSystem.cpp" />

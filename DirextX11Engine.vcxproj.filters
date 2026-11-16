@@ -34,6 +34,9 @@
     <Filter Include="Input">
       <UniqueIdentifier>{44444444-5555-6666-7777-888888888888}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Collision">
+      <UniqueIdentifier>{263a71f0-5c74-4239-9bc6-768fd1926cd0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation\AnimationClip.h">
@@ -70,6 +73,9 @@
       <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="Core\Common.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\DebugLog.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Core\FPSCounter.h">
@@ -232,6 +238,36 @@
     <ClInclude Include="AnimationLoader.h">
       <Filter>Animation</Filter>
     </ClInclude>
+    <ClInclude Include="AnimSequenceLoader.h" />
+    <ClInclude Include="ActionApplierSystem.h" />
+    <ClInclude Include="CharacterFactory.h" />
+    <ClInclude Include="AnimEventSystem.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSpawnSystem.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionComponents.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionType.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="CombatType.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionVisualizerSystem.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionDetectionSystem.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="DamageResolutionSystem.h" />
+    <ClInclude Include="DamageStateSystem.h" />
+    <ClInclude Include="ActionApplierSystem.h" />
+    <ClInclude Include="MathUtils.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ShaderLoader.cpp">
@@ -275,6 +311,9 @@
     </ClCompile>
     <ClCompile Include="Camera\SceneCameraOperator.cpp">
       <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\DebugLog.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="ECS\HierarchyService.cpp">
       <Filter>ECS</Filter>
@@ -364,6 +403,22 @@
     <ClCompile Include="ActionApplierSystem.cpp">
       <Filter>ECS</Filter>
     </ClCompile>
+    <ClCompile Include="AnimSequenceLoader.cpp" />
+    <ClCompile Include="CharacterFactory.cpp" />
+    <ClCompile Include="AnimEventSystem.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionSpawnSystem.cpp">
+      <Filter>Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionVisualizerSystem.cpp">
+      <Filter>Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionDetectionSystem.cpp">
+      <Filter>Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="DamageResolutionSystem.cpp" />
+    <ClCompile Include="DamageStateSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\LambertianVertexShader.hlsl">

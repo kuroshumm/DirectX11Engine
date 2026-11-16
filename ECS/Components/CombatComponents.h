@@ -1,42 +1,13 @@
 ﻿#pragma once
-#include <cstdint>
-#include <string>
 #include <DirectXMath.h>
 #include <entt/entt.hpp>
+#include "CombatType.h"
 
 namespace Engine
 {
-    enum class CombatInputIntent : uint8_t
-    {
-        NONE,
-        COMBO,
-        STRIKE,
-        COUNTER,
-        GUARD,
-    };
-
-    enum class CombatAttackID : uint8_t
-    {
-        NONE,
-        COMBO_1,
-        COMBO_2,
-        CLOSE_STRIKE,
-        LEAP_STRIKE,
-        COUNTER_ATTACK,
-        GUARD,
-    };
-
-    enum class ActionState : uint8_t
-    {
-        LOCOMOTION,
-        ATTACK,
-        DODGE,
-        HIT_STUN
-    };
-
     struct CombatRequestComponent
     {
-        CombatAttackID combatAttackID = CombatAttackID::NONE;
+        CombatInputIntent intent = CombatInputIntent::NONE;
         entt::entity targetEntity = entt::null;
         bool isExecuted = false;
     };
@@ -45,12 +16,14 @@ namespace Engine
     {
         ActionState currentState = ActionState::LOCOMOTION;
         float stateTimer = 0.0f;
+        bool isChangeState = false;
     };
 
     struct CharacterCombatStateComponent
     {
         CombatAttackID activeAttackId = CombatAttackID::NONE;
         float attackTimer = 0.0f;
+        bool hasQueuedCombo = false;
         bool isHitRegistered = false;
     };
 
@@ -65,8 +38,60 @@ namespace Engine
         float currentFadeDuration = 0.25f;
     };
 
-    struct ComboTransitionRule
+    struct MotionWarpComponent
     {
+        DirectX::XMFLOAT3 startPosition;
+        DirectX::XMFLOAT3 endPosition;
+        float targetYaw;
+        float duration;
+        float elapsedTime;
+        bool isActive;
+    };
 
+    struct CombatAttackPresetComponent
+    {
+        const CombatAttackPreset* pPreset = &CombatPresets::HumanoidDefault;
+    };
+
+    struct DamageRequestComponent
+    {
+        bool hasPendingDamage = false;
+        entt::entity attackerEntity = entt::null;
+        int damage = 0;
+    };
+
+    enum class DamageResultType : uint8_t
+    {
+        NONE,
+
+        DAMAGED,
+        DEAD,
+
+        COUNT
+    };
+
+    struct DamageResultComponent
+    {
+        DamageResultType result = DamageResultType::NONE;
+        entt::entity attackerEntity = entt::null;
+    };
+
+    struct DamageStateComponent
+    {
+        bool isActive = false;
+        float damageTimer = 0.0f;
+    };
+
+    struct DeadStateComponent
+    {
+        bool isActive = false;
+        float elapsedTimer = 0.0f;
+        float destroyTimer = 2.0f;
+    };
+
+    struct HealthComponent
+    {
+        int maxHp = 3;
+        int hp = 3;
     };
 }

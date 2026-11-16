@@ -1,23 +1,27 @@
-#include <d3dcompiler.h>
-#include <vector>
 #include <algorithm>
 #include <chrono>
+#include <d3dcompiler.h>
 #include <fstream>
+#include <vector>
 
-#include "App.h"
-#include "InputSystem.h"
-#include "AnimationClip.h"
 #include "AnimSequenceLoader.h"
+#include "AnimationClip.h"
+#include "App.h"
 #include "Components.h"
 #include "GameTime.h"
+#include "InputSystem.h"
 #include "PrimitiveFactory.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 
 namespace Engine
 {
-    App::App() : m_hWnd(nullptr) {}
-    App::~App() {}
+    App::App() : m_hWnd(nullptr)
+    {
+    }
+    App::~App()
+    {
+    }
 
     HRESULT App::Initialize(HINSTANCE hInstance, int width, int height)
     {
@@ -32,18 +36,12 @@ namespace Engine
         // --- フェーズ2: GPUリソースの構築 ---
         if (FAILED(m_pGraphics->InitConstantBuffer())) return E_FAIL;
         if (FAILED(m_pGraphics->InitPipelineStates())) return E_FAIL;
-        if (FAILED(InitGeometry()))       return E_FAIL;
+        if (FAILED(InitGeometry())) return E_FAIL;
 
-        InitSceneCamera();
+        InitSceneCamera(width, height);
 
         PrimitiveFactory::Initialize(m_pGraphics.get(), m_pStaticPBRSHader);
-        entt::entity groundEntity = PrimitiveFactory::CreatePrimitive(
-            *m_registry,
-            PrimitiveType::Plane,
-            DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f),
-            DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),
-            DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)
-        );
+        entt::entity groundEntity = PrimitiveFactory::CreatePrimitive(*m_registry, PrimitiveType::Plane);
 
         auto pGroundTexture = std::make_shared<Texture>();
         if (SUCCEEDED(pGroundTexture->LoadFromFile(m_pGraphics->GetDevice(), L"Model/Grid_1m.png")))
@@ -58,33 +56,15 @@ namespace Engine
         m_pTextRenderer->Initialize(m_pGraphics->GetSwapChain());
 
         m_modelLoader = std::make_unique<ModelLoader>(m_pGraphics.get());
+        m_characterFactory = std::make_unique<CharacterFactory>(m_pGraphics->GetDevice(), *m_registry.get(), *m_modelLoader.get());
         m_animLoader = std::make_unique<AnimationLoader>();
 
-        m_renderSystem = std::make_unique<RenderSystem>();
-        m_transformSystem = std::make_unique<TransformSystem>();
-        m_movementSystem = std::make_unique<MovementSystem>();
-        m_animationSystem = std::make_unique<AnimationSystem>();
-        m_animatorSystem = std::make_unique<AnimatorSystem>();
-        m_boneTransformSystem = std::make_unique<BoneTransformSystem>();
-        m_bonePaletteUploadSystem = std::make_unique<BonePaletteUploadSystem>();
-        m_ikSystem = std::make_unique<IKSystem>();
-        m_hierarchyTransformSystem = std::make_unique<HierarchyTransformSystem>();
-        m_cameraControllerSystem = std::make_unique<CameraControllerSystem>();
-        m_cameraSystem = std::make_unique<CameraSystem>();
-        m_cullingSystem = std::make_unique<CullingSystem>();
-        m_thirdPersonCameraSystem = std::make_unique<ThirdPersonCameraSystem>();
-        m_playerInputSystem = std::make_unique<PlayerInputSystem>();
-        m_playerMovementSystem = std::make_unique<PlayerMovementSystem>();
-        m_combatSystem = std::make_unique<CombatSystem>();
-        m_characterActionStateSystem = std::make_unique<CharacterActionStateSystem>();
-        m_locomotionStateSystem = std::make_unique<LocomotionStateSystem>();
-        m_attackingStateSystem = std::make_unique<AttackingStateSystem>();
-        m_actionApplierSystem = std::make_unique<ActionApplierSystem>();
+        m_renderSystem.Initialize(m_pGraphics->GetDevice());
 
-        m_renderSystem->Initialize(m_pGraphics->GetDevice());
+        InitPlayer();
+        InitPlayerCamera(width, height);
 
-        if (FAILED(InitPlayer()))         return E_FAIL;
-        InitPlayerCamera();
+        InitEnemy();
 
         ShowWindow(m_hWnd, SW_SHOW);
         return S_OK;
@@ -108,65 +88,48 @@ namespace Engine
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
         // ウィンドウの生成
-        m_hWnd = CreateWindowExW(0, CLASS_NAME, L"DirectX 11 Game Engine", WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top,
-            nullptr, nullptr, hInstance, this);
+        m_hWnd = CreateWindowExW(0, CLASS_NAME, L"DirectX 11 Game Engine", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+                                 rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, this);
 
         return m_hWnd ? S_OK : E_FAIL;
     }
 
     HRESULT App::InitGeometry()
     {
-		HRESULT hr = S_OK;
+        HRESULT hr = S_OK;
 
-        m_pLambertianShader = ShaderLoader::LoadSkinned(
-            m_pGraphics->GetDevice(),
-            L"Shaders/PBRVertexShader.hlsl",
-            L"Shaders/PBRPixelShader.hlsl"
-        );
+        m_pLambertianShader =
+            ShaderLoader::LoadSkinned(m_pGraphics->GetDevice(), L"Shaders/PBRVertexShader.hlsl", L"Shaders/PBRPixelShader.hlsl");
         if (!m_pLambertianShader)
         {
             return E_FAIL;
         }
 
-        m_pStaticPBRSHader = ShaderLoader::LoadStatic(
-            m_pGraphics->GetDevice(),
-            L"Shaders/StaticPBRVertexShader.hlsl",
-            L"Shaders/PBRPixelShader.hlsl"
-        );
+        m_pStaticPBRSHader =
+            ShaderLoader::LoadStatic(m_pGraphics->GetDevice(), L"Shaders/StaticPBRVertexShader.hlsl", L"Shaders/PBRPixelShader.hlsl");
         if (!m_pStaticPBRSHader)
         {
             return E_FAIL;
         }
 
-		hr = LoadTexture(L"Model/Paladin_diffuse.png");
+        hr = LoadTexture(L"Model/Paladin_diffuse.png");
         if (FAILED(hr))
         {
             return hr;
-		}
+        }
 
-        m_pAnimClipIdle      = AnimationLoader::Load("YBot/BouncingFight_Idle.fbx");
-        m_pAnimClipWalk      = AnimationLoader::Load("YBot/Punching_Walking.fbx");
-        m_pAnimClipWalkRight = AnimationLoader::Load("YBot/Punching_Walking_Right.fbx");
-        m_pAnimClipWalkLeft  = AnimationLoader::Load("YBot/Punching_Walking_Left.fbx");
-        m_pAnimClipWalkBack  = AnimationLoader::Load("YBot/Punching_Walking_Back.fbx");
-        m_pAnimClipRun       = AnimationLoader::Load("YBot/Running.fbx");
-        m_pAnimClipCombo1    = AnimationLoader::Load("YBot/Punching_Jab_left.fbx");
-        m_pAnimClipCombo2    = AnimationLoader::Load("YBot/Punching_Jab_right.fbx");
-
-		return hr;
+        return hr;
     }
 
     HRESULT App::LoadTexture(const wchar_t* filePath)
     {
-		HRESULT hr = S_OK;
+        HRESULT hr = S_OK;
 
-		m_pTexture = std::make_shared<Texture>();
-		hr = m_pTexture->LoadFromFile(m_pGraphics->GetDevice(), filePath);
+        m_pTexture = std::make_shared<Texture>();
+        hr = m_pTexture->LoadFromFile(m_pGraphics->GetDevice(), filePath);
 
-		return hr;
-	}
-
+        return hr;
+    }
 
     int App::Run()
     {
@@ -188,7 +151,7 @@ namespace Engine
                 lastTime = currentTime;
                 // Timeクラスの更新（ここで Time::deltaTime が確定する）
                 GameTime::Update(elapsed.count());
-                
+
                 // 各処理の実行（引数に Time::deltaTime を渡してもよいし、中で直接参照してもよい）
                 Update(GameTime::deltaTime);
                 Render();
@@ -201,48 +164,56 @@ namespace Engine
     {
         m_fpsCounter.Update();
         // 1. 入力層 (Input Layer)
-        m_playerInputSystem->Update(*m_registry.get(), dt);
+        m_playerInputSystem.Update(*m_registry.get(), dt);
 
         // 2. カメラ更新 (Camera Layer)
-        m_cameraControllerSystem->Update(*m_registry.get(), dt);
-        m_thirdPersonCameraSystem->Update(*m_registry.get(), dt);
-        m_cameraSystem->Update(*m_registry.get());
+        m_cameraControllerSystem.Update(*m_registry.get(), dt);
+        m_thirdPersonCameraSystem.Update(*m_registry.get(), dt);
+        m_cameraSystem.Update(*m_registry.get());
 
         // 3. 要求・提案層 (Proposal Layer)
-        m_playerMovementSystem->Update(*m_registry.get(), dt);
-        m_combatSystem->Update(*m_registry.get());
+        m_playerMovementSystem.Update(*m_registry.get(), dt);
+        m_combatSystem.Update(*m_registry.get());
+
+        // 3.5. ダメージ解決層 (Damage Resolution Layer)
+        m_damageResolutionSystem.Update(*m_registry.get());
 
         // 4. 状態調停層 (Arbitration Layer)
-        m_characterActionStateSystem->Update(*m_registry.get(), dt);
+        m_characterActionStateSystem.Update(*m_registry.get(), dt);
 
         // 5. 状態別実行層 (State Execution Layer)
-        m_locomotionStateSystem->Update(*m_registry.get());
-        m_attackingStateSystem->Update(*m_registry.get(), dt);
+        m_locomotionStateSystem.Update(*m_registry.get());
+        m_damageStateSystem.Update(*m_registry.get(), dt);
+        m_deadStateSystem.Update(*m_registry.get(), dt);
+        m_attackingStateSystem.Update(*m_registry.get(), dt);
 
         // 6. 結果反映層 (Action Applier Layer)
-        m_actionApplierSystem->Update(*m_registry.get(), *m_animatorSystem.get(), dt);
+        m_actionApplierSystem.Update(*m_registry.get(), m_animatorSystem, dt);
 
         // 7. 物理積分層 (Physics Layer)
-        m_movementSystem->Update(*m_registry.get(), dt);
+        m_movementSystem.Update(*m_registry.get(), dt);
 
-        // 8. カリング判定 (Culling)
-        m_cullingSystem->Update(*m_registry.get());
+        // 8. アニメーション時間・イベント評価・コリジョン生成・可視化パイプライン
+        m_animatorSystem.Update(*m_registry.get(), dt);
+        m_animEventSystem.Update(*m_registry.get());
+        m_collisionSpawnSystem.Update(*m_registry.get());
+        m_collisionVisualizerSystem.Update(*m_registry.get());
+        m_collisionDetectionSystem.Update(*m_registry.get());
 
-        // 9. アニメーション・スケルトン・トランスフォームパイプライン
-        m_animatorSystem->Update(*m_registry.get(), dt);
-        m_animationSystem->Update(*m_registry.get(), dt);
-        
-        m_boneTransformSystem->Update(*m_registry.get());
+        // 9. カリング・スケルトン姿勢・ワールド行列・GPUパレット転送パイプライン
+        m_cullingSystem.Update(*m_registry.get());
+        m_animationSystem.Update(*m_registry.get(), dt);
 
-        m_ikSystem->Update(*m_registry.get(), dt);
-        m_hierarchyTransformSystem->Update(*m_registry.get()); // 階層トランスフォーム更新
-        m_transformSystem->Update(*m_registry.get());
-        
-        m_bonePaletteUploadSystem->Update(*m_registry.get(), *m_pGraphics->GetContext());
+        m_boneTransformSystem.Update(*m_registry.get());
 
-        // 更新の一番最後に
-		// マウスの変化量をリセットしておく 
-		InputSystem& inputSystem = InputSystem::GetInstance();
+        m_ikSystem.Update(*m_registry.get(), dt);
+        m_hierarchyTransformSystem.Update(*m_registry.get()); // 階層トランスフォーム更新
+        m_transformSystem.Update(*m_registry.get());
+
+        m_bonePaletteUploadSystem.Update(*m_registry.get(), *m_pGraphics->GetContext());
+
+        // 更新の一番最後にマウスの変化量をリセットしておく
+        InputSystem& inputSystem = InputSystem::GetInstance();
         inputSystem.PostUpdateKey();
     }
 
@@ -250,130 +221,48 @@ namespace Engine
     {
         int drawnObjectsCount = 0; // 描画された数を数える変数
 
-        m_pGraphics->BeginScene(0.0f, 0.125f, 0.3f, 1.0f);
+        m_pGraphics->BeginScene(0.45f, 0.65f, 0.85f, 1.0f);
 
-		m_pGraphics->SetRender();
-		m_pGraphics->SetTextureAndSampler();
+        m_pGraphics->SetRender();
+        m_pGraphics->SetTextureAndSampler();
 
-        m_renderSystem->Render(*m_registry.get(), *m_pGraphics);
+        m_renderSystem.Render(*m_registry.get(), *m_pGraphics);
 
         if (m_pTextRenderer)
         {
             m_pTextRenderer->RenderTextRightTop(m_fpsCounter.GetFPSString(1000));
         }
-        
+
         m_pGraphics->EndScene();
     }
 
-    HRESULT App::InitPlayer()
+    void App::InitPlayer()
     {
-        ModelLoader::LoadResult loadResult = m_modelLoader->Load("YBot/Y_Bot.fbx");
-        if (!loadResult.isSuccess)
-        {
-            return E_FAIL;
-        }
-
-        entt::entity entity = m_registry->create();
-
-        TransformComponent transformComp;
-        transformComp.position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-        transformComp.rotation = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
-        transformComp.scale = DirectX::XMFLOAT3(0.01f, 0.01f, 0.01f);
-        m_registry->emplace<TransformComponent>(entity, std::move(transformComp));
-
-        ModelComponent modelComp;
-        modelComp.pModelAsset = loadResult.modelAsset;
-        m_registry->emplace<ModelComponent>(entity, std::move(modelComp));
-
-        SkeletonComponent skeltonComp;
-        skeltonComp.bones = loadResult.skeltonAsset->initialBones;
-        skeltonComp.rootBoneIndex = loadResult.skeltonAsset->rootBoneIndex;
-        m_registry->emplace<SkeletonComponent>(entity, std::move(skeltonComp));
-
-        SkinningPaletteComponent skinningPaletteComp;
-        ModelLoader::CreatePaletteBuffer(m_pGraphics->GetDevice(), skinningPaletteComp.pPaletteBuffer);
-        m_registry->emplace<SkinningPaletteComponent>(entity, std::move(skinningPaletteComp));
-
-        AnimationComponent animationComp;
-        m_registry->emplace<AnimationComponent>(entity, std::move(animationComp));
+        HumanoidSpawnDesc desc;
+        desc.pShader = m_pLambertianShader;
+        m_characterFactory->LoadModelAsset();
+        entt::entity player = m_characterFactory->SpawnHumanoid(desc);
 
         AnimatorComponent animatorComp;
-        animatorComp.AddState(AnimStateType::IDLE,       AnimSequenceLoader::Load(AnimStateType::IDLE), true);
-        animatorComp.AddState(AnimStateType::WALK,       AnimSequenceLoader::Load(AnimStateType::WALK), true);
+        animatorComp.AddState(AnimStateType::IDLE, AnimSequenceLoader::Load(AnimStateType::IDLE), true);
+        animatorComp.AddState(AnimStateType::WALK, AnimSequenceLoader::Load(AnimStateType::WALK), true);
         animatorComp.AddState(AnimStateType::WALK_RIGHT, AnimSequenceLoader::Load(AnimStateType::WALK_RIGHT), true);
-        animatorComp.AddState(AnimStateType::WALK_LEFT,  AnimSequenceLoader::Load(AnimStateType::WALK_LEFT), true);
-        animatorComp.AddState(AnimStateType::WALK_BACK,  AnimSequenceLoader::Load(AnimStateType::WALK_BACK), true);
-        animatorComp.AddState(AnimStateType::RUN,        AnimSequenceLoader::Load(AnimStateType::RUN), true);
-        animatorComp.AddState(AnimStateType::COMBO1,     AnimSequenceLoader::Load(AnimStateType::COMBO1), false);
-        animatorComp.AddState(AnimStateType::COMBO2,     AnimSequenceLoader::Load(AnimStateType::COMBO2), false);
-        m_registry->emplace<AnimatorComponent>(entity, std::move(animatorComp));
+        animatorComp.AddState(AnimStateType::WALK_LEFT, AnimSequenceLoader::Load(AnimStateType::WALK_LEFT), true);
+        animatorComp.AddState(AnimStateType::WALK_BACK, AnimSequenceLoader::Load(AnimStateType::WALK_BACK), true);
+        animatorComp.AddState(AnimStateType::RUN, AnimSequenceLoader::Load(AnimStateType::RUN), true);
+        animatorComp.AddState(AnimStateType::COMBO1, AnimSequenceLoader::Load(AnimStateType::COMBO1), false);
+        animatorComp.AddState(AnimStateType::COMBO2, AnimSequenceLoader::Load(AnimStateType::COMBO2), false);
+        animatorComp.AddState(AnimStateType::DAMAGE, AnimSequenceLoader::Load(AnimStateType::DAMAGE), false);
+        animatorComp.AddState(AnimStateType::DEATH, AnimSequenceLoader::Load(AnimStateType::DEATH), false);
+        m_registry->emplace<AnimatorComponent>(player, std::move(animatorComp));
 
-        m_animatorSystem->Play(*m_registry.get(), entity, AnimStateType::IDLE);
+        m_animatorSystem.Play(*m_registry.get(), player, AnimStateType::IDLE);
 
-        auto findBone = [&](std::initializer_list<const char*> names) -> int {
-            for (const char* name : names) {
-                int idx = loadResult.skeltonAsset->GetBoneIndex(name);
-                if (idx != -1) return idx;
-            }
-            return -1;
-        };
-
-        IKComponent ikComp;
-        int upLegIndex = findBone({ "LeftUpLeg", "thigh_l", "mixamorig:LeftUpLeg" });
-        int legIndex = findBone({ "LeftLeg", "calf_l", "mixamorig:LeftLeg" });
-        int footIndex = findBone({ "LeftFoot", "foot_l", "mixamorig:LeftFoot" });
-        if (upLegIndex != -1 && legIndex != -1 && footIndex != -1)
-        {
-            ikComp.effectorBoneIndex = footIndex;
-            ikComp.chainIndices = { upLegIndex, legIndex, footIndex };
-            // ヒザ関節の 1D 角度制約(X 軸周りに 0°〜120°)
-            ikComp.SetConstraint(legIndex, DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), 0.0f, 120.0f);
-            m_registry->emplace<IKComponent>(entity, std::move(ikComp));
-        }
-
-        MaterialComponent material;
-        material.pShader = m_pLambertianShader;
-        //material.pTexture = m_pTexture;
-        m_registry->emplace<MaterialComponent>(entity, std::move(material));
-
-        VelocityComponent velocity;
-        m_registry->emplace<VelocityComponent>(entity, std::move(velocity));
-
-        CharacterLocomotionComponent charaLocomotion;
-        m_registry->emplace<CharacterLocomotionComponent>(entity, std::move(charaLocomotion));
-        CharacterMovementConfigComponent charaMovementConfig;
-        m_registry->emplace<CharacterMovementConfigComponent>(entity, std::move(charaMovementConfig));
-
-        PlayerInputComponent playerInput;
-        m_registry->emplace<PlayerInputComponent>(entity, std::move(playerInput));
-
-        LocomotionProposalComponent locomotionProposal;
-        m_registry->emplace<LocomotionProposalComponent>(entity, std::move(locomotionProposal));
-
-        CombatRequestComponent combatReq;
-        m_registry->emplace<CombatRequestComponent>(entity, std::move(combatReq));
-
-        CharacterActionStateComponent charaActionState;
-        m_registry->emplace<CharacterActionStateComponent>(entity, std::move(charaActionState));
-
-        CharacterCombatStateComponent charaCombatState;
-        m_registry->emplace<CharacterCombatStateComponent>(entity, std::move(charaCombatState));
-
-        CharacterActionResultComponent charaActionResult;
-        m_registry->emplace<CharacterActionResultComponent>(entity, std::move(charaActionResult));
-
-        LocomotionAnimComponent locomotionAnim;
-        m_registry->emplace<LocomotionAnimComponent>(entity, std::move(locomotionAnim));
-
-        // LOD
-        m_registry->emplace<LODComponent>(entity);
-
-        m_registry->emplace<PlayerTag>(entity);
-
-        return S_OK;
+        m_registry->emplace<PlayerInputComponent>(player);
+        m_registry->emplace<PlayerTag>(player);
     }
 
-    void App::InitSceneCamera()
+    void App::InitSceneCamera(int width, int height)
     {
         entt::entity cameraEntity = m_registry->create();
 
@@ -385,16 +274,16 @@ namespace Engine
         DirectX::XMStoreFloat4(&camTransform.rotation, qRot);
         camTransform.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
         m_registry->emplace<TransformComponent>(cameraEntity, std::move(camTransform));
-        
+
         // 2. CameraComponent (投影パラメータ)
         CameraComponent camComponent;
         camComponent.fov = DirectX::XM_PIDIV4; // 45度
-        camComponent.aspectRatio = 800.0f / 600.0f; // またはクライアント領域サイズ比
+        camComponent.aspectRatio = static_cast<float>(width) / static_cast<float>(height);
         camComponent.nearZ = 0.1f;
         camComponent.farZ = 1000.0f;
         camComponent.isProjectionDirty = true;
         m_registry->emplace<CameraComponent>(cameraEntity, std::move(camComponent));
-        
+
         // 3. FreeLookCameraControllerComponent (操作パラメータと初期オイラー角)
         FreeLookCameraControllerComponent camController;
         camController.moveSpeed = 50.0f;
@@ -404,10 +293,10 @@ namespace Engine
         m_registry->emplace<FreeLookCameraControllerComponent>(cameraEntity, std::move(camController));
 
         // 4. ActiveCameraTag (メイン描画カメラとしてマーク)
-        //m_registry->emplace<ActiveCameraTag>(cameraEntity);
+        // m_registry->emplace<ActiveCameraTag>(cameraEntity);
     }
 
-    void App::InitPlayerCamera()
+    void App::InitPlayerCamera(int width, int height)
     {
         entt::entity cameraEntity = m_registry->create();
 
@@ -423,7 +312,7 @@ namespace Engine
         // 2. CameraComponent (投影パラメータ)
         CameraComponent camComponent;
         camComponent.fov = DirectX::XM_PIDIV4; // 45度
-        camComponent.aspectRatio = 800.0f / 600.0f; // またはクライアント領域サイズ比
+        camComponent.aspectRatio = static_cast<float>(width) / static_cast<float>(height);
         camComponent.nearZ = 0.1f;
         camComponent.farZ = 1000.0f;
         camComponent.isProjectionDirty = true;
@@ -436,7 +325,6 @@ namespace Engine
         {
             auto entity = view.front();
             tpsComp.targetEntity = entity;
-
         }
         m_registry->emplace<ThirdPersonCameraComponent>(cameraEntity, std::move(tpsComp));
 
@@ -447,6 +335,44 @@ namespace Engine
         m_registry->emplace<ActiveCameraTag>(cameraEntity);
     }
 
+    void App::InitEnemy()
+    {
+        float radius = 5.0f;
+        float angleStep = DirectX::XM_2PI / 5.0f;
+
+        auto playerView = m_registry->view<PlayerTag>();
+        if (playerView.empty()) return; // プレイヤーが存在しない場合の安全ガード
+        entt::entity playerEntity = playerView.front();
+        const auto& playerTransform = m_registry->get<TransformComponent>(playerEntity);
+
+        for (int index = 0, max = 5; index < max; ++index)
+        {
+            float angle = angleStep * index;
+
+            HumanoidSpawnDesc desc;
+            desc.position.x = playerTransform.position.x + radius * std::sin(angle);
+            desc.position.z = playerTransform.position.z + radius * std::cos(angle);
+
+            float diffX = playerTransform.position.x - desc.position.x;
+            float diffZ = playerTransform.position.z - desc.position.z;
+            float yaw = std::atan2(-diffX, -diffZ);
+            DirectX::XMVECTOR qRot = DirectX::XMQuaternionRotationRollPitchYaw(0.0f, yaw, 0.0f);
+
+            DirectX::XMStoreFloat4(&desc.rotation, qRot);
+            desc.pShader = m_pLambertianShader;
+            entt::entity enemy = m_characterFactory->SpawnHumanoid(desc);
+
+            AnimatorComponent animatorComp;
+            animatorComp.AddState(AnimStateType::IDLE, AnimSequenceLoader::Load(AnimStateType::IDLE), true);
+            animatorComp.AddState(AnimStateType::DAMAGE, AnimSequenceLoader::Load(AnimStateType::DAMAGE), false);
+            animatorComp.AddState(AnimStateType::DEATH, AnimSequenceLoader::Load(AnimStateType::DEATH), false);
+            m_registry->emplace<AnimatorComponent>(enemy, std::move(animatorComp));
+
+            m_animatorSystem.Play(*m_registry.get(), enemy, AnimStateType::IDLE);
+
+            m_registry->emplace<EnemyTag>(enemy);
+        }
+    }
 
     LRESULT CALLBACK App::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
@@ -469,7 +395,7 @@ namespace Engine
         case WM_LBUTTONUP:
             inputSystem.UpdateKey(VK_LBUTTON, message == WM_LBUTTONDOWN);
             break;
-        
+
         // 右クリック
         case WM_RBUTTONDOWN:
         case WM_RBUTTONUP:
@@ -488,4 +414,4 @@ namespace Engine
 
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
-}
+} // namespace Engine
