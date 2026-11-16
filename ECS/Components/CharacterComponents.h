@@ -19,18 +19,26 @@ namespace Engine
         float actionBufferTimer = 0.0f;
     };
 
-    struct CharacterMovementConfigComponent
+    enum class MovementMode : uint8_t
     {
-        float walkSpeed = 0.5f;
-        float springSpeed = 6.5f;
-        float turnSpeed = 10.0f;
+        ORIENTATION,
+        STRAFE
     };
 
-    enum class LocomotionState { IDLE, WALK, RUN };
+    struct CharacterMovementConfigComponent
+    {
+        float walkSpeed = 3.0f;
+        float springSpeed = 6.5f;
+        float turnSpeed = 10.0f;
+
+        MovementMode mode = MovementMode::ORIENTATION;
+    };
+
+    enum class LocomotionState { NONE, IDLE, WALK, RUN };
 
     struct CharacterLocomotionComponent
     {
-        LocomotionState currentState = LocomotionState::IDLE;
+        LocomotionState currentState = LocomotionState::NONE;
     };
 
     struct LocomotionProposalComponent
@@ -47,4 +55,5 @@ namespace Engine
     };
 
     struct PlayerTag {};
+    struct EnemyTag {};
 }

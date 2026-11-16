@@ -32,11 +32,11 @@ namespace Engine
 
     struct ThirdPersonCameraConfig
     {
-        float distance = 3.5f;
+        float distance = 5.0f;
         float heightOffset = 1.4f;
         
         float pitch = 0.18f;
-        float minPitch = -0.5f;
+        float minPitch = 0.0f;
         float maxPitch = 1.3f;
 
         float rotateSensitivity = 0.005f;
@@ -48,7 +48,7 @@ namespace Engine
     {
         entt::entity targetEntity = entt::null;
 
-        float distance = 3.5f;
+        float distance = 5.0f;
         float heightOffset = 1.4f;
         float pitch = 0.18f;
         float yaw = 0.0f;
