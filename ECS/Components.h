@@ -10,3 +10,4 @@
 #include "Components/CameraComponents.h"
 #include "Components/CombatComponents.h"
 #include "Components/CharacterComponents.h"
+#include "CollisionComponents.h"
