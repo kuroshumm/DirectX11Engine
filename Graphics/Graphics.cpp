@@ -1,9 +1,13 @@
-﻿#include "Graphics.h"
+#include "Graphics.h"
 
 namespace Engine
 {
-    Graphics::Graphics() {}
-    Graphics::~Graphics() {}
+    Graphics::Graphics()
+    {
+    }
+    Graphics::~Graphics()
+    {
+    }
 
     HRESULT Graphics::Initialize(HWND hWnd, int width, int height)
     {
@@ -32,20 +36,8 @@ namespace Engine
         // --- デバイスおよびスワップチェーンの同時生成 ---
         // ハードウェアアクセラレーションを利用するデバイスを生成
         D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
-        hr = D3D11CreateDeviceAndSwapChain(
-            nullptr,
-            D3D_DRIVER_TYPE_HARDWARE,
-            nullptr,
-            createDeviceFlags,
-            featureLevels,
-            1,
-            D3D11_SDK_VERSION,
-            &sd,
-            &m_pSwapChain,
-            &m_pDevice,
-            nullptr,
-            &m_pContext
-        );
+        hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevels, 1,
+                                           D3D11_SDK_VERSION, &sd, &m_pSwapChain, &m_pDevice, nullptr, &m_pContext);
         if (FAILED(hr)) return hr;
 
         // --- レンダーターゲットビュー (RTV) の構築 ---
@@ -99,14 +91,14 @@ namespace Engine
         m_pContext->VSSetConstantBuffers(0, 1, m_pConstantBuffer.GetAddressOf());
         m_pContext->PSSetConstantBuffers(0, 1, m_pConstantBuffer.GetAddressOf());
         m_pContext->RSSetState(m_pRS.Get());
-        m_pContext->OMSetDepthStencilState(m_pDSS.Get(), 1);
-	}
+        DisableAlphaBlend();
+    }
 
     void Graphics::SetTextureAndSampler()
     {
         m_pContext->PSSetShaderResources(0, 1, m_pSRV.GetAddressOf());
         m_pContext->PSSetSamplers(0, 1, m_pSampler.GetAddressOf());
-	}
+    }
 
     void Graphics::Update(DirectX::XMMATRIX world, DirectX::XMMATRIX view, DirectX::XMMATRIX proj)
     {
@@ -118,9 +110,9 @@ namespace Engine
             data->mView = XMMatrixTranspose(view);
             data->mProjection = XMMatrixTranspose(proj);
             data->vLightDir = DirectX::XMFLOAT4(-1, -1, 1, 0);
-            data->vLightColor = DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
-            data->vAmbient = DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1);
-            
+            data->vLightColor = DirectX::XMFLOAT4(3.5f, 3.5f, 3.5f, 1.0f);
+            data->vAmbient = DirectX::XMFLOAT4(0.15f, 0.15f, 0.18f, 1.0f);
+
             // --- TODO 1: カメラ位置の転送 ---
             /*
                 PBRにおける視線ベクトル(ViewDir)の計算のため、カメラのワールド座標が必要です。
@@ -129,7 +121,7 @@ namespace Engine
                 ヒント: XMMatrixInverse と invView.r[3]、XMStoreFloat4 を利用します。
             */
             DirectX::XMMATRIX invVew = XMMatrixInverse(nullptr, view);
-			DirectX::XMStoreFloat4(&data->vCameraPos, invVew.r[3]);
+            DirectX::XMStoreFloat4(&data->vCameraPos, invVew.r[3]);
 
             m_pContext->Unmap(m_pConstantBuffer.Get(), 0);
         }
@@ -147,19 +139,47 @@ namespace Engine
 
     HRESULT Graphics::InitPipelineStates()
     {
+        HRESULT hr = S_OK;
+
         // ラスタライザステート (カリング無効)
         D3D11_RASTERIZER_DESC rd = {};
         rd.CullMode = D3D11_CULL_NONE;
         rd.FillMode = D3D11_FILL_SOLID;
         rd.DepthClipEnable = TRUE;
-        m_pDevice->CreateRasterizerState(&rd, &m_pRS);
+        hr = m_pDevice->CreateRasterizerState(&rd, &m_pRS);
+        if (FAILED(hr)) return hr;
 
-        // 深度ステンシルステート
+        // 深度ステンシルステート (不透明用: 深度書き込み有効)
         D3D11_DEPTH_STENCIL_DESC dsd = {};
         dsd.DepthEnable = TRUE;
         dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
         dsd.DepthFunc = D3D11_COMPARISON_LESS;
-        m_pDevice->CreateDepthStencilState(&dsd, &m_pDSS);
+        hr = m_pDevice->CreateDepthStencilState(&dsd, &m_pDSS);
+        if (FAILED(hr)) return hr;
+
+        // 深度ステンシルステート (半透明用: 深度比較は行い、深度書き込みは無効化)
+        D3D11_DEPTH_STENCIL_DESC dsdNoWrite = dsd;
+        dsdNoWrite.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+        hr = m_pDevice->CreateDepthStencilState(&dsdNoWrite, &m_pDSSNoWrite);
+        if (FAILED(hr)) return hr;
+
+        // アルファブレンドステート (線形アルファブレンディング)
+        D3D11_BLEND_DESC bd = {};
+        bd.AlphaToCoverageEnable = FALSE;
+        bd.IndependentBlendEnable = FALSE;
+
+        D3D11_RENDER_TARGET_BLEND_DESC& rtbd = bd.RenderTarget[0];
+        rtbd.BlendEnable = TRUE;
+        rtbd.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+        rtbd.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+        rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+        rtbd.SrcBlendAlpha = D3D11_BLEND_ONE;
+        rtbd.DestBlendAlpha = D3D11_BLEND_ZERO;
+        rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+        rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+        hr = m_pDevice->CreateBlendState(&bd, &m_pAlphaBlendState);
+        if (FAILED(hr)) return hr;
 
         // サンプラーステート生成
         D3D11_SAMPLER_DESC sampDesc = {};
@@ -169,4 +189,20 @@ namespace Engine
         sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
         return m_pDevice->CreateSamplerState(&sampDesc, &m_pSampler);
     }
-}
+
+    void Graphics::EnableAlphaBlend()
+    {
+        const float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+        const UINT sampleMask = 0xffffffff;
+        m_pContext->OMSetBlendState(m_pAlphaBlendState.Get(), blendFactor, sampleMask);
+        m_pContext->OMSetDepthStencilState(m_pDSSNoWrite.Get(), 1);
+    }
+
+    void Graphics::DisableAlphaBlend()
+    {
+        const float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+        const UINT sampleMask = 0xffffffff;
+        m_pContext->OMSetBlendState(nullptr, blendFactor, sampleMask);
+        m_pContext->OMSetDepthStencilState(m_pDSS.Get(), 1);
+    }
+} // namespace Engine

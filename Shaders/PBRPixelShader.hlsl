@@ -112,6 +112,8 @@ float4 PSMain(PS_INPUT input) : SV_TARGET
 
     // テクスチャのサンプリング
     float4 texColor = objTexture.Sample(objSamplerState, input.TexCoord);
+    // sRGB -> Linear 空間への変換 (二重ガンマ補正を防止し、本来のテクスチャ色を復元)
+    texColor.rgb = pow(max(texColor.rgb, 0.0f), 2.2f);
     
     // --- 【追加の穴埋め課題群】 ---
     
@@ -167,7 +169,12 @@ float4 PSMain(PS_INPUT input) : SV_TARGET
     
     // 最終カラーの合成
     float3 finalColor = directLight + ambientLight;
-    
-    // ※ガンマ補正等（今回は省略）
-    return float4(finalColor, 1.0f);
+
+    // トーンマッピング (Reinhard法: 1.0を超えるHDR光を圧縮して白飛びを防止)
+    finalColor = finalColor / (finalColor + float3(1.0f, 1.0f, 1.0f));
+
+    // ガンマ補正 (リニア空間 -> sRGB空間)
+    finalColor = pow(max(finalColor, 0.0f), 1.0f / 2.2f);
+
+    return float4(finalColor, BaseColor.a * texColor.a);
 }

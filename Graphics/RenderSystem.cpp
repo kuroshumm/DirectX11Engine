@@ -1,4 +1,4 @@
-﻿#include "RenderSystem.h"
+#include "RenderSystem.h"
 #include "Components.h"
 
 namespace
@@ -16,12 +16,7 @@ namespace
         return &registry.get<CameraComponent>(entity);
     }
 
-    void UpdateWorldMat(
-        TransformComponent& transform,
-        Graphics& gfx,
-        DirectX::XMMATRIX& viewMat,
-        DirectX::XMMATRIX& projMat
-    )
+    void UpdateWorldMat(TransformComponent& transform, Graphics& gfx, DirectX::XMMATRIX& viewMat, DirectX::XMMATRIX& projMat)
     {
         DirectX::XMMATRIX worldMat = DirectX::XMLoadFloat4x4(&transform.worldMatrix);
         gfx.Update(worldMat, viewMat, projMat);
@@ -42,23 +37,12 @@ namespace
             context.DrawIndexed(subMesh.indexCount, 0, 0);
         }
     }
-}
+} // namespace
 
 namespace Engine
 {
     HRESULT RenderSystem::Initialize(ID3D11Device* pDevice)
     {
-        // --- マテリアル定数バッファの生成 ---
-       /*
-           b1レジスタにバインドするための専用のID3D11Bufferを生成してください。
-           1. D3D11_BUFFER_DESC desc = {};
-           2. Usage に D3D11_USAGE_DYNAMIC を指定。
-           3. ByteWidth に sizeof(MaterialConstantBufferData) を指定。
-           4. BindFlags に D3D11_BIND_CONSTANT_BUFFER を指定。
-           5. CPUAccessFlags に D3D11_CPU_ACCESS_WRITE を指定。
-           6. device->CreateBuffer を呼び出して m_pMaterialCB に格納する。
-       */
-
         D3D11_BUFFER_DESC desc = {};
         desc.Usage = D3D11_USAGE_DYNAMIC;
         desc.ByteWidth = sizeof(MaterialConstantBufferData);
@@ -84,49 +68,52 @@ namespace Engine
 
         ID3D11DeviceContext* pContext = gfx.GetContext();
 
+        // --- パス1: 不透明オブジェクトの描画 (ブレンド無効・深度書き込み有効) ---
+        gfx.DisableAlphaBlend();
+
+        // 1-A. 不透明な静的メッシュ (スキンモデルおよび半透明コリジョン可視化プリミティブを除外)
         auto staticEntities = registry.view<TransformComponent, ModelComponent, MaterialComponent, VisibleTag>(
-            entt::exclude<SkeletonComponent> // スキンモデルを除外
-        );
+            entt::exclude<SkeletonComponent, CollisionVisualizeComponent>);
 
         for (auto [entity, transform, model, material] : staticEntities.each())
         {
-            // ワールド行列の更新
             UpdateWorldMat(transform, gfx, viewMat, projMat);
-
-            // マテリアル関連情報の更新
             UpdateMaterial(material, *pContext);
-
-            // 描画
             RenderMesh(model, *pContext);
-
         }
 
-        // モデルの走査と描画
-        auto entities = registry.view<
-            TransformComponent,
-            ModelComponent,
-            MaterialComponent,
-            SkeletonComponent,
-            SkinningPaletteComponent,
-            VisibleTag>();
+        // 1-B. スキンモデル (キャラクター)
+        auto skinnedEntities =
+            registry.view<TransformComponent, ModelComponent, MaterialComponent, SkeletonComponent, SkinningPaletteComponent, VisibleTag>();
 
-        for (auto [entity, transform, model, material, skelton, palette] : entities.each())
+        for (auto [entity, transform, model, material, skelton, palette] : skinnedEntities.each())
         {
-            // ワールド行列の更新
             UpdateWorldMat(transform, gfx, viewMat, projMat);
-
-            // マテリアル関連情報の更新
             UpdateMaterial(material, *pContext);
 
-            // palette
             if (palette.pPaletteBuffer)
             {
                 pContext->VSSetConstantBuffers(1, 1, palette.pPaletteBuffer.GetAddressOf());
             }
 
-            // 描画
             RenderMesh(model, *pContext);
         }
+
+        // --- パス2: 半透明コリジョン可視化プリミティブの描画 (アルファブレンド有効・深度書き込み無効) ---
+        gfx.EnableAlphaBlend();
+
+        auto transparentVisEntities =
+            registry.view<TransformComponent, ModelComponent, MaterialComponent, CollisionVisualizeComponent, VisibleTag>();
+
+        for (auto [entity, transform, model, material, colVis] : transparentVisEntities.each())
+        {
+            UpdateWorldMat(transform, gfx, viewMat, projMat);
+            UpdateMaterial(material, *pContext);
+            RenderMesh(model, *pContext);
+        }
+
+        // ステートを不透明用へ復帰
+        gfx.DisableAlphaBlend();
     }
 
     void RenderSystem::UpdateMaterial(MaterialComponent& material, ID3D11DeviceContext& context)
@@ -153,4 +140,4 @@ namespace Engine
             context.PSSetConstantBuffers(1, 1, m_pMaterialCB.GetAddressOf());
         }
     }
-}
+} // namespace Engine

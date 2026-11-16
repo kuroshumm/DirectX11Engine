@@ -25,6 +25,7 @@ namespace Engine
             PrimitiveType type,
             const DirectX::XMFLOAT3& position = { 0.0f, 0.0f, 0.0f },
             const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f },
+            const DirectX::XMFLOAT4& rot = { 0.0f, 0.0f, 0.0f, 1.0f },
             const DirectX::XMFLOAT4& baseColor = { 1.0f, 1.0f, 1.0f, 1.0f }
         );
 

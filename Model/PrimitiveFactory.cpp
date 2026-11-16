@@ -27,6 +27,7 @@ namespace Engine
         PrimitiveType type,
         const DirectX::XMFLOAT3& position,
         const DirectX::XMFLOAT3& scale,
+        const DirectX::XMFLOAT4& rot,
         const DirectX::XMFLOAT4& baseColor
     )
     {
@@ -37,7 +38,7 @@ namespace Engine
         TransformComponent transformComp;
         transformComp.position = position;
         transformComp.scale = scale;
-        transformComp.rotation = { 0.0f, 0.0f, 0.0f, 1.0f };
+        transformComp.rotation = rot;
         registry.emplace<TransformComponent>(entity, transformComp);
 
         // ModelAssetを作成
