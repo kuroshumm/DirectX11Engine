@@ -4,9 +4,9 @@
 
 namespace Engine
 {
-	class CombatSystem
-	{
-	public:
-		void Update(entt::registry& registry);
-	};
+    class CombatSystem
+    {
+    public:
+        void Update(entt::registry& registry);
+    };
 }

@@ -6,11 +6,11 @@
 // ジオメトリの描画最小単位
 struct SubMesh
 {
-	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
-	UINT indexCount = 0;
-	UINT vertexStride = 0;
-	int materialIndex = 0;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
+    UINT indexCount = 0;
+    UINT vertexStride = 0;
+    int materialIndex = 0;
 
     // 共通静的ファクトリ関数: 任意の頂点型から SubMesh (GPUバッファ) を生成
     template<typename VertexType>

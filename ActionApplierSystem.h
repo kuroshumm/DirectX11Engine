@@ -5,9 +5,9 @@
 
 namespace Engine
 {
-	class ActionApplierSystem
-	{
-	public:
-		void Update(entt::registry& registry, AnimatorSystem& animatorSystem, float dt);
-	};
+    class ActionApplierSystem
+    {
+    public:
+        void Update(entt::registry& registry, AnimatorSystem& animatorSystem, float dt);
+    };
 }

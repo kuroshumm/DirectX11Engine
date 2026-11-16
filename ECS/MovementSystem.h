@@ -4,9 +4,9 @@
 
 namespace Engine
 {
-	class MovementSystem
-	{
-	public:
-		void Update(entt::registry& registry, float dt);
-	};
+    class MovementSystem
+    {
+    public:
+        void Update(entt::registry& registry, float dt);
+    };
 }

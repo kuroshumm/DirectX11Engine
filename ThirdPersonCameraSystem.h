@@ -6,9 +6,9 @@
 
 namespace Engine
 {
-	class ThirdPersonCameraSystem
-	{
-	public:
-		void Update(entt::registry& registry, float dt);
-	};
+    class ThirdPersonCameraSystem
+    {
+    public:
+        void Update(entt::registry& registry, float dt);
+    };
 }

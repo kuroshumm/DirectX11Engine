@@ -25,7 +25,7 @@ namespace Engine
             nullptr,
             CLSCTX_INPROC_SERVER,
             IID_PPV_ARGS(&pFactory)
-		);
+        );
         if (FAILED(hr)) return hr;
 
         // デコーダの生成
@@ -57,7 +57,7 @@ namespace Engine
             nullptr,
             0.0f,
             WICBitmapPaletteTypeCustom
-		);
+        );
         if (FAILED(hr)) return hr;
 
         UINT width, height;
@@ -101,13 +101,13 @@ namespace Engine
         desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
         D3D11_SUBRESOURCE_DATA initData;
-		initData.pSysMem = pixels.data();
-		initData.SysMemPitch = rowPitch;
+        initData.pSysMem = pixels.data();
+        initData.SysMemPitch = rowPitch;
 
         hr = pDevice->CreateTexture2D(&desc, &initData, &m_pTexture);
         if (FAILED(hr)) return hr;
 
-		hr = pDevice->CreateShaderResourceView(m_pTexture.Get(), nullptr, &m_pSRV);
+        hr = pDevice->CreateShaderResourceView(m_pTexture.Get(), nullptr, &m_pSRV);
 
         return hr;
     }

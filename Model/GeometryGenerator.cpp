@@ -2,15 +2,15 @@
 
 namespace Engine
 {
-	MeshData GeometryGenerator::CreateCube(float width, float height, float depth)
-	{
-		// 1. ガード節: 不正な寸法を排除
-		if (width <= 0.0f || height <= 0.0f || depth <= 0.0f)
-		{
-			throw std::invalid_argument("Box dimensions must be greater than zero.");
-		}
+    MeshData GeometryGenerator::CreateCube(float width, float height, float depth)
+    {
+        // 1. ガード節: 不正な寸法を排除
+        if (width <= 0.0f || height <= 0.0f || depth <= 0.0f)
+        {
+            throw std::invalid_argument("Box dimensions must be greater than zero.");
+        }
 
-		MeshData cubeMeshData;
+        MeshData cubeMeshData;
 
         float w2 = 0.5f * width;
         float h2 = 0.5f * height;
@@ -67,7 +67,7 @@ namespace Engine
         cubeMeshData.Indices.assign(&indices[0], &indices[36]);
 
         return cubeMeshData;
-	}
+    }
 
     MeshData GeometryGenerator::CreateSphere(float radius, uint32_t sliceCount, uint32_t stackCount)
     {

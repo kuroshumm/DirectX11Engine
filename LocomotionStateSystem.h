@@ -4,9 +4,9 @@
 
 namespace Engine
 {
-	class LocomotionStateSystem
-	{
-	public:
-		void Update(entt::registry& registry);
-	};
+    class LocomotionStateSystem
+    {
+    public:
+        void Update(entt::registry& registry);
+    };
 }

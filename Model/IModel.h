@@ -6,14 +6,14 @@
 
 namespace Engine
 {
-	class IModel
-	{
-	public:
-		virtual ~IModel() = default;
+    class IModel
+    {
+    public:
+        virtual ~IModel() = default;
 
-		virtual HRESULT LoadMesh(const std::string& filePath) = 0;
-		virtual void Update(float deltaTime) {}
+        virtual HRESULT LoadMesh(const std::string& filePath) = 0;
+        virtual void Update(float deltaTime) {}
 
-		virtual DirectX::BoundingSphere GetLocalBoundingSphere() const = 0;
-	};
+        virtual DirectX::BoundingSphere GetLocalBoundingSphere() const = 0;
+    };
 }

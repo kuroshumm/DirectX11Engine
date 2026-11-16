@@ -2,26 +2,26 @@
 
 namespace Engine
 {
-	Entity Registry::Create()
-	{
-		return m_nextEntity++;
-	}
+    Entity Registry::Create()
+    {
+        return m_nextEntity++;
+    }
 
-	void Registry::Destroy(Entity entity)
-	{
-		if (entity == NullEntity)
-		{
-			return;
-		}
+    void Registry::Destroy(Entity entity)
+    {
+        if (entity == NullEntity)
+        {
+            return;
+        }
 
-		for (auto& pool : m_componentPool)
-		{
-			if (!pool)
-			{
-				continue;
-			}
+        for (auto& pool : m_componentPool)
+        {
+            if (!pool)
+            {
+                continue;
+            }
 
-			pool->Remove(entity);
-		}
-	}
+            pool->Remove(entity);
+        }
+    }
 }

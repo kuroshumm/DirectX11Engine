@@ -10,9 +10,9 @@ namespace Engine
         NONE,
 
         FORWARD,
-		RIGHT,
-		LEFT,
-		BACK,
+        RIGHT,
+        LEFT,
+        BACK,
 
         COUNT
     };
@@ -25,11 +25,11 @@ namespace Engine
     namespace LocomotionPresets
     {
         static constexpr LocomotionAnimPreset HumanoidNormal = { {
-				AnimStateType::IDLE,
-				AnimStateType::WALK,
-				AnimStateType::WALK_RIGHT,
-				AnimStateType::WALK_LEFT,
-				AnimStateType::WALK_BACK,
+                AnimStateType::IDLE,
+                AnimStateType::WALK,
+                AnimStateType::WALK_RIGHT,
+                AnimStateType::WALK_LEFT,
+                AnimStateType::WALK_BACK,
         } };
     }
 }

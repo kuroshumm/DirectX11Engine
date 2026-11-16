@@ -7,9 +7,9 @@
 
 namespace Engine
 {
-	class AnimationLoader
-	{
-	public:
-		static std::shared_ptr<AnimationClip> Load(const std::string& filePath);
-	};
+    class AnimationLoader
+    {
+    public:
+        static std::shared_ptr<AnimationClip> Load(const std::string& filePath);
+    };
 }

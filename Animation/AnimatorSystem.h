@@ -5,16 +5,16 @@
 
 namespace Engine
 {
-	class AnimatorSystem
-	{
-	public:
-		void Update(entt::registry& registry, float dt);
-		void Play(entt::registry& registry, entt::entity entity, AnimStateType stateType);
-		void CrossFade(
-			entt::registry& registry,
-			entt::entity entity,
-			AnimStateType stateType,
-			float transitionTime
-		);
-	};
+    class AnimatorSystem
+    {
+    public:
+        void Update(entt::registry& registry, float dt);
+        void Play(entt::registry& registry, entt::entity entity, AnimStateType stateType);
+        void CrossFade(
+            entt::registry& registry,
+            entt::entity entity,
+            AnimStateType stateType,
+            float transitionTime
+        );
+    };
 }

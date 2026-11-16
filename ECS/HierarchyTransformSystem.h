@@ -5,18 +5,18 @@
 
 namespace Engine
 {
-	class HierarchyTransformSystem
-	{
-	public:
-		void Update(entt::registry& registry);
+    class HierarchyTransformSystem
+    {
+    public:
+        void Update(entt::registry& registry);
 
-	private:
-		void UpdateSubtree(
-			entt::registry& registry,
-			entt::entity current,
-			const DirectX::XMMATRIX& parentWorldMatrix,
-			bool parentIsDirty);
+    private:
+        void UpdateSubtree(
+            entt::registry& registry,
+            entt::entity current,
+            const DirectX::XMMATRIX& parentWorldMatrix,
+            bool parentIsDirty);
 
-		DirectX::XMMATRIX ComputeLocalMatrix(const TransformComponent& transform);
-	};
+        DirectX::XMMATRIX ComputeLocalMatrix(const TransformComponent& transform);
+    };
 }

@@ -4,20 +4,20 @@
 
 namespace Engine
 {
-	class SceneCameraOperator
-	{
-	public:
-		SceneCameraOperator(std::weak_ptr<Camera> pCamera);
-		~SceneCameraOperator() = default;
+    class SceneCameraOperator
+    {
+    public:
+        SceneCameraOperator(std::weak_ptr<Camera> pCamera);
+        ~SceneCameraOperator() = default;
 
-		void Update(float deltaTime);
-		void Rotate(float deltaTime, const std::shared_ptr<Camera>& pCamera);
-		void Move(float deltaTime, const std::shared_ptr<Camera>& pCamera);
+        void Update(float deltaTime);
+        void Rotate(float deltaTime, const std::shared_ptr<Camera>& pCamera);
+        void Move(float deltaTime, const std::shared_ptr<Camera>& pCamera);
 
-	private:
-		std::weak_ptr<Camera> m_pCamera;
+    private:
+        std::weak_ptr<Camera> m_pCamera;
 
-		const float SENSITIVITY = 0.3f;
-		const float moveSpped = 50.0f;
-	};
+        const float SENSITIVITY = 0.3f;
+        const float moveSpped = 50.0f;
+    };
 }

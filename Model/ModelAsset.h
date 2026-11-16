@@ -11,6 +11,6 @@
 // 共有モデルアセット（ジオメトリのみ）
 struct ModelAsset
 {
-	std::vector<SubMesh> subMeshs;
-	DirectX::BoundingSphere totalLocalBounds;
+    std::vector<SubMesh> subMeshs;
+    DirectX::BoundingSphere totalLocalBounds;
 };

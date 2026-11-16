@@ -3,9 +3,9 @@
 
 namespace Engine
 {
-	class TransformSystem
-	{
-	public:
-		void Update(entt::registry& registry);
-	};
+    class TransformSystem
+    {
+    public:
+        void Update(entt::registry& registry);
+    };
 }

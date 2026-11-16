@@ -13,16 +13,16 @@ namespace Engine
         DirectX::XMVECTOR pos;
     };
 
-	class AnimationSystem
-	{
-	public:
-		void Update(entt::registry& registry, float dt);
+    class AnimationSystem
+    {
+    public:
+        void Update(entt::registry& registry, float dt);
         BoneTransformTRS SampleBoneTransform(
             const std::shared_ptr<AnimationClip>& clip,
             float time,
             const Bone& bone);
 
-	private:
+    private:
         template<typename keyType>
         static void CalcInterpolationFactor(
             float currentTime,

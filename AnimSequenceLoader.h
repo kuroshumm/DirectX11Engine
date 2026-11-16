@@ -7,10 +7,10 @@
 
 namespace Engine
 {
-	class AnimSequenceLoader
-	{
-	public:
-		static std::shared_ptr<AnimSequenceAsset> Load(AnimStateType stateType);
-	};
+    class AnimSequenceLoader
+    {
+    public:
+        static std::shared_ptr<AnimSequenceAsset> Load(AnimStateType stateType);
+    };
 }
 

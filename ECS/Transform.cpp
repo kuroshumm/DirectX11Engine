@@ -66,8 +66,8 @@ namespace Engine
            3. pChild の SetDirty() メソッドを呼び出し、親の変更に伴う再計算を予約する。
         */
         m_children.push_back(pChild);
-		pChild->m_pParent = this;
-		pChild->SetDirty();
+        pChild->m_pParent = this;
+        pChild->SetDirty();
     }
 
     void Transform::SetParent(Transform* pParent)
@@ -90,7 +90,7 @@ namespace Engine
             m_pParent->m_children.push_back(this);
         }
         SetDirty();
-	}
+    }
 
     void Transform::SetDirty()
     {
@@ -109,7 +109,7 @@ namespace Engine
             {
                 continue;
             }
-			child->SetDirty();
+            child->SetDirty();
         }
     }
 
@@ -140,10 +140,10 @@ namespace Engine
            3. XMMatrixTranslation 関数に m_position の成分を渡し、平行移動行列 (T) を作成する。
            4. DirectXMath は行優先 (Row-Major) であるため、S * R * T の順序で乗算を行い m_localMatrix へ代入せよ。
         */
-		XMMATRIX scaleMatrix = XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z);
-		XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(m_rotation.x, m_rotation.y, m_rotation.z);
-		XMMATRIX translationMatrix = XMMatrixTranslation(m_position.x, m_position.y, m_position.z);
-		m_localMatrix = scaleMatrix * rotationMatrix * translationMatrix;
+        XMMATRIX scaleMatrix = XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z);
+        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(m_rotation.x, m_rotation.y, m_rotation.z);
+        XMMATRIX translationMatrix = XMMatrixTranslation(m_position.x, m_position.y, m_position.z);
+        m_localMatrix = scaleMatrix * rotationMatrix * translationMatrix;
 
         // --- TODO 4: ワールド行列の導出 ---
         /* 自身の m_localMatrix と、親のワールド行列を合成して m_worldMatrix を構築せよ。
@@ -155,7 +155,7 @@ namespace Engine
         */
 
         m_worldMatrix = m_pParent == nullptr
-			? m_localMatrix 
+            ? m_localMatrix 
             : m_localMatrix * m_pParent->GetWorldMatrix();
 
         // 再計算が完了したためフラグをリセット

@@ -5,9 +5,9 @@
 
 namespace Engine
 {
-	class PlayerInputSystem
-	{
-	public:
-		void Update(entt::registry& registry, float dt);
-	};
+    class PlayerInputSystem
+    {
+    public:
+        void Update(entt::registry& registry, float dt);
+    };
 }

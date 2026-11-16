@@ -26,9 +26,9 @@ namespace Engine
     private:
         Graphics* m_pGfx;
 
-		// ローカル座標系における境界球 (モデル全体を包み込む最小の球体)
+        // ローカル座標系における境界球 (モデル全体を包み込む最小の球体)
         DirectX::BoundingSphere m_LocalBoundingSphere;
-		// モデルは複数のメッシュを持つことができるため、Meshオブジェクトのベクタで管理する
+        // モデルは複数のメッシュを持つことができるため、Meshオブジェクトのベクタで管理する
         std::vector<std::unique_ptr<Mesh>> m_meshes;
     };
 }

@@ -90,8 +90,8 @@ namespace
 
 namespace Engine
 {
-	void CullingSystem::Update(entt::registry& registry)
-	{
+    void CullingSystem::Update(entt::registry& registry)
+    {
         // アクティブなカメラを取得
         auto cameraEntity = FindActiveCameraEntity(registry);
         if (cameraEntity == entt::null)
@@ -126,5 +126,5 @@ namespace Engine
             // LOD情報の更新
             UpdateLOD(registry, entity, transformComp, cameraPos);
         }
-	}
+    }
 }

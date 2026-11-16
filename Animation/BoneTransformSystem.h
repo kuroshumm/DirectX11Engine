@@ -6,16 +6,16 @@
 
 namespace Engine
 {
-	class BoneTransformSystem
-	{
-	public:
-		void Update(entt::registry& registry);
+    class BoneTransformSystem
+    {
+    public:
+        void Update(entt::registry& registry);
 
-	private:
-		void UpdateBoneTransform(
-			std::vector<Bone>& bones,
-			int boneIndex,
-			DirectX::XMMATRIX parentGlocbalTransform
-		);
-	};
+    private:
+        void UpdateBoneTransform(
+            std::vector<Bone>& bones,
+            int boneIndex,
+            DirectX::XMMATRIX parentGlocbalTransform
+        );
+    };
 }

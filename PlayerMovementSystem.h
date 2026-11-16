@@ -4,11 +4,11 @@
 
 namespace Engine
 {
-	class AnimatorSystem;
+    class AnimatorSystem;
 
-	class PlayerMovementSystem
-	{
-	public:
-		void Update(entt::registry& registry, float dt);
-	};
+    class PlayerMovementSystem
+    {
+    public:
+        void Update(entt::registry& registry, float dt);
+    };
 }

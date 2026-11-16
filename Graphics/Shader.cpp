@@ -4,7 +4,7 @@ namespace Engine
 {
     Shader::Shader()
     {
-	}
+    }
 
     Shader::~Shader()
     {
@@ -13,7 +13,7 @@ namespace Engine
     HRESULT Shader::Initialize(ID3D11Device* pDeveice)
     {
         m_pDevice = pDeveice;
-		return S_OK;
+        return S_OK;
     }
 
     void Shader::Bind(ID3D11DeviceContext* pContext)
@@ -21,7 +21,7 @@ namespace Engine
         pContext->IASetInputLayout(m_pLayout.Get());
         pContext->VSSetShader(m_pVS.Get(), nullptr, 0);
         pContext->PSSetShader(m_pPS.Get(), nullptr, 0);
-	}
+    }
 
     HRESULT Shader::CompilePixelShader(const wchar_t* filePath, const char* entryPoint)
     {

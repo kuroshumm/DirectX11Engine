@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -8,13 +8,13 @@
 
 namespace Engine
 {
-	class AnimationClip;
+    class AnimationClip;
 
-	struct AnimSequenceAsset
-	{
-		AnimStateType animState = AnimStateType::NONE;
-		std::shared_ptr<AnimationClip> clip = nullptr;
-		std::vector<AnimWindowEvent> windowEvents;
-		std::vector<AnimPointEvent> pointEvents;
-	};
+    struct AnimSequenceAsset
+    {
+        AnimStateType animState = AnimStateType::NONE;
+        std::shared_ptr<AnimationClip> clip = nullptr;
+        std::vector<AnimWindowEvent> windowEvents;
+        std::vector<AnimPointEvent> pointEvents;
+    };
 }

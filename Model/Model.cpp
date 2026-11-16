@@ -6,7 +6,7 @@
 
 namespace Engine
 {
-	Model::Model(Graphics* pGfx) : m_pGfx(pGfx)
+    Model::Model(Graphics* pGfx) : m_pGfx(pGfx)
     {
     }
     Model::~Model() {}
@@ -20,11 +20,11 @@ namespace Engine
            フラグ: aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals
            戻り値の const aiScene* を scene 変数に格納せよ。
         */
-		unsigned int flags = aiProcess_Triangulate 
+        unsigned int flags = aiProcess_Triangulate 
             | aiProcess_ConvertToLeftHanded 
             | aiProcess_CalcTangentSpace 
             | aiProcess_GenSmoothNormals;
-		const aiScene* scene = importer.ReadFile(filePath, flags);
+        const aiScene* scene = importer.ReadFile(filePath, flags);
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
@@ -48,16 +48,16 @@ namespace Engine
             for (UINT v = 0; v < mesh->mNumVertices; ++v)
             {
                 Vertex vertex;
-				vertex.Pos = { mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z };
-				vertex.Normal = mesh->HasNormals() 
+                vertex.Pos = { mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z };
+                vertex.Normal = mesh->HasNormals() 
                     ? DirectX::XMFLOAT3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z) 
                     : DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
                 vertex.Tangent = mesh->HasTangentsAndBitangents() 
                     ? DirectX::XMFLOAT3(mesh->mTangents[v].x, mesh->mTangents[v].y, mesh->mTangents[v].z) 
-					: DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+                    : DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
                 vertex.TexCoord = mesh->HasTextureCoords(0)
                     ? DirectX::XMFLOAT2(mesh->mTextureCoords[0][v].x, mesh->mTextureCoords[0][v].y)
-					: DirectX::XMFLOAT2(0.0f, 0.0f);
+                    : DirectX::XMFLOAT2(0.0f, 0.0f);
 
                 // Colorは現状白固定とする
                 vertex.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -75,7 +75,7 @@ namespace Engine
                 for (UINT idx = 0; idx < face.mNumIndices; ++idx)
                 {
                     indices.push_back(static_cast<WORD>(face.mIndices[idx]));
-				}
+                }
             }
 
             // 抽出したデータから D3D11Buffer を生成し、リストへ追加

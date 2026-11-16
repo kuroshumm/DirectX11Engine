@@ -3,9 +3,9 @@
 
 namespace Engine
 {
-	class CameraControllerSystem
-	{
-	public:
-		void Update(entt::registry& registry, float dt);
-	};
+    class CameraControllerSystem
+    {
+    public:
+        void Update(entt::registry& registry, float dt);
+    };
 }

@@ -4,9 +4,9 @@
 
 namespace Engine
 {
-	class CullingSystem
-	{
-	public:
-		void Update(entt::registry& registry);
-	};
+    class CullingSystem
+    {
+    public:
+        void Update(entt::registry& registry);
+    };
 }
