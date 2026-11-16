@@ -44,14 +44,6 @@ namespace Engine
                 );
                 DirectX::XMStoreFloat4x4(&bone.LocalTransformMatrix, localMatrix);
             }
-
-            
-            // ③ タイマーの更新（TicksPerSecond を反映）
-            animationComp.currentTime += dt * currClip->GetTicksPerSecond() * animationComp.playbackSpeed;
-            if (animationComp.isLoop && currClip->GetDuration() > 0.0f)
-            {
-                animationComp.currentTime = std::fmod(animationComp.currentTime, currClip->GetDuration());
-            }
         }
     }
 
@@ -61,6 +53,9 @@ namespace Engine
         const Bone& bone
     )
     {
+        const float ticksPerSec = clip->GetTicksPerSecond();
+        const float timeInTicks = time * ticksPerSec;
+
         DirectX::XMVECTOR defaultScale = DirectX::XMLoadFloat3(&bone.defaultScale);
         DirectX::XMVECTOR defaultRot = DirectX::XMLoadFloat4(&bone.defaultRot);
         DirectX::XMVECTOR defaultPos = DirectX::XMLoadFloat3(&bone.defaultPos);
@@ -94,7 +89,7 @@ namespace Engine
         else
         {
             size_t left = 0, right = 0; float f = 0.0f;
-            CalcInterpolationFactor(time, nodeAnim.PositionKeys, left, right, f);
+            CalcInterpolationFactor(timeInTicks, nodeAnim.PositionKeys, left, right, f);
             pos = DirectX::XMVectorLerp(
                 DirectX::XMLoadFloat3(&nodeAnim.PositionKeys[left].Value),
                 DirectX::XMLoadFloat3(&nodeAnim.PositionKeys[right].Value), f);
@@ -113,7 +108,7 @@ namespace Engine
         else
         {
             size_t left = 0, right = 0; float f = 0.0f;
-            CalcInterpolationFactor(time, nodeAnim.ScalingKeys, left, right, f);
+            CalcInterpolationFactor(timeInTicks, nodeAnim.ScalingKeys, left, right, f);
             scale = DirectX::XMVectorLerp(
                 DirectX::XMLoadFloat3(&nodeAnim.ScalingKeys[left].Value),
                 DirectX::XMLoadFloat3(&nodeAnim.ScalingKeys[right].Value), f);
@@ -131,7 +126,7 @@ namespace Engine
         else
         {
             size_t left = 0, right = 0; float f = 0.0f;
-            CalcInterpolationFactor(time, nodeAnim.RotaionKeys, left, right, f);
+            CalcInterpolationFactor(timeInTicks, nodeAnim.RotaionKeys, left, right, f);
             rot = DirectX::XMQuaternionSlerp(
                 DirectX::XMLoadFloat4(&nodeAnim.RotaionKeys[left].Value),
                 DirectX::XMLoadFloat4(&nodeAnim.RotaionKeys[right].Value), f);

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -23,6 +23,7 @@ namespace Engine
     {
         std::shared_ptr<AnimationClip> pCurrentClip = nullptr;
         float currentTime   = 0.0f;
+        float prevTime      = 0.0f;
         float playbackSpeed = 1.0f;
         bool isLoop         = false;
         bool isPlaying      = false;
@@ -58,7 +59,88 @@ namespace Engine
             auto [it, inserted] = stateMap.try_emplace(animStateType, std::move(animState));
             assert(inserted);
         }
+
+        AnimSequenceAsset* GetCurrentAnimSeq() const
+        {
+            if (currentState == AnimStateType::NONE)
+            {
+                return nullptr;
+            }
+
+            auto it = stateMap.find(currentState);
+            if (it == stateMap.end() || !it->second.pAnimSeq)
+            {
+                return nullptr;
+            }
+
+            return it->second.pAnimSeq.get();
+        }
+
     };
+
+    struct AnimEventState
+    {
+        static constexpr size_t WINDOW_MAX = static_cast<size_t>(AnimEventWindowType::COUNT);
+        static constexpr size_t POINT_MAX = static_cast<size_t>(AnimPointType::COUNT);
+
+        std::array<bool, WINDOW_MAX> isActiveWindow{};
+        std::array<bool, WINDOW_MAX> isEnteredWindow{};
+        std::array<bool, WINDOW_MAX> isExitedWindow{};
+        std::array<bool, WINDOW_MAX> isTriggeredPoint{};
+
+        // 現在評価しているステート
+        AnimStateType animState = AnimStateType::NONE;
+    };
+    struct AnimEventComponent
+    {
+        AnimEventState current;
+        AnimEventState prev;
+    };
+    inline bool IsEventWindowActive(const AnimEventComponent& animEvent, AnimStateType state, AnimEventWindowType type)
+    {
+        const size_t idx = static_cast<size_t>(type);
+        
+        if (animEvent.current.animState == state)
+        {
+            return animEvent.current.isActiveWindow[idx];
+        }
+        if (animEvent.prev.animState == state)
+        {
+            return animEvent.prev.isActiveWindow[idx];
+        }
+
+        return false;
+    }
+    inline bool IsEventWindowEntered(const AnimEventComponent& animEvent, AnimStateType state, AnimEventWindowType type)
+    {
+        const size_t idx = static_cast<size_t>(type);
+
+        if (animEvent.current.animState == state)
+        {
+            return animEvent.current.isEnteredWindow[idx];
+        }
+        if (animEvent.prev.animState == state)
+        {
+            return animEvent.prev.isEnteredWindow[idx];
+        }
+
+        return false;
+    }
+    inline bool IsEventWindowExited(const AnimEventComponent& animEvent, AnimStateType state, AnimEventWindowType type)
+    {
+        const size_t idx = static_cast<size_t>(type);
+
+        if (animEvent.current.animState == state)
+        {
+            return animEvent.current.isExitedWindow[idx];
+        }
+        if (animEvent.prev.animState == state)
+        {
+            return animEvent.prev.isExitedWindow[idx];
+        }
+
+        return false;
+    }
 
     struct JointConstraint
     {

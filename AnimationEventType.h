@@ -9,16 +9,17 @@ namespace Engine
     enum class AnimEventWindowType : uint8_t
     {
         NONE,
+
         COMBO_QUEUE,          // 次段コンボ予約受付
-        ATTACK_COLLISION      // 攻撃コリジョン
+        ATTACK_COLLISION,     // 攻撃コリジョン
+
+        COUNT
     };
 
     struct TimeRange
     {
         float start = 0.0f;
         float end = 0.0f;
-
-        float GetDuration() const { return end - start; }
     };
 
     struct AnimWindowEvent
@@ -33,6 +34,8 @@ namespace Engine
     enum class AnimPointType : uint8_t
     {
         NONE,
+
+        COUNT
     };
 
     struct AnimPointEvent

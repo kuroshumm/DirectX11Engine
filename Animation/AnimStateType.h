@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <cstdint>
 
 namespace Engine
@@ -14,5 +14,7 @@ namespace Engine
         RUN,
         COMBO1,
         COMBO2,
+        DAMAGE,
+        DEATH
     };
 }
