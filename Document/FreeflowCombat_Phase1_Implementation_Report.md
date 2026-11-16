@@ -122,3 +122,16 @@
     3. **`AnimSequenceLoader.cpp` および `AnimatorSystem.cpp` の型整合性修正**:
        `asset->animState = AnimStateType::...` への代入、および `it->second.pAnimSeq->clip` によるクリップ参照の統一を行い、全158件のエラーを解消してビルドを成功（0エラー）させた。
 
+---
+
+### 2.9. 不具合9: EnTTにおける同一コンポーネント二重登録（`Slot not available` アサーションエラー）
+*   **現象**:
+    アプリケーション起動時の `App::InitPlayer` 内 `m_registry->emplace<CharacterLocomotionComponent>(player);` において、EnTT 内部アサーション `Expression: ((elem == null) && ("Slot not available"))` が発生し、実行時クラッシュ（中断）に至った。
+*   **原因**:
+    1. **Factoryと初期化関数間での `emplace` の重複（Duplicate Component Emplacement）**:
+       プレイヤーと敵の共通コンポーネント群を `CharacterFactory::SpawnHumanoid` 側へ集約した際、Visual Studio 側の未保存エディタバッファに旧 `App::InitPlayer` のコードが残存しており、ビルド実行時の自動保存によって `App::InitPlayer` 側の `m_registry->emplace<CharacterLocomotionComponent>(player);` 等の記述が復元された。
+    2. **EnTT スパースセット（Sparse Set）の不変条件違反**:
+       EnTT の `registry::emplace<T>(entity)` は、対象エンティティがまだ型 `T` のコンポーネントを所有していないことを事前条件（Precondition）としている。すでに `SpawnHumanoid` 内でスロットが確保・構築されたエンティティに対して再度 `emplace<T>` を呼び出したため、空きスロット検査 `elem == null` が偽となりアサーションが発火した。
+*   **解決策**:
+    `CharacterFactory::SpawnHumanoid` 側で付与済みの共通コンポーネント（`CharacterLocomotionComponent` 等11種）の `emplace` 呼び出しを `App::InitPlayer` から完全に撤去し、`App::InitPlayer` ではプレイヤー固有の `PlayerInputComponent` および `PlayerTag` のみを付与する構造へ単一化した。
+

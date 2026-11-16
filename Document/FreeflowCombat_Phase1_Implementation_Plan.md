@@ -29,17 +29,30 @@
 
 ### 2.1. レイヤー責務とデータ所有権 (Data Ownership)
 
-パイプラインの各層は明確な関心事の分離（Separation of Concerns）と単一書き込み権限（Single Writer Principle）に基づいて設計されている。
+パイプラインの各層は明確な関心事の分離（Separation of Concerns: SoC）と単一書き込み権限（Single Writer Principle）に基づいて設計されている。
 
-| レイヤー | 主要システム | 主な管理データ（Writer） | 役割・責務 |
+| レイヤー | 主要システム | 主な管理データ（Writer） | 存在意義と責務（ニュアンス） |
 |---|---|---|---|
-| **1. 入力層 (Input Layer)** | `PlayerInputSystem` | `PlayerInputComponent` | OS入力を抽象化し、移動軸と先行入力バッファに書き込む（ゲームロジック非依存）。 |
-| **2. 要求層 (Proposal Layer)** | `PlayerMovementSystem`<br/>`CombatSystem` | `LocomotionProposalComponent`<br/>`CombatRequestComponent` | 入力と視線方向から「プレイヤーが何をしたいか（移動/戦闘）」の要求を発行する（状態変更は行わない）。 |
-| **3. 状態調停層 (Arbitration Layer)** | `CharacterActionStateSystem` | `CharacterActionStateComponent` | 要求と現在状態から、次フレームで有効な全体状態（`ActionState`）を一元的に決定・調停する。 |
-| **4. 状態別実行層 (State Execution Layer)** | `LocomotionStateSystem`<br/>`AttackingStateSystem` | `CharacterActionResultComponent`<br/>`CharacterLocomotionComponent` | 確定した `ActionState` に合致するシステムのみが動作し、目標速度・目標旋回・再生アニメを結果コンポーネントに出力する。 |
-| **5. 結果反映層 (Action Applier Layer)** | `ActionApplierSystem` | `VelocityComponent`<br/>`TransformComponent` (旋回)<br/>`AnimatorSystem` | 結果コンポーネントを読み取り、物理コンポーネントやアニメーション再生（CrossFade）へ一括反映する。 |
-| **6. 物理積分層 (Physics Layer)** | `MovementSystem` | `TransformComponent` (位置) | 確定した速度に基づき位置を積分し（`position += velocity * dt`）、接地（`Y = 0`）を維持する。 |
-| **7. 描画層 (Rendering Layer)** | `RenderSystem`<br/>`CullingSystem` | GPU 定数バッファ | 静的プリミティブ（地面）およびスキニングモデル（プレイヤー）の PBR 描画を行う。 |
+| **1. 入力層 (Input Layer)** | `PlayerInputSystem` | `PlayerInputComponent` | **【ハードウェア入力の抽象化】**<br/>OS（Win32 RAWINPUT）のキー・マウス信号を、ゲームロジック非依存の正規化入力軸（`moveAxis`）および先行入力バッファ（`bufferAction`）に変換する。 |
+| **2. 要求層 (Proposal Layer)** | `PlayerMovementSystem`<br/>`CombatSystem` | `LocomotionProposalComponent`<br/>`CombatRequestComponent` | **【意図 (What) の生成・文脈結合】**<br/>カメラ視線方向や索敵ターゲットと入力を結合し、「ワールドでどう動きたいか」「誰を攻撃したいか」の意図を生成する。身体制約・硬直・受付判定（Can）は持たない。 |
+| **3. 状態調停層 (Arbitration Layer)** | `CharacterActionStateSystem` | `CharacterActionStateComponent` | **【可否 (Can) の一元的裁定と競合調停】**<br/>相反する要求と現在のキャラクター状態（硬直、`COMBO_QUEUE` 区間等）を突き合わせ、次フレームの全体状態（`ActionState`）と先行予約を一元的に裁定する。 |
+| **4. 状態別実行層 (State Execution Layer)** | `LocomotionStateSystem`<br/>`AttackingStateSystem` | `CharacterActionResultComponent`<br/>`CharacterLocomotionComponent` | **【状態固有ドメインロジックの実行】**<br/>確定した単一の `ActionState` のシステムのみが動作し、移動サブステート（Idle/Walk/Run）の決定、コンボ技の解決（COMBO_1 → COMBO_2）、目標速度・目標旋回・再生アニメを出力する。 |
+| **5. 結果反映層 (Action Applier Layer)** | `ActionApplierSystem` | `VelocityComponent`<br/>`TransformComponent` (旋回)<br/>`AnimatorSystem` | **【単一反映役 (Single Writer) / エンジンAPIへの適用】**<br/>実行層が出力した抽象結果を、物理速度のセット、Slerp によるクォータニオン旋回補間、アニメーションの CrossFade 切り替えなどの実体へ一括反映する。 |
+| **6. 物理積分層 (Physics Layer)** | `MovementSystem` | `TransformComponent` (位置) | **【時間積分と環境拘束の維持】**<br/>ゲームロジックから独立し、確定した速度から位置積分（`position += velocity * dt`）を行い、フロアクランプ（`Y = 0` 接地維持）や壁面衝突を解決する。 |
+| **7. 描画層 (Rendering Layer)** | `RenderSystem`<br/>`CullingSystem` | GPU 定数バッファ | **【視覚化とGPU描画】**<br/>視錐台カリングを経て、静的プリミティブ（地面）およびスキニングモデル（プレイヤー）の PBR 描画パイプラインを実行する。 |
+
+### 2.2. 要求・提案層と状態調停層の存在意義（What と Can の分離）
+
+本アーキテクチャにおいて「要求・提案層」と「状態調停層」を厳密に分離している理由は以下の通りである。
+
+1. **生入力からゲーム空間上の意図（What）へのセマンティック変換**:
+   * 入力層にある生データ（WASDキー押下など）を、カメラの水平基底ベクトルと合成して「3次元ワールド空間の移動ベクトル」に翻訳する（`PlayerMovementSystem`）。
+   * 単なるボタン入力を、周囲の敵の索敵・ロックオン候補と結合して「誰に対する攻撃意図か」に翻訳する（`CombatSystem`）。
+2. **多重入力源（プレイヤー・敵AI・通信同期）の抽象化**:
+   * 人間プレイヤー（`PlayerMovementSystem`）だけでなく、将来の敵NPC（`EnemyAIMovement`）や通信同期も全く同じ要求コンポーネントを出力先とする。調停層以降は「誰が要求したか」を気にせず一律に処理できる。
+3. **「何をしたいか (What)」と「今できるか (Can)」の境界分離**:
+   * 要求層（意思決定主）は「攻撃したい」「走りたい」という意図（What）のみを表明し、アニメーションの再生タイムラインやイベント区間（`COMBO_QUEUE` など）は見ない。
+   * 「今キャラクターがその要求を受け入れられるか（Can）」は、キャラクターの状態とアニメーション再生コンテキストを所有する状態調停層（`CharacterActionStateSystem`）が一元的に裁定し、先行入力予約や破棄を行う。これにより、アニメーション仕様の変更が入力・AIロジックへ波及（漏出）するのを防ぐ。
 
 ---
 
